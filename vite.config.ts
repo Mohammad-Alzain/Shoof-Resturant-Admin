@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => {
     host: true,
     // The API shares the site's origin when deployed; in dev /backend is forwarded to a restaurant host.
     proxy: {
-      "/backend": { target: process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221", changeOrigin: true, secure: false },
+      "/backend": { target: env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221", changeOrigin: true, secure: false },
     },
   },
   };
