@@ -19,6 +19,7 @@ export default function UsersPage() {
 
   return (
     <ResourcePage<IAdminUser>
+      permissionGroup="AdminUsers"
       title="team_users"
       api={usersApi}
       deleteLabel="fullName"

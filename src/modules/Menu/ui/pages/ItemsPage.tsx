@@ -1,3 +1,4 @@
+import { can } from "@/modules/Auth/core/can";
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,6 +46,7 @@ export default function ItemsPage() {
 
   return (
     <ResourcePage<IItem>
+      permissionGroup="MenuItems"
       title="items"
       api={itemsApi}
       deleteLabel="name"
@@ -90,7 +92,7 @@ export default function ItemsPage() {
               <Badge variant="secondary" appearance="light" size="md">{t("no_model")}</Badge>
             ),
         },
-        { header: "status", access: "isActive", Cell: (_c, _v, i: IItem) => <Switch checked={i.isActive} aria-label={t("active")} onCheckedChange={(on) => toggle(i, on)} /> },
+        { header: "status", access: "isActive", Cell: (_c, _v, i: IItem) => <Switch checked={i.isActive} disabled={!can("MenuItems.Edit")} aria-label={t("active")} onCheckedChange={(on) => toggle(i, on)} /> },
       ]}
       filters={[{ ...categoryPicker({ label: t("category") }) }, activeFilter(t)]}
       schema={() =>

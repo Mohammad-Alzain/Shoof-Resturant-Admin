@@ -1,3 +1,4 @@
+import { Can } from "@/components/common/Can";
 import { useState } from "react";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -240,10 +241,12 @@ export default function ThemesPage() {
           <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">{t("themes")}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">{t("themes_desc")}</p>
         </div>
-        <Button type="button" variant="primary" disabled={!restaurantId} onClick={() => NiceModal.show(ThemeEditor, { restaurantId })}>
-          <Plus />
-          {t("add_theme")}
-        </Button>
+        <Can permission="MenuThemes.Add">
+          <Button type="button" variant="primary" disabled={!restaurantId} onClick={() => NiceModal.show(ThemeEditor, { restaurantId })}>
+            <Plus />
+            {t("add_theme")}
+          </Button>
+        </Can>
       </header>
       {q.isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-56 rounded-2xl" />)}</div>
@@ -253,14 +256,14 @@ export default function ThemesPage() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {(q.data ?? []).map((th, i) => (
             <CardShell key={th.id} index={i} className={th.isActive ? "ring-2 ring-primary" : ""}
-              actions={<><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => NiceModal.show(ThemeEditor, { theme: th, restaurantId })}><Pencil className="size-4" /></Button><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(th)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></>}>
+              actions={<><Can permission="MenuThemes.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => NiceModal.show(ThemeEditor, { theme: th, restaurantId })}><Pencil className="size-4" /></Button></Can><Can permission="MenuThemes.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(th)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></Can></>}>
               <div className="p-4"><div className="origin-top scale-[0.8] sm:scale-100"><MiniSwatches th={th} /></div></div>
               <div className="mt-auto flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-3">
                 <span className="min-w-0">
                   <span className="block truncate font-semibold text-foreground">{th.name}</span>
                   <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">{th.themeMode === 1 ? <Moon className="size-3.5" /> : <Sun className="size-3.5" />}{t(th.themeMode === 1 ? "mode_dark" : "mode_light")}</span>
                 </span>
-                {th.isActive ? <Badge variant="success" appearance="light" size="md" className="gap-1"><Check className="size-3.5" />{t("active")}</Badge> : <Button type="button" variant="outline" size="sm" onClick={() => activate(th)}>{t("activate")}</Button>}
+                {th.isActive ? <Badge variant="success" appearance="light" size="md" className="gap-1"><Check className="size-3.5" />{t("active")}</Badge> : <Can permission="MenuThemes.Activate"><Button type="button" variant="outline" size="sm" onClick={() => activate(th)}>{t("activate")}</Button></Can>}
               </div>
             </CardShell>
           ))}

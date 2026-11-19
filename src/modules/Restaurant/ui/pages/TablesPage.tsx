@@ -1,3 +1,5 @@
+import { can } from "@/modules/Auth/core/can";
+import { Can } from "@/components/common/Can";
 import { useMemo, useState } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -115,10 +117,12 @@ export default function TablesPage() {
             <Printer />
             {t("print_all")}
           </Button>
-          <Button type="button" variant="primary" disabled={!rid} onClick={add}>
-            <Plus />
-            {t("add_table")}
-          </Button>
+          <Can permission="Tables.Add">
+            <Button type="button" variant="primary" disabled={!rid} onClick={add}>
+              <Plus />
+              {t("add_table")}
+            </Button>
+          </Can>
         </div>
       </header>
 
@@ -135,10 +139,12 @@ export default function TablesPage() {
             <Button type="button" variant="outline" size="sm" onClick={() => printSheet([{ label: t("general_qr"), image: general.imageUrl! }], restaurant?.name ?? "")}><Printer />{t("print")}</Button>
           </div>
         ) : (
-          <Button type="button" variant="primary" disabled={make.isPending || !rid} onClick={() => make.mutate(null)}>
-            {busy === "general" ? <Loader2 className="animate-spin" /> : <QrCode />}
-            {t("generate_qr")}
-          </Button>
+          <Can permission="QrCodes.Add">
+            <Button type="button" variant="primary" disabled={make.isPending || !rid} onClick={() => make.mutate(null)}>
+              {busy === "general" ? <Loader2 className="animate-spin" /> : <QrCode />}
+              {t("generate_qr")}
+            </Button>
+          </Can>
         )}
       </div>
 
@@ -152,24 +158,26 @@ export default function TablesPage() {
             const qr = qrOf.get(tb.id);
             return (
               <CardShell key={tb.id} index={i} active={tb.isActive}
-                actions={<><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => rename(tb)}><Pencil className="size-4" /></Button><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(tb)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></>}>
+                actions={<><Can permission="Tables.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => rename(tb)}><Pencil className="size-4" /></Button></Can><Can permission="Tables.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(tb)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></Can></>}>
                 <div className="flex flex-1 flex-col items-center gap-3 p-5">
                   {qr?.imageUrl && isSafeUrl(qr.imageUrl) ? <img src={qr.imageUrl} alt={tb.label} className="size-36 rounded-xl border border-border bg-white p-1.5" /> : <span className="grid size-36 place-items-center rounded-xl border border-dashed border-border text-muted-foreground"><QrCode className="size-9" /></span>}
                   <p className="font-display text-lg font-semibold text-foreground">{tb.label}</p>
                   {qr ? <Badge variant="success" appearance="light" size="sm">{t("has_qr")}</Badge> : <Badge variant="warning" appearance="light" size="sm">{t("no_qr")}</Badge>}
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
-                  <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={tb.isActive} onCheckedChange={(on) => toggle(tb, on)} aria-label={t("active")} />{t("active")}</label>
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={tb.isActive} disabled={!can("Tables.Edit")} onCheckedChange={(on) => toggle(tb, on)} aria-label={t("active")} />{t("active")}</label>
                   {qr?.imageUrl ? (
                     <span className="flex gap-1">
                       <Button type="button" variant="ghost" size="icon" aria-label={t("download")} onClick={() => download(qr.imageUrl!, tb.label)}><Download className="size-4" /></Button>
                       <Button type="button" variant="ghost" size="icon" aria-label={t("print")} onClick={() => printSheet([{ label: tb.label, image: qr.imageUrl! }], restaurant?.name ?? "")}><Printer className="size-4" /></Button>
                     </span>
                   ) : (
-                    <Button type="button" variant="outline" size="sm" disabled={make.isPending} onClick={() => make.mutate(tb.id)}>
-                      {busy === tb.id ? <Loader2 className="animate-spin" /> : <QrCode />}
-                      {t("generate_qr")}
-                    </Button>
+                    <Can permission="QrCodes.Add">
+                      <Button type="button" variant="outline" size="sm" disabled={make.isPending} onClick={() => make.mutate(tb.id)}>
+                        {busy === tb.id ? <Loader2 className="animate-spin" /> : <QrCode />}
+                        {t("generate_qr")}
+                      </Button>
+                    </Can>
                   )}
                 </div>
               </CardShell>

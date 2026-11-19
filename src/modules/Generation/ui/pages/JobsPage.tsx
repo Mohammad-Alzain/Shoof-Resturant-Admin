@@ -1,3 +1,4 @@
+import { Can } from "@/components/common/Can";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Ban, ExternalLink, Zap } from "lucide-react";
@@ -19,6 +20,7 @@ export default function JobsPage() {
 
   return (
     <ResourcePage<IJob>
+      permissionGroup="ModelGenerationJobs"
       title="generation_jobs"
       api={jobsApi}
       defaultParams={batch ? { batchId: batch } : undefined}
@@ -105,9 +107,11 @@ export default function JobsPage() {
       onView={(j) => navigate({ to: `/dashboard/menu/items/${j.menuItemId}` as never })}
       rowActions={(j) =>
         j.status === JobStatus.Pending ? (
-          <RowAction label={t("cancel_job")} tone="danger" onClick={() => cancel.mutate(j.id)}>
-            <Ban className="size-[17px]" />
-          </RowAction>
+          <Can permission="ModelGenerationJobs.Add">
+            <RowAction label={t("cancel_job")} tone="danger" onClick={() => cancel.mutate(j.id)}>
+              <Ban className="size-[17px]" />
+            </RowAction>
+          </Can>
         ) : (
           <RowAction label={t("open_item")} onClick={() => navigate({ to: `/dashboard/menu/items/${j.menuItemId}` as never })}>
             <ExternalLink className="size-[17px]" />

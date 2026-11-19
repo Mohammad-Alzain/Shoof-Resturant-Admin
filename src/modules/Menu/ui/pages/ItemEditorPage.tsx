@@ -1,3 +1,5 @@
+import { can } from "@/modules/Auth/core/can";
+import { Can } from "@/components/common/Can";
 import { useEffect, useMemo, useState } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { Link, useParams } from "@tanstack/react-router";
@@ -133,6 +135,7 @@ function DetailsTab({ item }: { item: IItem }) {
   const b = bi.data!;
   return (
     <div className="max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-card">
+      <fieldset disabled={!can("MenuItems.Edit")} className="m-0 min-w-0 border-0 p-0">
       <FormBuilder
         query={() => itemsApi.useUpdate(item.id)}
         initialState={{ nameEn: b.en.name, nameAr: b.ar.name, descriptionEn: b.en.description, descriptionAr: b.ar.description, price: item.price, currencyId: item.currencyId, displayOrder: item.displayOrder, isActive: item.isActive }}
@@ -162,6 +165,7 @@ function DetailsTab({ item }: { item: IItem }) {
           { name: "isActive", control: FieldTypes.switch, label: t("active"), helpertext: t("inactive_hidden_hint") },
         ]}
       />
+      </fieldset>
     </div>
   );
 }
@@ -211,11 +215,11 @@ function PhotosTab({ item }: { item: IItem }) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
         <span className="rounded-full bg-muted px-3 py-1 text-sm font-medium tabular-nums">{used} / 5</span>
-        <FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload_photo")} busy={upload.isPending} disabled={full} onPick={(f) => upload.mutate(f)} />
-        <Button type="button" variant="primary" disabled={full || noQuota || gen.isPending} onClick={() => gen.mutate()}>
+        <Can permission="MenuItems.Edit"><FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload_photo")} busy={upload.isPending} disabled={full} onPick={(f) => upload.mutate(f)} /></Can>
+        <Can permission="ModelGenerationJobs.Add"><Button type="button" variant="primary" disabled={full || noQuota || gen.isPending} onClick={() => gen.mutate()}>
           {gen.isPending ? <Loader2 className="animate-spin" /> : <WandSparkles />}
           {t("generate_ai_photo")}
-        </Button>
+        </Button></Can>
         {full && <span className="text-xs text-muted-foreground">{t("photos_limit")}</span>}
         <QuotaStrip compact className="ms-auto" />
       </div>
@@ -235,12 +239,12 @@ function PhotosTab({ item }: { item: IItem }) {
                 </span>
               </figcaption>
               <div className="absolute end-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover/ph:opacity-100 pointer-coarse:opacity-100">
-                <button type="button" aria-label={t("create_variant")} title={t("create_variant")} disabled={full || noQuota} onClick={() => variant(im.id)} className="grid size-8 place-items-center rounded-lg bg-card/95 text-foreground shadow-sm hover:bg-accent disabled:opacity-40">
+                <Can permission="ModelGenerationJobs.Add"><button type="button" aria-label={t("create_variant")} title={t("create_variant")} disabled={full || noQuota} onClick={() => variant(im.id)} className="grid size-8 place-items-center rounded-lg bg-card/95 text-foreground shadow-sm hover:bg-accent disabled:opacity-40">
                   <Sparkles className="size-4" />
-                </button>
-                <button type="button" aria-label={t("delete")} onClick={() => remove(im.id)} className="grid size-8 place-items-center rounded-lg bg-card/95 text-destructive shadow-sm hover:bg-destructive/10">
+                </button></Can>
+                <Can permission="MenuItems.Edit"><button type="button" aria-label={t("delete")} onClick={() => remove(im.id)} className="grid size-8 place-items-center rounded-lg bg-card/95 text-destructive shadow-sm hover:bg-destructive/10">
                   <Trash2 className="size-4" />
-                </button>
+                </button></Can>
               </div>
             </figure>
           ))}
@@ -300,19 +304,19 @@ function IngredientsTab({ item }: { item: IItem }) {
             ))}
           </select>
         </label>
-        <Button type="button" variant="primary" disabled={!pick || attach.isPending} onClick={() => attach.mutate(pick)}>
+        <Can permission="MenuItemIngredients.Add"><Button type="button" variant="primary" disabled={!pick || attach.isPending} onClick={() => attach.mutate(pick)}>
           <Plus />
           {t("add")}
-        </Button>
+        </Button></Can>
         <span className="mx-1 hidden h-8 w-px bg-border sm:block" aria-hidden />
         <label className="min-w-44 flex-1 flex flex-col gap-2 text-xs font-medium text-muted-foreground">
           {t("new_ingredient")}
           <Input value={fresh} onChange={(e) => setFresh(e.target.value)} maxLength={150} placeholder={t("name_en")} className="h-[42px]" />
         </label>
-        <Button type="button" variant="outline" disabled={!fresh.trim() || create.isPending} onClick={() => create.mutate(fresh.trim())}>
+        <Can permission="Ingredients.Add"><Button type="button" variant="outline" disabled={!fresh.trim() || create.isPending} onClick={() => create.mutate(fresh.trim())}>
           {create.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
           {t("create_and_add")}
-        </Button>
+        </Button></Can>
       </div>
 
       {(attached.data ?? []).length === 0 ? (
@@ -324,10 +328,10 @@ function IngredientsTab({ item }: { item: IItem }) {
               <span className="min-w-32 flex-1 font-medium text-foreground">{a.ingredientName}</span>
               <Input defaultValue={a.note ?? ""} placeholder={t("ingredient_note")} maxLength={200} onBlur={(e) => e.target.value !== (a.note ?? "") && patch.mutate({ id: a.id, note: strOrNull(e.target.value), isRemovable: a.isRemovable })} className="h-9 w-48" />
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Switch checked={a.isRemovable} onCheckedChange={(on) => patch.mutate({ id: a.id, note: a.note ?? null, isRemovable: on })} aria-label={t("removable")} />
+                <Switch checked={a.isRemovable} disabled={!can("MenuItemIngredients.Edit")} onCheckedChange={(on) => patch.mutate({ id: a.id, note: a.note ?? null, isRemovable: on })} aria-label={t("removable")} />
                 {t("removable")}
               </label>
-              <Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => detach.mutate(a.id)} className="hover:text-destructive">
+              <Button type="button" variant="ghost" size="icon" aria-label={t("delete")} disabled={!can("MenuItemIngredients.Delete")} onClick={() => detach.mutate(a.id)} className="hover:text-destructive">
                 <Trash2 className="size-4" />
               </Button>
             </li>
@@ -388,10 +392,10 @@ function ModelTab({ item }: { item: IItem }) {
             <Badge variant="secondary" appearance="light" size="md">{active.sourceType === 1 ? t("model_manual") : t("model_ai")}</Badge>
             <span className="flex items-center gap-2">
               <label className="flex items-center gap-1.5 text-muted-foreground">
-                <Switch checked={active.isActive} onCheckedChange={(on) => model3dApi.update({ id: active.id, body: { glbUrl: active.glbUrl, usdzUrl: active.usdzUrl, thumbnailUrl: active.thumbnailUrl, isActive: on } }).then(refresh)} aria-label={t("active")} />
+                <Switch checked={active.isActive} disabled={!can("MenuItem3DModels.Edit")} onCheckedChange={(on) => model3dApi.update({ id: active.id, body: { glbUrl: active.glbUrl, usdzUrl: active.usdzUrl, thumbnailUrl: active.thumbnailUrl, isActive: on } }).then(refresh)} aria-label={t("active")} />
                 {t("shown_on_menu")}
               </label>
-              <button type="button" onClick={async () => { if (await confirmAction({ title: t("delete_confirm_title"), description: t("delete_irreversible"), confirmText: t("delete"), danger: true })) { await model3dApi.remove(active.id); refresh(); } }} className="text-destructive hover:underline">{t("delete")}</button>
+              <Can permission="MenuItem3DModels.Delete"><button type="button" onClick={async () => { if (await confirmAction({ title: t("delete_confirm_title"), description: t("delete_irreversible"), confirmText: t("delete"), danger: true })) { await model3dApi.remove(active.id); refresh(); } }} className="text-destructive hover:underline">{t("delete")}</button></Can>
             </span>
           </div>
         )}
@@ -410,14 +414,14 @@ function ModelTab({ item }: { item: IItem }) {
           )}
           {generate.isError && <p role="alert" className="text-xs text-destructive">{t("generate_blocked")}</p>}
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="primary" disabled={busy || noQuota || generate.isPending} onClick={() => run(false)}>
+            <Can permission="ModelGenerationJobs.Add"><Button type="button" variant="primary" disabled={busy || noQuota || generate.isPending} onClick={() => run(false)}>
               {generate.isPending || busy ? <Loader2 className="animate-spin" /> : <Sparkles />}
               {active ? t("regenerate") : t("generate_model")}
-            </Button>
-            <Button type="button" variant="outline" disabled={busy || noQuota || generate.isPending} onClick={() => run(true)} title={t("force_new_hint")}>
+            </Button></Can>
+            <Can permission="ModelGenerationJobs.Add"><Button type="button" variant="outline" disabled={busy || noQuota || generate.isPending} onClick={() => run(true)} title={t("force_new_hint")}>
               <RefreshCw />
               {t("force_new")}
-            </Button>
+            </Button></Can>
           </div>
           {active && <p className="text-xs text-muted-foreground">{t("regen_locked_hint")}</p>}
         </div>

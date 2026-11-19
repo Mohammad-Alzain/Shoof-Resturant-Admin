@@ -64,6 +64,14 @@ export function permissionsFromToken(token?: string): string[] | null {
   return [...new Set(found.flatMap(([, v]) => normalizePermissions(v) ?? []))];
 }
 
+/** Role names from the JWT (`role` / `roles` / the long ClaimTypes.Role URI). Roles are never read back from local storage. */
+export function rolesFromToken(token?: string): string[] {
+  const payload = jwtPayload(token);
+  if (!payload) return [];
+  const found = Object.entries(payload).filter(([k]) => /(^|[/.])roles?$/i.test(k));
+  return [...new Set(found.flatMap(([, v]) => (Array.isArray(v) ? v : [v]).filter((x): x is string => typeof x === "string")))];
+}
+
 /** True when `have` satisfies `need`; `need` may list alternatives (any one is enough). */
 export const allows = (have: string[], need?: string | string[]): boolean => {
   if (!need || have.includes("*")) return true; // nothing required, or everything granted

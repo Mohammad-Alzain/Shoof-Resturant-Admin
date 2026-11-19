@@ -1,3 +1,4 @@
+import { Can } from "@/components/common/Can";
 import NiceModal from "@ebay/nice-modal-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -45,6 +46,7 @@ export default function IngredientsPage() {
 
   return (
     <ResourcePage<IIngredient>
+      permissionGroup="Ingredients"
       title="ingredients"
       api={ingredientsApi}
       deleteLabel="name"
@@ -58,9 +60,11 @@ export default function IngredientsPage() {
       toBody={body}
       fields={() => fields(t)}
       rowActions={(row) => (
-        <RowAction label={t("edit")} onClick={() => edit(row)}>
-          <Pencil className="size-[17px]" />
-        </RowAction>
+        <Can permission="Ingredients.Edit">
+          <RowAction label={t("edit")} onClick={() => edit(row)}>
+            <Pencil className="size-[17px]" />
+          </RowAction>
+        </Can>
       )}
     />
   );

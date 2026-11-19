@@ -1,3 +1,5 @@
+import { can } from "@/modules/Auth/core/can";
+import { Can } from "@/components/common/Can";
 import { useMemo } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -133,10 +135,10 @@ export default function CategoriesPage() {
   const Row = ({ c, list, i, sub }: { c: ICategory; list: ICategory[]; i: number; sub?: boolean }) => (
     <div className={cn("group/row flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/40", sub && "ps-10")}>
       <span className="flex flex-col opacity-40 transition-opacity group-hover/row:opacity-100">
-        <button type="button" aria-label={t("move_up")} disabled={i === 0} onClick={() => move(list, i, -1)} className="rounded p-0.5 hover:bg-accent disabled:opacity-30">
+        <button type="button" aria-label={t("move_up")} disabled={i === 0 || !can("MenuCategories.Edit")} onClick={() => move(list, i, -1)} className="rounded p-0.5 hover:bg-accent disabled:opacity-30">
           <ChevronUp className="size-3.5" />
         </button>
-        <button type="button" aria-label={t("move_down")} disabled={i === list.length - 1} onClick={() => move(list, i, 1)} className="rounded p-0.5 hover:bg-accent disabled:opacity-30">
+        <button type="button" aria-label={t("move_down")} disabled={i === list.length - 1 || !can("MenuCategories.Edit")} onClick={() => move(list, i, 1)} className="rounded p-0.5 hover:bg-accent disabled:opacity-30">
           <ChevronDown className="size-3.5" />
         </button>
       </span>
@@ -146,20 +148,22 @@ export default function CategoriesPage() {
         {c.description && <span className="block truncate text-xs text-muted-foreground">{c.description}</span>}
       </span>
       <span className="hidden shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground sm:inline">{t("n_items", { n: counts.data?.get(c.id) ?? 0 })}</span>
-      <Switch checked={c.isActive} aria-label={t("active")} onCheckedChange={(on) => patch.mutate({ c, changes: { isActive: on } })} />
+      <Switch checked={c.isActive} disabled={!can("MenuCategories.Edit")} aria-label={t("active")} onCheckedChange={(on) => patch.mutate({ c, changes: { isActive: on } })} />
       <span className="flex shrink-0 items-center gap-0.5">
         {!sub && (
-          <Button type="button" variant="ghost" size="sm" onClick={() => open(undefined, c)} className="gap-1 text-xs text-primary">
-            <Plus className="size-3.5" />
-            {t("add_subcategory")}
-          </Button>
+          <Can permission="MenuCategories.Add">
+            <Button type="button" variant="ghost" size="sm" onClick={() => open(undefined, c)} className="gap-1 text-xs text-primary">
+              <Plus className="size-3.5" />
+              {t("add_subcategory")}
+            </Button>
+          </Can>
         )}
-        <Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => open(c)}>
+        <Can permission="MenuCategories.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => open(c)}>
           <Pencil className="size-4" />
-        </Button>
-        <Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(c)} className="hover:text-destructive">
+        </Button></Can>
+        <Can permission="MenuCategories.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(c)} className="hover:text-destructive">
           <Trash2 className="size-4" />
-        </Button>
+        </Button></Can>
       </span>
     </div>
   );
@@ -171,10 +175,12 @@ export default function CategoriesPage() {
           <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">{t("categories")}</h1>
           <p className="text-sm text-muted-foreground">{t("categories_desc")}</p>
         </div>
-        <Button type="button" variant="primary" onClick={() => open()} disabled={!restaurantId}>
-          <Plus />
-          {t("add_category")}
-        </Button>
+        <Can permission="MenuCategories.Add">
+          <Button type="button" variant="primary" onClick={() => open()} disabled={!restaurantId}>
+            <Plus />
+            {t("add_category")}
+          </Button>
+        </Can>
       </header>
 
       {cats.isLoading ? (
@@ -184,7 +190,7 @@ export default function CategoriesPage() {
           ))}
         </div>
       ) : parents.length === 0 ? (
-        <EmptyState icon={FolderTree} title={t("no_categories")} hint={t("no_categories_hint")} action={<Button variant="primary" onClick={() => open()}>{t("add_category")}</Button>} />
+        <EmptyState icon={FolderTree} title={t("no_categories")} hint={t("no_categories_hint")} action={<Can permission="MenuCategories.Add"><Button variant="primary" onClick={() => open()}>{t("add_category")}</Button></Can>} />
       ) : (
         <div className="space-y-3">
           {parents.map((p, i) => {

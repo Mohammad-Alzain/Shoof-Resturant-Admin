@@ -17,8 +17,9 @@ const getAuth = (): IProfile | undefined => {
   try {
     const auth: IProfile = JSON.parse(lsValue) as IProfile;
     if (auth) {
-      // You can easily check auth_token expiration also
-      return auth;
+      // What the user may do is never read back from here: anyone can edit local storage. It is re-resolved from the
+      // signed token and the API on every load (see AuthStore.fetchProfile).
+      return { ...auth, permissions: null, roles: [] };
     }
   } catch (error) {
     console.error("AUTH LOCAL STORAGE PARSE ERROR", error);
@@ -31,7 +32,11 @@ const setAuth = (auth: IProfile | undefined) => {
   }
 
   try {
-    const lsValue = JSON.stringify({ ...auth });
+    // Permissions and roles stay in memory only (see getAuth).
+    const persisted: Partial<IProfile> = { ...auth };
+    delete persisted.permissions;
+    delete persisted.roles;
+    const lsValue = JSON.stringify(persisted);
     localStorage.setItem(AUTH_LOCAL_STORAGE_KEY, lsValue);
   } catch (error) {
     console.error("AUTH LOCAL STORAGE SAVE ERROR", error);

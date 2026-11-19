@@ -1,3 +1,4 @@
+import { Can } from "@/components/common/Can";
 import NiceModal from "@ebay/nice-modal-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -65,10 +66,12 @@ export default function SocialPage() {
           <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">{t("social_links")}</h1>
           <p className="text-sm text-muted-foreground">{t("social_desc")}</p>
         </div>
-        <Button type="button" variant="primary" disabled={free.length === 0 || !restaurantId} onClick={add}>
-          <Plus />
-          {t("add_social")}
-        </Button>
+        <Can permission="RestaurantSocialLinks.Add">
+          <Button type="button" variant="primary" disabled={free.length === 0 || !restaurantId} onClick={add}>
+            <Plus />
+            {t("add_social")}
+          </Button>
+        </Can>
       </header>
       {q.isLoading ? (
         <Skeleton className="h-40 rounded-2xl" />
@@ -89,8 +92,8 @@ export default function SocialPage() {
                     <span dir="ltr" className="block truncate text-start text-xs text-muted-foreground">{l.url}</span>
                   )}
                 </span>
-                <Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => edit(l)}><Pencil className="size-4" /></Button>
-                <Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(l)} className="hover:text-destructive"><Trash2 className="size-4" /></Button>
+                <Can permission="RestaurantSocialLinks.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => edit(l)}><Pencil className="size-4" /></Button></Can>
+                <Can permission="RestaurantSocialLinks.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(l)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></Can>
               </li>
             );
           })}

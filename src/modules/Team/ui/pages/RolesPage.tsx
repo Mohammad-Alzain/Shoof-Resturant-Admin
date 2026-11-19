@@ -1,3 +1,4 @@
+import { Can } from "@/components/common/Can";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -119,7 +120,7 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
               <p className="text-xs text-muted-foreground">{t("n_of_perms", { n: perms.size, total })}</p>
             </div>
           </div>
-          {role && <Button type="button" variant="ghost" size="sm" onClick={remove} className="text-muted-foreground hover:text-destructive"><Trash2 />{t("delete")}</Button>}
+          {role && <Can permission="Roles.Delete"><Button type="button" variant="ghost" size="sm" onClick={remove} className="text-muted-foreground hover:text-destructive"><Trash2 />{t("delete")}</Button></Can>}
         </div>
         {isOwner && <p className="flex items-start gap-2 rounded-xl bg-warning/10 p-3 text-sm"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />{t("owner_role_warning")}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -188,6 +189,7 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
         )}
       </div>
 
+      <Can permission={role ? "Roles.Edit" : "Roles.Add"}>
       <div className="sticky bottom-0 flex items-center justify-between gap-2 rounded-b-2xl border-t border-border bg-card/95 px-5 py-3 backdrop-blur-sm">
         <span className={cn("text-xs", dirty ? "font-medium text-warning" : "text-muted-foreground")}>{dirty ? t("unsaved_changes") : t("all_saved")}</span>
         <span className="flex gap-2">
@@ -195,6 +197,7 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
           <Button type="button" variant="primary" disabled={!dirty || !name.trim() || perms.size === 0 || save.isPending} onClick={() => save.mutate()}>{save.isPending && <Loader2 className="animate-spin" />}{t("save")}</Button>
         </span>
       </div>
+      </Can>
     </div>
   );
 }
@@ -226,7 +229,7 @@ export default function RolesPage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-[19rem_minmax(0,1fr)]">
         <aside className="space-y-2 lg:sticky lg:top-4">
-          <Button type="button" variant="primary" className="w-full" onClick={() => choose("new")}><Plus />{t("add_role")}</Button>
+          <Can permission="Roles.Add"><Button type="button" variant="primary" className="w-full" onClick={() => choose("new")}><Plus />{t("add_role")}</Button></Can>
           {list.isLoading ? (
             [0, 1, 2].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)
           ) : roles.length === 0 && currentId !== "new" ? (

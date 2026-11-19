@@ -94,6 +94,8 @@ function App() {
       }),
   );
   const [router, setRouter] = useState<any>(null);
+  // A new route tree (the permissions arrived or changed) needs a freshly mounted RouterProvider: swapping routers in place renders nothing.
+  const [routerVersion, setRouterVersion] = useState(0);
 
   // Signing out must not leave the previous operator's data in memory for the next sign-in.
   useEffect(
@@ -126,6 +128,7 @@ function App() {
       DashboardRoute.addChildren(PrivateRoutes(DashboardRoute, permissions)),
     ]);
 
+    setRouterVersion((v) => v + 1);
     setRouter(
       createRouter({
         routeTree,
@@ -156,7 +159,7 @@ function App() {
               <AuthInit>
                 <Toaster />
                 {/* <Toaster reverseOrder={false} /> */}
-                {notFound ? <NotFoundPage /> : <InnerApp router={router} />}
+                {notFound ? <NotFoundPage /> : <InnerApp key={routerVersion} router={router} />}
               </AuthInit>
             </DrawerProvider>
           </NiceModal.Provider>

@@ -1,3 +1,4 @@
+import { useHasPermission } from "@/hooks/useHasPermission";
 import { useTranslation } from "react-i18next";
 import NiceModal from "@ebay/nice-modal-react";
 import DataTable from "@/components/common/DataTable";
@@ -24,6 +25,8 @@ export interface ResourcePageProps<T extends { id: string | number }> {
   /** Form values → request body. */
   toBody?: (values: any, row?: T) => unknown;
   filters?: Filter[];
+  /** Permission group (e.g. "MenuItems"): add / edit / delete are offered only with `Group.Add` / `.Edit` / `.Delete`. */
+  permissionGroup?: string;
   canCreate?: boolean;
   canEdit?: (row: T) => boolean;
   canDelete?: (row: T) => boolean;
@@ -68,6 +71,8 @@ export function ResourcePage<T extends { id: string | number }>(props: ResourceP
   const { t } = useTranslation();
   const { api } = props;
   const remove = api.useRemove();
+  const { hasPermission } = useHasPermission();
+  const can = (action: string) => !props.permissionGroup || hasPermission(`${props.permissionGroup}.${action}`);
 
   const openForm = (row?: T) =>
     NiceModal.show(FormModal, {
@@ -94,15 +99,15 @@ export function ResourcePage<T extends { id: string | number }>(props: ResourceP
           allowSearch
           filterSearchParamName="searchTerm"
           allowSorts={false}
-          allowCreate={() => props.canCreate !== false}
+          allowCreate={() => props.canCreate !== false && can("Add")}
           tableMode={props.renderCard ? "cards" : undefined}
           renderCard={props.renderCard as never}
           cardGridClassName={props.cardGridClassName}
-          createText={props.canCreate === false ? undefined : `add_${props.title}`}
+          createText={props.canCreate === false || !can("Add") ? undefined : `add_${props.title}`}
           createAction={() => openForm()}
-          allowEdit={(row) => (props.canEdit ? props.canEdit(row) : true)}
+          allowEdit={(row) => can("Edit") && (props.canEdit ? props.canEdit(row) : true)}
           editAction={(row) => openForm(row)}
-          allowDelete={(row) => (props.canDelete ? props.canDelete(row) : true)}
+          allowDelete={(row) => can("Delete") && (props.canDelete ? props.canDelete(row) : true)}
           deleteQuery={remove}
           textDeleteAccessor={props.deleteLabel}
           filters={props.filters}

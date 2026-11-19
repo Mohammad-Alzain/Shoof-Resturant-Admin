@@ -1,3 +1,5 @@
+import { can } from "@/modules/Auth/core/can";
+import { Can } from "@/components/common/Can";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Clock, Globe2, Store } from "lucide-react";
@@ -51,7 +53,9 @@ export default function RestaurantProfilePage() {
             <span className="mx-auto grid size-28 place-items-center rounded-3xl bg-terracotta font-display text-4xl font-bold text-white">{restaurant.name.charAt(0).toUpperCase()}</span>
           )}
           <p className="font-display text-lg font-semibold text-foreground">{restaurant.name}</p>
+          <Can permission="Restaurants.Edit">
           <FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload_logo")} onPick={(f) => uploadRestaurantLogo(restaurant.id, f).then(() => { refresh(); toast.success(t("success_update")); })} className="w-full" />
+          </Can>
           <dl className="space-y-2.5 border-t border-border pt-4 text-start text-sm">
             <div className="flex items-center gap-2 text-muted-foreground"><Globe2 className="size-4" /><span className="text-foreground">{restaurant.countryName ?? "—"}</span></div>
             <div className="flex items-center gap-2 text-muted-foreground"><Clock className="size-4" /><span dir="ltr" className="text-foreground">{zone ?? "—"}</span></div>
@@ -60,6 +64,7 @@ export default function RestaurantProfilePage() {
         </aside>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <fieldset disabled={!can("Restaurants.Edit")} className="m-0 min-w-0 border-0 p-0">
           <FormBuilder
             query={() => save}
             initialState={{ nameEn: bi.data!.en.name, nameAr: bi.data!.ar.name, currencyId: restaurant.currencyId, countryId: restaurant.countryId }}
@@ -77,6 +82,7 @@ export default function RestaurantProfilePage() {
               { name: "countryId", control: FieldTypes.select, label: t("country"), required: true, helpertext: t("country_sets_time_zone"), options: countries.data.map((c) => ({ value: c.id, label: ar && c.nameAr ? c.nameAr : c.nameEn })) },
             ]}
           />
+          </fieldset>
         </div>
       </div>
     </section>

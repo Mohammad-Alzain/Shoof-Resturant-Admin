@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { getAuth, removeAuth, setAuth } from "@/modules/Auth/core/utils/AuthHelpers";
 import { GetMeApi, LogoutApi, normalizeSession } from "@/modules/Auth/core/api/api-auth";
 import type { IProfile, ITokenReply } from "@/modules/Auth/core/types";
-import { normalizePermissions, permissionsFromToken } from "@/modules/Auth/core/permissions";
+import { normalizePermissions, permissionsFromToken, rolesFromToken } from "@/modules/Auth/core/permissions";
 import { ALL_PERMISSIONS, resolvePermissions } from "@/modules/Team/core/api";
 
 export interface AuthState {
@@ -26,7 +26,8 @@ export interface AuthState {
 const useAuthStore = create<AuthState>((set, get) => ({
   auth: getAuth(),
   permissions: [],
-  permissionsIsFetching: false,
+  // With a stored session the menu is withheld until permissions are resolved again: they are never stored.
+  permissionsIsFetching: Boolean(getAuth()?.token),
 
   saveAuth: (auth) => {
     if (auth) setAuth(auth);
@@ -74,10 +75,13 @@ const useAuthStore = create<AuthState>((set, get) => ({
     try {
       // The JWT or the profile may carry the permissions outright; otherwise they come from the user's roles.
       const carried = permissionsFromToken(get().auth?.token) ?? normalizePermissions(profileExtra?.permissions);
-      set({ permissions: carried ?? (await resolvePermissions(get().auth?.roles ?? [])) });
+      // Roles come from this session's login reply, or from the signed token after a reload (never from storage).
+      const roles = get().auth?.roles?.length ? get().auth!.roles : rolesFromToken(get().auth?.token);
+      const resolved = carried ?? (await resolvePermissions(roles));
+      set({ permissions: Object.freeze([...resolved]) as string[] });
     } catch {
       // Roles could not be read (e.g. no `Roles.View`): show everything and let the server's 403 decide.
-      set({ permissions: [ALL_PERMISSIONS] });
+      set({ permissions: Object.freeze([ALL_PERMISSIONS]) as string[] });
     } finally {
       set({ permissionsIsFetching: false });
     }
