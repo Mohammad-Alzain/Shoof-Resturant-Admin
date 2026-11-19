@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useAccessStore } from "./access";
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
 import i18n, { getLanguage } from "@/Translation/i18n";
@@ -95,6 +96,7 @@ const refreshSession = (): Promise<string | null> => {
   return refreshing;
 };
 
+let lastDenied = 0;
 const text = (value: unknown) => (typeof value === "string" ? value : "");
 
 httpClient.interceptors.response.use(
@@ -128,7 +130,13 @@ httpClient.interceptors.response.use(
     if (!config?.silent && !axios.isCancel(error)) {
       const { message } = parseApiError(error);
       if (status === 429) toast.error(i18n.t("too_many_requests"));
-      else if (status === 403) toast.error(i18n.t("no_permission"));
+      else if (status === 403) {
+        const code = String(error.response?.headers?.["x-error-code"] ?? "");
+        useAccessStore.getState().record(code, body);
+        // Everything is refused at once when the role is empty: one toast, not one per request.
+        if (Date.now() - lastDenied > 5000) toast.error(code ? i18n.t(`access_${code}`, { defaultValue: body || i18n.t("no_permission") }) : i18n.t("no_permission"));
+        lastDenied = Date.now();
+      }
       else if (status === 404) toast.error(i18n.t("item_not_found"));
       else if (status && status >= 500) toast.error(i18n.t("unexpected_error"));
       else if (status === 400 && message && !/^application\/problem\+json/.test(

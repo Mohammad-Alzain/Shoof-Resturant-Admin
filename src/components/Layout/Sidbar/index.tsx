@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { AppSidebar } from "./app-sidebar";
 import Header from "./Header";
+import AccessBanner from "../AccessBanner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 /** Each page eases in from slightly below; the shell (sidebar, header) never re-animates. */
@@ -33,6 +34,7 @@ function Layout() {
         <Header />
         <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
           <div className="mx-auto w-full max-w-[1600px] p-4 md:p-6 lg:p-8">
+            <AccessBanner />
             <AnimatedOutlet />
           </div>
         </main>
