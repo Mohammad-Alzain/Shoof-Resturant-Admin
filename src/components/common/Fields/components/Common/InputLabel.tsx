@@ -31,7 +31,7 @@ function InputLabel(props: props) {
         className={
           props?.className
             ? props.className
-            : "form-label  dark:text-gray-300 flex  capitalize  items-center text-gray-700 mb-1 text-sm"
+            : "form-label  dark:text-gray-300 flex  capitalize  items-center text-gray-700 mb-2 text-sm"
         }
       >
         <>

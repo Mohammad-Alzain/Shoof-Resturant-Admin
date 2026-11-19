@@ -47,7 +47,7 @@ const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 function ColorField({ label, value, onChange }: { label: string; value?: string | null; onChange: (v: string) => void }) {
   const ok = !value || HEX.test(value);
   return (
-    <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+    <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">
       {label}
       <span className="flex items-center gap-2">
         <input type="color" value={value && HEX.test(value) && value.length === 7 ? value : "#000000"} onChange={(e) => onChange(e.target.value.toUpperCase())} aria-label={label} className="size-10 shrink-0 cursor-pointer rounded-lg border border-input bg-background p-0.5" />
@@ -59,7 +59,7 @@ function ColorField({ label, value, onChange }: { label: string; value?: string 
 
 function FontField({ label, value, onChange }: { label: string; value?: string | null; onChange: (v: string) => void }) {
   return (
-    <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+    <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">
       {label}
       <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="block h-10 w-full rounded-md border border-input bg-background px-2.5 text-sm text-foreground">
         {FONTS.map((f) => (
@@ -145,11 +145,11 @@ const ThemeEditor = NiceModal.create(({ theme, restaurantId }: { theme?: ITheme;
         <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_21rem]">
           <div className="min-h-0 space-y-4 overflow-y-auto px-6 py-5">
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+              <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">
                 {t("name")} *
                 <Input value={th.name ?? ""} maxLength={200} onChange={(e) => set("name")(e.target.value)} className="h-10" />
               </label>
-              <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
+              <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">
                 {t("theme_mode")}
                 <select disabled={!!theme} value={th.themeMode} onChange={(e) => set("themeMode")(Number(e.target.value))} className="block h-10 w-full rounded-md border border-input bg-background px-2.5 text-sm text-foreground disabled:opacity-60">
                   {THEME_MODES.map((m, i) => <option key={m} value={i}>{t(`mode_${m.toLowerCase()}`)}</option>)}
@@ -158,17 +158,17 @@ const ThemeEditor = NiceModal.create(({ theme, restaurantId }: { theme?: ITheme;
             </div>
             <Group title={t("theme_menu")}>
               <ColorField label={t("bg_color")} value={th.menuBackgroundColor} onChange={set("menuBackgroundColor")} />
-              <div className="space-y-1.5 text-xs font-medium text-muted-foreground">{t("bg_image")}<div><FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload")} onPick={img("background-image")} size="sm" /></div></div>
+              <div className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("bg_image")}<div><FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload")} onPick={img("background-image")} size="sm" /></div></div>
             </Group>
             <Group title={t("theme_header")}>
               <ColorField label={t("bg_color")} value={th.headerBackgroundColor} onChange={set("headerBackgroundColor")} />
               <ColorField label={t("text_color")} value={th.headerTextColor} onChange={set("headerTextColor")} />
-              <label className="space-y-1.5 text-xs font-medium text-muted-foreground">{t("logo_position")}
+              <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("logo_position")}
                 <select value={th.headerLogoPosition} onChange={(e) => set("headerLogoPosition")(Number(e.target.value))} className="block h-10 w-full rounded-md border border-input bg-background px-2.5 text-sm text-foreground">
                   {LOGO_POSITIONS.map((p, i) => <option key={p} value={i}>{t(`pos_${p.toLowerCase()}`)}</option>)}
                 </select>
               </label>
-              <div className="space-y-1.5 text-xs font-medium text-muted-foreground">{t("header_logo")}<div><FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload")} onPick={img("header-logo")} size="sm" /></div></div>
+              <div className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("header_logo")}<div><FilePickButton accept=".jpg,.jpeg,.png,.webp" label={t("upload")} onPick={img("header-logo")} size="sm" /></div></div>
             </Group>
             <Group title={t("theme_footer")}>
               <ColorField label={t("bg_color")} value={th.footerBackgroundColor} onChange={set("footerBackgroundColor")} />
@@ -191,7 +191,7 @@ const ThemeEditor = NiceModal.create(({ theme, restaurantId }: { theme?: ITheme;
               <FontField label={t("category")} value={th.categoryFontFamily} onChange={set("categoryFontFamily")} />
               <FontField label={t("subcategory")} value={th.subCategoryFontFamily} onChange={set("subCategoryFontFamily")} />
               <FontField label={t("item")} value={th.itemFontFamily} onChange={set("itemFontFamily")} />
-              <label className="space-y-1.5 text-xs font-medium text-muted-foreground sm:col-span-2">{t("page_transition")}
+              <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground sm:col-span-2">{t("page_transition")}
                 <select value={th.pageTransitionEffect} onChange={(e) => set("pageTransitionEffect")(Number(e.target.value))} className="block h-10 w-full rounded-md border border-input bg-background px-2.5 text-sm text-foreground">
                   {TRANSITIONS.map((p, i) => <option key={p} value={i}>{t(`trans_${p.toLowerCase()}`)}</option>)}
                 </select>

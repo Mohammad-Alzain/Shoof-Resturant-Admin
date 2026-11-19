@@ -291,7 +291,7 @@ function IngredientsTab({ item }: { item: IItem }) {
   return (
     <div className="max-w-3xl space-y-5">
       <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-        <label className="min-w-52 flex-1 space-y-1.5 text-xs font-medium text-muted-foreground">
+        <label className="min-w-52 flex-1 flex flex-col gap-2 text-xs font-medium text-muted-foreground">
           {t("add_from_library")}
           <select value={pick} onChange={(e) => setPick(e.target.value)} className="block h-[42px] w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">
             <option value="">{t("select")}</option>
@@ -305,7 +305,7 @@ function IngredientsTab({ item }: { item: IItem }) {
           {t("add")}
         </Button>
         <span className="mx-1 hidden h-8 w-px bg-border sm:block" aria-hidden />
-        <label className="min-w-44 flex-1 space-y-1.5 text-xs font-medium text-muted-foreground">
+        <label className="min-w-44 flex-1 flex flex-col gap-2 text-xs font-medium text-muted-foreground">
           {t("new_ingredient")}
           <Input value={fresh} onChange={(e) => setFresh(e.target.value)} maxLength={150} placeholder={t("name_en")} className="h-[42px]" />
         </label>

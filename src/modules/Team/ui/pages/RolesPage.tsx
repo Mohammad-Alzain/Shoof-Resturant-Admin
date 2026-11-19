@@ -123,8 +123,8 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
         </div>
         {isOwner && <p className="flex items-start gap-2 rounded-xl bg-warning/10 p-3 text-sm"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />{t("owner_role_warning")}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="space-y-1.5 text-xs font-medium text-muted-foreground">{t("role_name")} *<Input value={name} maxLength={100} onChange={(e) => setName(e.target.value)} className="h-10" /></label>
-          <label className="space-y-1.5 text-xs font-medium text-muted-foreground">{t("description")}<Input value={description} maxLength={500} onChange={(e) => setDescription(e.target.value)} className="h-10" /></label>
+          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("role_name")} *<Input value={name} maxLength={100} onChange={(e) => setName(e.target.value)} className="h-10" /></label>
+          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("description")}<Input value={description} maxLength={500} onChange={(e) => setDescription(e.target.value)} className="h-10" /></label>
         </div>
       </div>
 
