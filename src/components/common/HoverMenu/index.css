@@ -1,0 +1,74 @@
+// Mixin to define styles for dropdown menu item based on the specified side
+@mixin menu-item($side: "left") {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  animation:
+    menu-sub-dropdown-animation-fade-in 0.4s ease 1,
+    menu-sub-dropdown-animation-move-up 0.4s ease 1;
+  @if $side == "left" {
+    left: -104%; // Initially position outside the container
+    transform: translateX(100%);
+    top: 0;
+  } @else {
+    right: 0;
+  }
+}
+
+// CSS for dropdown container
+.dropdown {
+  position: relative;
+  display: inline-block;
+
+  // Dropdown Content
+  .dropdown-content {
+    display: none;
+    // Apply styles based on the data-side attribute
+    &[data-side="left"] {
+      @include menu-item("left");
+    }
+    &[data-side="right"] {
+      @include menu-item("right");
+    }
+  }
+}
+
+// CSS for dropdown links
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+// CSS to show dropdown menu on hover
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+// Keyframe animations for dropdown menu
+@keyframes menu-sub-dropdown-animation-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menu-sub-dropdown-animation-move-up {
+  from {
+    margin-top: 10px;
+  }
+  to {
+    margin-top: 0;
+  }
+}
+
+@keyframes menu-sub-dropdown-animation-move-down {
+  from {
+    margin-bottom: 10px;
+  }
+  to {
+    margin-bottom: 0;
+  }
+}

@@ -1,0 +1,15 @@
+.filepond--panel .filepond--panel-root {
+  @apply bg-transparent;
+  border: 2px solid;
+  border-color: hsl(var(--border));
+  @apply border-border border-dashed group-hover:border-primary;
+}
+
+/* hsl(var(--muted)); */
+.filepond--drop-label {
+  @apply dark:text-primary;
+  @apply dark:text-gray-100;
+}
+.filepond--file-action-button .filepond--action-edit-item {
+  @apply absolute top-8;
+}

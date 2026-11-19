@@ -1,0 +1,29 @@
+# Netlify build for the Shoof SuperAdmin console (site: shoof-super-admin)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 needs Node 20.19+ / 22.12+
+  NODE_VERSION = "22"
+  # The API answers CORS for any origin, so the browser calls it directly (the CSP connect-src is derived from this URL).
+  VITE_BASE_URL = "/backend/api/"
+  VITE_APP_I18N_CONFIG_KEY = "shoof-restaurant-i18n"
+
+# Single-page app: every path that is not a file serves index.html (client-side router).
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+# Hashed build assets never change: cache them for a year. Security headers live in public/_headers.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"

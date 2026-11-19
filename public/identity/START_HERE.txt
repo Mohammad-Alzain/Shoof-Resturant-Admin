@@ -1,0 +1,1 @@
+Extract the entire ZIP, then open Shoof_Brand_Book_Study_01.html in Chrome or Edge. Keep the assets folder beside the HTML. All SVG files can also be opened directly from assets. Open shoof-gaze-pointer.svg as a local file in a browser to interact with it.

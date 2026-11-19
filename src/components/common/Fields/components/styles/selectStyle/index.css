@@ -1,0 +1,184 @@
+/*
+ * react-select, dressed in the Shoof identity. Every rule reads the design tokens, so light, dark and the sign-in scene
+ * follow automatically. The menu is portalled to <body>, so nothing here is scoped to the container.
+ */
+
+/* ---- Control: the same 42px field as the text inputs ---- */
+.react-select-container .react-select__control {
+  min-height: 42px;
+  width: 100%;
+  background-color: var(--background);
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.22s ease,
+    background-color 0.18s ease;
+}
+.react-select-container .react-select__control:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--input));
+}
+.react-select-container .react-select__control--is-focused,
+.react-select-container .react-select__control--is-focused:hover {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent) !important;
+}
+.react-select-container .react-select__control--is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--muted);
+}
+
+/* ---- Values ---- */
+.react-select-container .react-select__value-container {
+  padding: 0 0.75rem;
+  gap: 0.25rem;
+}
+.react-select-container .react-select__single-value {
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+.react-select-container .react-select__placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.85;
+  font-size: 0.875rem;
+}
+.react-select-container .react-select__input-container {
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+.react-select-container .react-select__input {
+  box-shadow: none !important;
+}
+
+/* ---- Indicators: no separator, a chevron that turns when open, a clear mark that warns on hover ---- */
+.react-select-container .react-select__indicator-separator {
+  display: none;
+}
+.react-select-container .react-select__indicator {
+  color: var(--muted-foreground);
+  padding: 0 0.625rem;
+  transition:
+    color 0.18s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.react-select-container .react-select__indicator:hover {
+  color: var(--foreground);
+}
+.react-select-container .react-select__clear-indicator:hover {
+  color: var(--destructive);
+}
+.react-select-container .react-select__control--menu-is-open .react-select__dropdown-indicator {
+  color: var(--primary);
+  transform: rotate(180deg);
+}
+
+/* ---- Menu (portalled) ---- */
+@keyframes select-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.react-select__menu {
+  margin-top: 6px !important;
+  overflow: hidden;
+  background-color: var(--popover) !important;
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px) !important;
+  box-shadow:
+    0 14px 30px -12px color-mix(in srgb, var(--foreground) 28%, transparent),
+    0 2px 6px color-mix(in srgb, var(--foreground) 8%, transparent) !important;
+  animation: select-menu-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top;
+}
+.react-select__menu-list {
+  padding: 0.25rem !important;
+}
+.react-select__menu-notice {
+  color: var(--muted-foreground) !important;
+  font-size: 0.8125rem;
+  padding: 0.75rem !important;
+}
+
+/* ---- Options ---- */
+.react-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: calc(var(--radius) - 2px);
+  background-color: transparent !important;
+  color: var(--popover-foreground) !important;
+  font-size: 0.875rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.12s ease;
+}
+.react-select__option--is-focused {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+.react-select__option--is-selected {
+  background-color: color-mix(in srgb, var(--primary) 9%, transparent) !important;
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+.react-select__option--is-selected::after {
+  content: "";
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.react-select__option--is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Multi-select chips ---- */
+.react-select-container .react-select__multi-value {
+  margin: 2px;
+  align-items: center;
+  background-color: color-mix(in srgb, var(--primary) 9%, var(--background));
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.react-select-container .react-select__multi-value__label {
+  padding: 0.125rem 0.5rem;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.react-select-container .react-select__multi-value__remove {
+  padding: 0 0.375rem;
+  align-self: stretch;
+  color: var(--primary);
+  opacity: 0.7;
+  border-radius: 0;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+.react-select-container .react-select__multi-value__remove:hover {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+  opacity: 1;
+}
+
+/* ---- Loading dots ---- */
+.react-select-container .react-select__loading-indicator {
+  color: var(--terracotta);
+}

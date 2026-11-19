@@ -1,0 +1,107 @@
+{
+  "brand": "Shoof | شوف",
+  "study": "01",
+  "colors": {
+    "warm-ivory": "#FBF5E9",
+    "soft-sand": "#E9DDCF",
+    "espresso": "#261C1A",
+    "deep-burgundy": "#541F2D",
+    "roasted-terracotta": "#B95035"
+  },
+  "colorShare": {
+    "Warm Ivory": "60%",
+    "Soft Sand": "15%",
+    "Espresso": "15%",
+    "Deep Burgundy": "8%",
+    "Roasted Terracotta": "2%"
+  },
+  "fontFamilies": {
+    "ar": "IBM Plex Sans Arabic",
+    "en": "IBM Plex Sans"
+  },
+  "typographyPx": {
+    "hero": {
+      "desktop": [
+        64,
+        72
+      ],
+      "mobile": [
+        38,
+        44
+      ],
+      "weight": 600
+    },
+    "section": {
+      "desktop": [
+        38,
+        44
+      ],
+      "mobile": [
+        28,
+        32
+      ],
+      "weight": 600
+    },
+    "card": {
+      "desktop": [
+        22,
+        24
+      ],
+      "mobile": [
+        20,
+        22
+      ],
+      "weight": 600
+    },
+    "body": {
+      "desktop": [
+        17,
+        18
+      ],
+      "mobile": [
+        16,
+        17
+      ],
+      "weight": 400
+    },
+    "button": {
+      "desktop": [
+        15,
+        16
+      ],
+      "mobile": [
+        15,
+        16
+      ],
+      "weight": 600
+    },
+    "label": {
+      "desktop": [
+        13,
+        14
+      ],
+      "mobile": [
+        13,
+        14
+      ],
+      "weight": 500
+    }
+  },
+  "spacingPx": [
+    4,
+    8,
+    16,
+    24,
+    32,
+    48,
+    64
+  ],
+  "motion": {
+    "trackingMs": 220,
+    "replayMs": 1050,
+    "revealMs": [
+      650,
+      820
+    ]
+  }
+}

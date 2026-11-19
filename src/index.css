@@ -1,0 +1,576 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/** Dark Mode Variant **/
+@custom-variant dark (&:is(.dark *));
+
+/**
+ * Design tokens, taken from the Shoof identity (public/identity/shoof-tokens.json):
+ * Warm Ivory #FBF5E9 (60%), Soft Sand #E9DDCF (15%), Espresso #261C1A (15%), Deep Burgundy #541F2D (8%), Roasted Terracotta #B95035 (2%).
+ * Burgundy is the brand/action colour on light surfaces; it has 1.27:1 against espresso, so on dark surfaces the action colour
+ * is inverted to ivory (ivory/burgundy = 12:1) and terracotta, lifted, carries the small accents.
+ * Restaurant console: terracotta leads (kitchen warmth), the rail is espresso, burgundy is the quiet second voice.
+ * Everything in the UI reads these variables, so re-theming = editing this block.
+ */
+:root {
+  --background: #fdfaf4;
+  --foreground: #261c1a;
+
+  --card: #ffffff;
+  --card-foreground: #261c1a;
+
+  --popover: #fffcf5;
+  --popover-foreground: #261c1a;
+
+  --primary: #a8432a;
+  --primary-foreground: #fffaf3;
+
+  --secondary: #f4eee3;
+  --secondary-foreground: #5c4640;
+
+  --accent: #fbe8da;
+  --accent-foreground: #7a2e1b;
+
+  --muted: #f4eee3;
+  --muted-foreground: #6b5a53;
+
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+
+  --success: #2e7d4f;
+  --success-foreground: #ffffff;
+  --warning: #b7791f;
+  --warning-foreground: #ffffff;
+  --info: #3f6a8a;
+  --info-foreground: #ffffff;
+
+  /* The 2% accent: indicators and small marks, never body text */
+  --terracotta: #b95035;
+
+  --border: #e8dfd0;
+  --input: #dccfbb;
+  --ring: #b95035;
+
+  /* Page canvas behind the cards: a step darker than ivory so cards lift off it */
+  --page: #f2ebe0;
+
+  --chart-1: #a8432a;
+  --chart-2: #541f2d;
+  --chart-3: #c9973f;
+  --chart-4: #4f7d68;
+  --chart-5: #8b7a70;
+
+  --sidebar-background: #2a1e1b;
+  --sidebar-foreground: #d8c8bb;
+  --sidebar-primary: #fff7ec;
+  --sidebar-primary-foreground: #2a1e1b;
+  --sidebar-accent: rgba(255, 237, 214, 0.1);
+  --sidebar-accent-foreground: #fff7ec;
+  --sidebar-border: rgba(255, 237, 214, 0.12);
+  --sidebar-strong: #fff7ec;
+  --sidebar-ring: var(--terracotta);
+
+  --radius: 0.625rem;
+  --header-height: 70px;
+  --sidebar-width: 280px;
+}
+
+.dark {
+  --background: #221918;
+  --foreground: #fbf5e9;
+
+  --card: #2b2120;
+  --card-foreground: #fbf5e9;
+
+  --popover: #2f2421;
+  --popover-foreground: #fbf5e9;
+
+  --primary: #ee8a63;
+  --primary-foreground: #2a1510;
+
+  --secondary: #382b28;
+  --secondary-foreground: #e9ddcf;
+
+  --accent: #43271f;
+  --accent-foreground: #f6c9b3;
+
+  --muted: #382b28;
+  --muted-foreground: #b9a99f;
+
+  --destructive: #ef6a5e;
+  --destructive-foreground: #261c1a;
+
+  --success: #6bc08f;
+  --success-foreground: #261c1a;
+  --warning: #e0b24d;
+  --warning-foreground: #261c1a;
+  --info: #8fb4d1;
+  --info-foreground: #261c1a;
+
+  --terracotta: #dd6a4c;
+
+  --border: #43342f;
+  --input: #5a4740;
+  --ring: #ee8a63;
+
+  --page: #1a1412;
+
+  --chart-1: #ee8a63;
+  --chart-2: #d98aa0;
+  --chart-3: #e3b25d;
+  --chart-4: #7fb59b;
+  --chart-5: #a8978d;
+
+  --sidebar-background: #1b1210;
+  --sidebar-foreground: #cdbdb0;
+  --sidebar-accent: rgba(255, 237, 214, 0.08);
+  --sidebar-accent-foreground: #fbf5e9;
+  --sidebar-primary: #fff7ec;
+  --sidebar-primary-foreground: #2a1e1b;
+  --sidebar-strong: #fbf5e9;
+  --sidebar-border: rgba(255, 237, 214, 0.1);
+}
+
+/** Sign-in screens: the dining-light scene (always dark, independent of the app theme) **/
+.auth-dark {
+  --background: #1b1311;
+  --foreground: #fbf5e9;
+  --card: #261c1a;
+  --card-foreground: #fbf5e9;
+  --popover: #261c1a;
+  --popover-foreground: #fbf5e9;
+  --primary: #fbf5e9;
+  --primary-foreground: #541f2d;
+  --secondary: #382b28;
+  --secondary-foreground: #e9ddcf;
+  --accent: #4a2a30;
+  --accent-foreground: #f2c9b8;
+  --muted: #382b28;
+  --muted-foreground: #b9a99f;
+  --border: #43342f;
+  --input: #8a7268;
+  --ring: #dd6a4c;
+  --terracotta: #dd6a4c;
+  color-scheme: dark;
+}
+
+/** Theme Setup **/
+@theme inline {
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --color-terracotta: var(--terracotta);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-strong: var(--sidebar-strong);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --shadow-card: 0 1px 2px 0 rgb(84 31 45 / 7%), 0 10px 26px -12px rgb(84 31 45 / 18%);
+}
+
+/** Global Styles **/
+@layer base {
+  * {
+    @apply border-border;
+  }
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring/60;
+  }
+}
+/** Custom Scrollbar **/
+@layer base {
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--input);
+    border-radius: 5px;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--input) transparent;
+  }
+}
+/** Custom Container **/
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1440px) {
+    padding-inline: 2rem;
+    max-width: 1440px;
+  }
+}
+/** Smooth scroll **/
+html {
+  scroll-behavior: smooth;
+}
+/*---break---*/
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+}
+
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0; /* Remove default paragraph margin */
+}
+
+/* Placeholder styling */
+.ProseMirror .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Image wrapper for alignment */
+.ProseMirror .image-wrapper {
+  /* The text-align property will be applied directly via style attribute (e.g., style="text-align: center;") */
+  display: block; /* Ensure the wrapper is a block element */
+}
+
+/* Image styling within the wrapper */
+.ProseMirror .image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Essential for margin: auto to work */
+  margin-left: auto; /* Center block element horizontally */
+  margin-right: auto; /* Center block element horizontally */
+}
+
+/* Embed styling */
+.ProseMirror iframe {
+  width: 100%; /* Default width, can be overridden by attribute */
+  height: 315px; /* Default height, can be overridden by attribute */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Tiptap active states for toolbar buttons */
+.is-active {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.dark .is-active {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+/* ProseMirror specific styles for focus and selection */
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Text alignment classes (these are applied to the parent block, e.g., paragraph or image-wrapper) */
+.ProseMirror .text-left {
+  text-align: left;
+}
+.ProseMirror .text-center {
+  text-align: center;
+}
+.ProseMirror .text-right {
+  text-align: right;
+}
+.ProseMirror .text-justify {
+  text-align: justify;
+}
+
+/* Font size styles (applied via data-font-size attribute) */
+.ProseMirror span[data-font-size] {
+  font-size: var(--data-font-size); /* Use CSS variable for dynamic font size */
+}
+
+.ProseMirror span[data-font-size="12px"] {
+  --data-font-size: 12px;
+}
+.ProseMirror span[data-font-size="14px"] {
+  --data-font-size: 14px;
+}
+.ProseMirror span[data-font-size="16px"] {
+  --data-font-size: 16px;
+}
+.ProseMirror span[data-font-size="18px"] {
+  --data-font-size: 18px;
+}
+.ProseMirror span[data-font-size="20px"] {
+  --data-font-size: 20px;
+}
+.ProseMirror span[data-font-size="24px"] {
+  --data-font-size: 24px;
+}
+.ProseMirror span[data-font-size="28px"] {
+  --data-font-size: 28px;
+}
+.ProseMirror span[data-font-size="32px"] {
+  --data-font-size: 32px;
+}
+.ProseMirror span[data-font-size="36px"] {
+  --data-font-size: 36px;
+}
+.ProseMirror span[data-font-size="48px"] {
+  --data-font-size: 48px;
+}
+.ProseMirror span[data-font-size="64px"] {
+  --data-font-size: 64px;
+}
+.ProseMirror span[data-font-size="72px"] {
+  --data-font-size: 72px;
+}
+
+/* Color and Highlight styles */
+.ProseMirror mark {
+  background-color: var(--color); /* For highlight extension */
+  color: inherit;
+}
+.ProseMirror span[style*="color"] {
+  /* For color extension */
+}
+
+/**
+ * Motion policy: interface feedback (spinners, panels sliding in, dialogs, hover and press) always animates, because an
+ * admin tool that looks frozen is worse than one that moves. Only the purely decorative infinite loops (the hero drift,
+ * the slow rings, the pulse) stop when the system asks for reduced motion (see the end of this file).
+ */
+html {
+  scroll-behavior: auto;
+}
+
+/** Hover and press feedback for every interactive element that has none of its own (utilities still win: this is the base layer) */
+@layer base {
+  a,
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  summary,
+  label[for],
+  select {
+    transition:
+      color 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.22s ease,
+      opacity 0.18s ease,
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  button:not(:disabled):active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+  input,
+  textarea,
+  [role="combobox"] {
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.22s ease,
+      background-color 0.18s ease;
+  }
+}
+
+/** Cards that can be hovered: lift a little, warm the border, deepen the shadow */
+.hover-lift {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.28s ease,
+    border-color 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--terracotta) 45%, var(--border));
+  box-shadow: 0 10px 26px -12px color-mix(in srgb, var(--primary) 38%, transparent);
+}
+
+/** Brand mark: the pupils drift toward the dish when the mark is hovered (identity motion: 220ms tracking) */
+.brand-mark-pupils {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+a:hover > .brand-mark .brand-mark-pupils,
+.brand-mark:hover .brand-mark-pupils {
+  transform: translate(16px, 16.4px) scale(0.345) translate(-43px, -46px) translate(5px, 3px);
+}
+
+/** Browser surfaces themed from the palette */
+::selection {
+  background: color-mix(in srgb, var(--terracotta) 32%, transparent);
+  color: inherit;
+}
+input,
+textarea {
+  caret-color: var(--terracotta);
+}
+html {
+  font-variant-numeric: lining-nums;
+}
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+a {
+  text-underline-offset: 3px;
+}
+
+/** Page canvas: a flat, light warm neutral (no tinted washes or grain) so the ivory cards and the burgundy accents carry the colour */
+.bg-page {
+  background-color: var(--page);
+}
+.canvas-card {
+  background-color: var(--background);
+}
+/* The rail: solid burgundy with a faint top light, no coloured glow */
+[data-variant="inset"] [data-sidebar="sidebar"] {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 35%);
+}
+
+/** Table rows settle in one after another when a list loads (CSS only: the table library stays untouched) */
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+tbody > tr {
+  animation: row-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+tbody > tr:nth-child(2) { animation-delay: 40ms; }
+tbody > tr:nth-child(3) { animation-delay: 80ms; }
+tbody > tr:nth-child(4) { animation-delay: 120ms; }
+tbody > tr:nth-child(5) { animation-delay: 160ms; }
+tbody > tr:nth-child(6) { animation-delay: 200ms; }
+tbody > tr:nth-child(7) { animation-delay: 240ms; }
+tbody > tr:nth-child(8) { animation-delay: 280ms; }
+tbody > tr:nth-child(n + 9) { animation-delay: 320ms; }
+tbody > tr {
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+tbody > tr:hover {
+  background-color: color-mix(in srgb, var(--terracotta) 8%, transparent);
+  box-shadow: inset 3px 0 0 var(--terracotta);
+}
+[dir="rtl"] tbody > tr:hover {
+  box-shadow: inset -3px 0 0 var(--terracotta);
+}
+
+/** Slow drift for decorative rings and the hero dish */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: scale(1.06) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.1) translate(-1.5%, 1%);
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-spin-slow,
+  .anim-drift,
+  .anim-pulse-ring {
+    animation: none !important;
+  }
+}
+.anim-spin-slow {
+  animation: spin-slow 90s linear infinite;
+}
+.anim-drift {
+  animation: drift 24s ease-in-out infinite;
+}
+.anim-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/** Side sheets: the fields of a form (or the cards of a record) settle in one after another once the panel has slid in */
+@keyframes sheet-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > *,
+[data-slot="sheet-content"][data-state="open"] .sheet-form > * {
+  animation: sheet-item-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 140ms;
+}
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(2) { animation-delay: 190ms; }
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(3) { animation-delay: 240ms; }
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(4) { animation-delay: 290ms; }
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(5) { animation-delay: 340ms; }
+[data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(n + 6) { animation-delay: 390ms; }

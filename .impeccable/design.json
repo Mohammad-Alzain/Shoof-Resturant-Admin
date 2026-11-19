@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "title": "Design System: Shoof SuperAdmin",
+  "extensions": {
+    "colorMeta": {
+      "crimson": { "role": "primary", "displayName": "Crimson", "canonical": "#d4162a", "tonalRamp": ["#3a0409", "#590710", "#7d0b19", "#a30f22", "#d4162a", "#ee4a5a", "#f98e98", "#fdd3d7"] },
+      "crimson-link": { "role": "secondary", "displayName": "Soft Signal Red", "canonical": "#ff8a82", "tonalRamp": ["#4a1411", "#6e1f1a", "#9b2e27", "#c8453d", "#ff6a60", "#ff8a82", "#ffb3ad", "#ffdbd8"] },
+      "focus-red": { "role": "secondary", "displayName": "Focus Red", "canonical": "#ff4a4a", "tonalRamp": ["#450a0a", "#6b1010", "#951a1a", "#c42a2a", "#ff4a4a", "#ff7373", "#ffa3a3", "#ffd4d4"] },
+      "auth-ground": { "role": "neutral", "displayName": "Oxblood Black", "canonical": "#0c0708", "tonalRamp": ["#0c0708", "#140c0d", "#1c1012", "#2a1114", "#2e1a1d", "#86605f", "#b3a0a0", "#f6eeec"] },
+      "auth-text": { "role": "neutral", "displayName": "Warm White", "canonical": "#f6eeec", "tonalRamp": ["#86605f", "#b3a0a0", "#d9c4c2", "#e8dad8", "#f6eeec", "#faf5f4", "#fdfafa", "#ffffff"] },
+      "app-primary": { "role": "app-shell", "displayName": "Burnt Orange (app shell)", "canonical": "#c2410c", "tonalRamp": ["#431407", "#7c2d12", "#9a3412", "#c2410c", "#ea580c", "#f97316", "#fb923c", "#fff1e6"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Stage headline on the sign-in screen." },
+      "headline": { "displayName": "Headline", "purpose": "Form h1." },
+      "title": { "displayName": "Title", "purpose": "Wordmark beside the brand mark." },
+      "body": { "displayName": "Body", "purpose": "Form description, labels, links." },
+      "label": { "displayName": "Label", "purpose": "Stage chip and small controls." }
+    },
+    "shadows": [
+      { "name": "none-on-form", "value": "none", "purpose": "The sign-in form is flat; depth lives in the stage." },
+      { "name": "stage-seat-gradient", "value": "linear-gradient(to top, rgb(5 2 3 / 0.9), rgb(5 2 3 / 0.4), transparent)", "purpose": "Bottom fade on the lower half of the stage behind the headline." },
+      { "name": "app-card", "value": "0 3px 4px 0 rgb(0 0 0 / 3%)", "purpose": "App shell card shadow." }
+    ],
+    "motion": [
+      { "name": "scan-sequence", "value": "layers drop, scan ring shades, layers separate with labels, re-stack", "purpose": "Stage story loop; replaced by a still pose under prefers-reduced-motion." },
+      { "name": "control-transition", "value": "transition-colors / box-shadow, default Tailwind timing", "purpose": "Hover and focus changes on buttons and inputs." }
+    ],
+    "breakpoints": [
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Full-width crimson submit on the sign-in form.",
+      "html": "<button class=\"ds-btn-primary\">Sign in</button>",
+      "css": ".ds-btn-primary { width: 100%; height: 40px; padding: 0 16px; border: 0; border-radius: 6px; background: #d4162a; color: #fff; font-size: 14px; font-weight: 500; transition: background-color .15s; } .ds-btn-primary:hover { background: rgb(212 22 42 / .9); } .ds-btn-primary:focus-visible { outline: 2px solid rgb(255 74 74 / .6); outline-offset: 2px; }"
+    },
+    {
+      "name": "Auth Field",
+      "kind": "input",
+      "refersTo": "input-auth",
+      "description": "Labelled input on the black ground with rose stroke and focus-red ring.",
+      "html": "<div class=\"ds-field\"><label>Email</label><input class=\"ds-input\" placeholder=\"admin@example.com\" /></div>",
+      "css": ".ds-field { display: grid; gap: 10px; width: 280px; color: #f6eeec; font-size: 14px; } .ds-input { height: 40px; padding: 0 16px; border: 1px solid #86605f; border-radius: 6px; background: #0c0708; color: #f6eeec; font-size: 14px; outline: none; transition: box-shadow .15s, border-color .15s; } .ds-input::placeholder { color: #b3a0a0; } .ds-input:focus-visible { border-color: #ff4a4a; box-shadow: 0 0 0 3px rgb(255 74 74 / .3); }"
+    },
+    {
+      "name": "Text Link",
+      "kind": "nav",
+      "refersTo": "link-auth",
+      "description": "Forgot-password link in soft signal red.",
+      "html": "<a class=\"ds-link\" href=\"#\">Forgot password?</a>",
+      "css": ".ds-link { color: #ff8a82; font-size: 14px; font-weight: 500; text-decoration: none; } .ds-link:hover { text-decoration: underline; } .ds-link:focus-visible { outline: 2px solid rgb(255 74 74 / .6); outline-offset: 2px; }"
+    },
+    {
+      "name": "Stage Chip",
+      "kind": "chip",
+      "refersTo": "chip-ghost-stage",
+      "description": "Ghost pill on the stage that opts back into motion.",
+      "html": "<button class=\"ds-chip\">Play the animation</button>",
+      "css": ".ds-chip { padding: 6px 16px; border: 1px solid rgb(255 255 255 / .3); border-radius: 9999px; background: transparent; color: rgb(255 255 255 / .9); font-size: 12px; font-weight: 600; transition: background-color .15s; } .ds-chip:hover { background: rgb(255 255 255 / .1); } .ds-chip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Brand Mark",
+      "kind": "custom",
+      "description": "Viewfinder brackets around a plate on a crimson tile.",
+      "html": "<svg class=\"ds-mark\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><rect width=\"32\" height=\"32\" rx=\"8\" fill=\"#d4162a\"/><g fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 12V9.5A1.5 1.5 0 0 1 9.5 8H12\"/><path d=\"M20 8h2.5A1.5 1.5 0 0 1 24 9.5V12\"/><path d=\"M24 20v2.5a1.5 1.5 0 0 1-1.5 1.5H20\"/><path d=\"M12 24H9.5A1.5 1.5 0 0 1 8 22.5V20\"/></g><circle cx=\"16\" cy=\"16\" r=\"4.6\" fill=\"#fff\"/><circle cx=\"16\" cy=\"16\" r=\"2\" fill=\"#d4162a\"/></svg>",
+      "css": ".ds-mark { width: 36px; height: 36px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lit Table",
+    "overview": "The sign-in screen is a low-key food-photography table: a plated burger on dark oak, in the dark, lit warm from the front and red from behind. A red scan plane turns the raw wireframe mesh into the shaded dish, which is the product story (a photo becomes a 3D model). The form sits beside it as a calm, card-less column, so the stage carries the atmosphere and the form carries the task.",
+    "keyCharacteristics": [
+      "Black and red, one crimson (#d4162a), no second accent in the UI",
+      "Stage left (about 58%), form right (about 42%); mirrored in RTL; stage is a 300px band on phones",
+      "Card-less form on the page ground; no panels, no shadows on the form",
+      "Bricolage Grotesque for display, Cairo for Arabic",
+      "Live 3D stage (lazy three.js) with still and no-WebGL fallbacks"
+    ],
+    "rules": [
+      { "name": "The One Crimson Rule", "body": "Crimson is the action and the brand. Nothing else on the form is red-filled; links and focus use the lighter reds.", "section": "colors" },
+      { "name": "The Text-Red Rule", "body": "Red used as text on the dark ground is crimson-link, never the button crimson.", "section": "colors" },
+      { "name": "The Display Is Headlines Rule", "body": "font-display is for the stage headline, the wordmark and the form h1 only; fields, buttons and descriptions stay in the sans.", "section": "typography" },
+      { "name": "The Depth Lives On The Stage Rule", "body": "The form column stays flat; atmosphere is the stage's job.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do scope the world with the auth-dark class on the shell root and read bg-background, text-foreground, text-primary from it; add no new sign-in colours outside that block.",
+      "Do keep the form card-less, centred, 380px max, with the crimson button as the single filled element.",
+      "Do mirror the layout with dir and use logical utilities (start, end, pe, ms) so Arabic works.",
+      "Do keep a still and a no-WebGL state for any animated stage content.",
+      "Do carry provenance for every shipped raster, model and texture in CREDITS.md."
+    ],
+    "donts": [
+      "Don't bring the app shell's orange primary (#c2410c / #f97316) onto signed-out screens, or crimson onto the dashboard without a decision.",
+      "Don't use button crimson as text colour on the dark ground.",
+      "Don't put the form in a card or add shadows to it.",
+      "Don't set body or form text in font-display."
+    ]
+  }
+}

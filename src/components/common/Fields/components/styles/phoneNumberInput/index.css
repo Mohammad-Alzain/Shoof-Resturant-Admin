@@ -1,0 +1,105 @@
+/* Base react-tel-input */
+.react-tel-input {
+  padding: 0;
+  direction: rtl; /* Replaced direction-reverse (not a standard Tailwind utility) */
+}
+
+/* Form control */
+.react-tel-input .form-control {
+  color: inherit; /* text-inherit */
+  padding: 0 6.5rem;
+  direction: rtl; /* Replaced direction-reverse */
+  border-radius: var(--radius); /* rounded-md */
+  border-width: 0.11rem;
+  background-color: transparent;
+  border-color: var(--border);
+}
+
+/* Form control focus and dark mode */
+.react-tel-input .form-control:focus {
+  box-shadow: 0 4px 5px color-mix(in srgb, var(--primary) 20%, transparent);
+  transition: all 0.3s ease; /* transition-all duration-300 */
+  border-color: var(--primary); /* focus:border-primary */
+}
+.dark .react-tel-input .form-control {
+  color: var(--foreground); /* dark:text-white */
+  border-color: var(--border);
+}
+.dark .react-tel-input .form-control:focus {
+  border-color: var(--primary); /* dark:focus:border-border */
+}
+
+/* Flag dropdown */
+.react-tel-input .flag-dropdown {
+  direction: ltr;
+  background-color: var(--background);
+  border: none;
+  margin: 0.25rem; /* m-1 */
+  padding: 0.5rem; /* p-2 */
+}
+
+/* Selected flag */
+.react-tel-input .selected-flag {
+  border-radius: var(--radius); /* rounded-md */
+  width: 5rem; /* w-20 */
+  padding-top: 0.5rem; /* py-2 */
+  padding-bottom: 0.5rem;
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  background-color: var(--accent);
+}
+
+/* Open selected flag */
+.react-tel-input .selected-flag.open {
+  border-radius: var(--radius); /* rounded-md */
+  margin: 0.5rem; /* m-2 */
+  background-color: var(--muted);
+}
+.react-tel-input .selected-flag.open:hover,
+.react-tel-input .selected-flag.open:focus {
+  background-color: var(--accent);
+}
+
+/* Country list */
+.react-tel-input .country-list {
+  background-color: var(--popover);
+}
+
+/* Country list highlighted country */
+.react-tel-input .country-list .country.highlight {
+  background-color: var(--muted);
+}
+
+/* Country list search */
+.react-tel-input .country-list .search {
+  background-color: var(--popover);
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem;
+}
+
+/* Country list search box */
+.react-tel-input .country-list .search .search-box {
+  border-radius: var(--radius); /* rounded-md */
+  border-width: 2px;
+  background-color: transparent;
+  border-color: var(--border);
+}
+.react-tel-input .country-list .search .search-box:focus {
+  box-shadow: 0 4px 5px color-mix(in srgb, var(--primary) 20%, transparent);
+  border-color: var(--primary);
+}
+.dark .react-tel-input .country-list .search .search-box {
+  border-color: var(--border);
+}
+.dark .react-tel-input .country-list .search .search-box:focus {
+  border-color: var(--primary);
+}
+
+/* Country list country */
+.react-tel-input .country-list .country {
+  padding-left: 2.5rem; /* ps-10 */
+  padding-top: 0.25rem; /* pt-1 */
+}

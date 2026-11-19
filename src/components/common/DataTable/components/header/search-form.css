@@ -1,0 +1,24 @@
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.62rem;
+  width: 9rem;
+  border-bottom: 0.0625rem solid var(--searchblue);
+}
+
+.search-form > input {
+  color: var(--blue);
+  font-family: var(--Roboto);
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  border: none;
+  outline: none;
+  min-width: 0;
+}
+
+.search-form > input::placeholder {
+  color: var(--searchblue);
+}
