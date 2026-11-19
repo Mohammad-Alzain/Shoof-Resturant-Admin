@@ -4,7 +4,7 @@
 **Purpose:** build and maintain the restaurant's digital menu, its look, tables/QR codes, AI photos and 3D
 models, and the team's access.
 
-Read [README.md](00-common-spec.md) §2 first (login, headers, permissions, errors, paging, language, time zones,
+Read [README.md](README.md) §2 first (login, headers, permissions, errors, paging, language, time zones,
 uploads, notifications). API details: [guide §4](../FE-API-INTEGRATION-GUIDE.md#4-emenuapirestaurant--endpoint-reference).
 
 Every request sends `Authorization: Bearer`, `X-Api-Key`, `X-Tenant-Id`, `X-Language`.

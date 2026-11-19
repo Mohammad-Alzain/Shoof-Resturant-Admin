@@ -2,12 +2,14 @@ import { create } from "zustand";
 import { getAuth, removeAuth, setAuth } from "@/modules/Auth/core/utils/AuthHelpers";
 import { GetMeApi, LogoutApi, normalizeSession } from "@/modules/Auth/core/api/api-auth";
 import type { IProfile, ITokenReply } from "@/modules/Auth/core/types";
+import { normalizePermissions, permissionsFromToken } from "@/modules/Auth/core/permissions";
+import { ALL_PERMISSIONS, resolvePermissions } from "@/modules/Team/core/api";
 
 export interface AuthState {
   auth: IProfile | undefined;
   /**
-   * The API has no "my permissions" endpoint yet (docs/00-common-spec.md §2.2), so this stays empty and the
-   * UI shows everything, relying on 403 handling. Kept so permission-gated routes can be switched on later.
+   * Permission strings ("MenuItems.View") derived from the user's roles after login (see `resolvePermissions`).
+   * `["*"]` = everything (Owner, or roles unreadable). Empty = nothing granted / not loaded yet.
    */
   permissions: string[];
   permissionsIsFetching: boolean;
@@ -39,7 +41,10 @@ const useAuthStore = create<AuthState>((set, get) => ({
     if (current && !current.mustChangePassword) get().saveAuth({ ...current, mustChangePassword: true });
   },
 
-  logout: () => get().saveAuth(undefined),
+  logout: () => {
+    set({ permissions: [] });
+    get().saveAuth(undefined);
+  },
 
   logOutAction: async () => {
     const refreshToken = get().auth?.refreshToken;
@@ -57,12 +62,22 @@ const useAuthStore = create<AuthState>((set, get) => ({
     const current = get().auth;
     if (!current?.token) return;
     set({ permissionsIsFetching: true });
+    let profileExtra: { permissions?: unknown } | undefined;
     try {
       const me = await GetMeApi();
+      profileExtra = me as { permissions?: unknown };
       const latest = get().auth;
       if (latest) get().saveAuth({ ...latest, user: { ...latest.user, ...me } });
     } catch {
       /* 401 is handled by the client (refresh or logout); other errors keep the stored profile */
+    }
+    try {
+      // The JWT or the profile may carry the permissions outright; otherwise they come from the user's roles.
+      const carried = permissionsFromToken(get().auth?.token) ?? normalizePermissions(profileExtra?.permissions);
+      set({ permissions: carried ?? (await resolvePermissions(get().auth?.roles ?? [])) });
+    } catch {
+      // Roles could not be read (e.g. no `Roles.View`): show everything and let the server's 403 decide.
+      set({ permissions: [ALL_PERMISSIONS] });
     } finally {
       set({ permissionsIsFetching: false });
     }

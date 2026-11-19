@@ -7,13 +7,14 @@ import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 export const useHasPermission = () => {
   const { permissions } = useAuthStore();
 
-  const hasPermission = (permission: string) => permissions.includes(permission);
+  const all = permissions.includes("*");
+  const hasPermission = (permission: string) => all || permissions.includes(permission);
   
   const hasAnyPermission = (requiredPermissions: string[]) =>
-    requiredPermissions.some((perm) => permissions.includes(perm));
+    all || requiredPermissions.some((perm) => permissions.includes(perm));
 
   const hasAllPermissions = (requiredPermissions: string[]) =>
-    requiredPermissions.every((perm) => permissions.includes(perm));
+    all || requiredPermissions.every((perm) => permissions.includes(perm));
 
   return { 
     hasPermission, 
