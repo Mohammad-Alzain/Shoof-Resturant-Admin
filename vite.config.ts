@@ -65,7 +65,9 @@ export default defineConfig(({ mode }) => {
       "@": "/src",
     },
   },
-  build: { sourcemap: false },
+  // The app lives under /admin/ (base above), so the build goes to dist/admin: the host then serves
+  // /admin/assets/... straight from disk, and the SPA fallback only has to cover /admin/*.
+  build: { sourcemap: false, outDir: "dist/admin", emptyOutDir: true },
   server: {
     port: 3001,
     host: true,
