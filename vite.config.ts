@@ -32,6 +32,7 @@ const originsOf = (...urls: (string | undefined)[]) =>
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const csp = buildCsp(originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL));
+  const devApiOrigin = (env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221").replace(/\/+$/, "");
   return {
   plugins: [
     {
@@ -70,7 +71,20 @@ export default defineConfig(({ mode }) => {
     host: true,
     // The API shares the site's origin when deployed; in dev /backend is forwarded to a restaurant host.
     proxy: {
-      "/backend": { target: env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221", changeOrigin: true, secure: false },
+      "/backend": {
+        target: devApiOrigin,
+        changeOrigin: true,
+        secure: false,
+        // changeOrigin only rewrites Host. The server also checks Origin/Referer against the restaurant's own domain,
+        // so a browser request from http://localhost:3001 would be refused with 403: present the restaurant origin instead.
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            if (proxyReq.getHeader("origin")) proxyReq.setHeader("origin", devApiOrigin);
+            const referer = proxyReq.getHeader("referer");
+            if (referer) proxyReq.setHeader("referer", `${devApiOrigin}/admin/`);
+          });
+        },
+      },
     },
   },
   };

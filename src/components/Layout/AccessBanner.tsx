@@ -25,7 +25,6 @@ export default function AccessBanner() {
             </p>
             <ul className="list-disc space-y-0.5 ps-5 text-muted-foreground">
               <li>{t("access_hint_role")} <Link to="/dashboard/team/roles" className="font-medium text-primary underline-offset-2 hover:underline">{t("team_roles")}</Link></li>
-              <li>{t("access_hint_key")}</li>
             </ul>
           </>
         )}
