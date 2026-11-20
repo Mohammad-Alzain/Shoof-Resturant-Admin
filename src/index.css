@@ -679,3 +679,21 @@ tbody > tr:hover {
     animation: none;
   }
 }
+
+/* Sign-in: the food wall drifts; each column holds its dishes twice, so -50% loops seamlessly */
+.food-wall-col {
+  animation-name: food-wall-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+@keyframes food-wall-drift {
+  to {
+    transform: translateY(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .food-wall-col {
+    animation: none;
+  }
+}

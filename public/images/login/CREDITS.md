@@ -20,3 +20,11 @@ Cropped and resized from CC0 photographs on Wikimedia Commons (originally from U
 - shakshuka.webp - "Shakshuka (Unsplash).jpg"
 - salad.webp - "Vegetable Salad (Unsplash).jpg"
 - ravioli.webp - cropped from public/identity/shoof-food-concept.webp (Shoof brand concept photo)
+- curry.webp, cappuccino.webp, pancakes.webp, smoothie.webp - from CC0 Unsplash photographs on Wikimedia Commons.
+
+# Sign-in food wall (public/images/login/wall)
+
+Seventeen tiles cropped and resized from CC0 photographs on Wikimedia Commons (originally from Unsplash): Winter Hummus,
+Shakshuka, Vegetable Salad, Pesto Pasta, Smoothie bowlin, Gourmet Dessert, Pistachio Kadayif, Bowl of Ramen, Meat Stew,
+plus pizza, burger, pancakes, avocado toast, curry, latte, steak and breakfast-table photographs from the same collection.
+No attribution is required.
