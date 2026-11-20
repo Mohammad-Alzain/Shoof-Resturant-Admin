@@ -11,18 +11,21 @@ const PLATE_R = { cx: 63, cy: 46, r: 15 };
 const PUPIL_L = { cx: 27, cy: 43.5, r: 3.3 };
 const PUPIL_R = { cx: 67, cy: 43.5, r: 3.3 };
 /** The compact icon, centred in a 32 box. */
+/** Identity colours, written out so the logo never depends on a theme variable resolving (shoof-tokens.json). */
+const BURGUNDY = "#541F2D";
+const IVORY = "#FBF5E9";
 const FIT = "translate(16 16.4) scale(0.345) translate(-43 -46)";
 
 /** App icon tile in Shoof's own colours (burgundy tile, ivory plates), whatever the console theme. */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("brand-mark size-9", className)} aria-hidden="true" focusable="false">
-      <rect width="32" height="32" rx="9" fill="var(--brand-burgundy)" />
-      <g transform={FIT} fill="none" stroke="var(--brand-ivory)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="32" height="32" rx="9" fill={BURGUNDY} />
+      <g transform={FIT} fill="none" stroke={IVORY} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
         <circle {...PLATE_L} />
         <circle {...PLATE_R} />
       </g>
-      <g className="brand-mark-pupils" transform={FIT} fill="var(--brand-ivory)">
+      <g className="brand-mark-pupils" transform={FIT} fill={IVORY}>
         <circle {...PUPIL_L} />
         <circle {...PUPIL_R} />
       </g>

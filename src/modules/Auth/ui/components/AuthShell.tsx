@@ -54,38 +54,46 @@ function GazeOnDish({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Stage colours are written out (not theme variables): the brand side must look the same in every theme and state.
+ * On wide screens the art and the copy share one centred column, so they stay aligned however wide the stage gets.
+ */
 function Stage() {
   const { t } = useTranslation();
 
   return (
-    <aside className="relative h-[240px] overflow-hidden bg-brand-burgundy text-brand-ivory sm:h-[300px] lg:h-auto lg:min-h-screen">
+    <aside className="relative h-[248px] overflow-hidden bg-[#541F2D] text-[#FBF5E9] sm:h-[300px] lg:sticky lg:top-0 auth-stage">
       <img src={asset("images/login/shoof-stage.svg")} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-2/5 bg-linear-to-t from-brand-espresso/85 to-transparent lg:block" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-1/2 bg-linear-to-t from-[#261C1A]/90 via-[#261C1A]/40 to-transparent lg:block" />
 
-      <div className="relative flex h-full flex-col p-5 sm:p-7 lg:p-12">
+      <div className="relative flex h-full flex-col p-5 sm:p-7 lg:p-10 xl:p-12">
         <div className="flex items-center gap-3">
-          <BrandMark className="size-10 ring-1 ring-brand-ivory/20" />
-          <Wordmark className="h-[22px] text-brand-ivory" />
-          <span className="ms-1 hidden rounded-full border border-brand-ivory/25 px-2.5 py-1 text-[0.6875rem] font-medium text-brand-sand lg:inline">
+          <BrandMark className="size-10 shadow-[0_6px_16px_-6px_rgb(20_8_10/0.6)] ring-1 ring-[#FBF5E9]/25" />
+          <Wordmark className="h-[22px] text-[#FBF5E9]" />
+          <span className="ms-1 hidden rounded-full border border-[#FBF5E9]/30 px-3 py-1 text-xs font-medium text-[#E9DDCF] lg:inline">
             {t("console_for_restaurants")}
           </span>
         </div>
 
-        <div className="flex min-h-0 flex-1 items-center justify-center py-3 lg:py-10">
-          <GazeOnDish className="h-full max-h-[150px] w-auto max-w-full sm:max-h-[200px] lg:h-auto lg:max-h-none lg:w-full lg:max-w-[620px]" />
-        </div>
+        <div className="mx-auto flex min-h-0 w-full flex-1 flex-col lg:max-w-[40rem] lg:justify-center lg:gap-6 lg:pb-4">
+          <div className="flex min-h-0 flex-1 items-center justify-center py-3 lg:flex-none lg:py-0">
+            <GazeOnDish className="h-full max-h-[150px] w-auto max-w-full sm:max-h-[200px] lg:h-auto lg:max-h-[38vh] lg:w-full" />
+          </div>
 
-        <div className="hidden max-w-lg lg:block">
-          <h2 className="font-display text-[2.75rem] font-semibold leading-[1.12] text-balance rtl:leading-[1.6]">{t("stage_headline")}</h2>
-          <p className="mt-4 max-w-md text-[1.0625rem] leading-relaxed text-brand-sand">{t("stage_subline")}</p>
-          <ul className="mt-6 space-y-2.5">
-            {POINTS.map((key) => (
-              <li key={key} className="flex items-center gap-3 text-[0.9375rem] text-brand-ivory/90">
-                <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand-terracotta" />
-                {t(key)}
-              </li>
-            ))}
-          </ul>
+          <div className="hidden lg:block">
+            <h2 className="font-display text-[clamp(2.25rem,2.7vw,3.25rem)] font-semibold leading-[1.15] text-balance rtl:leading-[1.45]">
+              {t("stage_headline")}
+            </h2>
+            <p className="mt-4 max-w-[34rem] text-[1.0625rem] leading-relaxed text-[#E9DDCF] rtl:leading-[1.9]">{t("stage_subline")}</p>
+            <ul className="mt-7 grid gap-3 border-t border-[#FBF5E9]/15 pt-6">
+              {POINTS.map((key) => (
+                <li key={key} className="flex items-center gap-3 text-[0.9375rem] text-[#FBF5E9]/90">
+                  <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-[#E08A6C]" />
+                  {t(key)}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </aside>
@@ -105,7 +113,7 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <div dir={getDirection()} className="auth-light grid min-h-screen bg-background text-foreground lg:grid-cols-[1.2fr_1fr]">
+    <div dir={getDirection()} className="auth-light auth-screen grid bg-background text-foreground lg:grid-cols-[minmax(0,1.15fr)_minmax(30rem,1fr)]">
       <Stage />
 
       <div className="flex flex-col">
@@ -113,10 +121,10 @@ export function AuthShell({
           <LanguageSwitcher />
         </div>
 
-        <main className="flex flex-1 items-start justify-center px-6 pb-16 pt-2 sm:px-10 lg:items-center lg:pt-0">
-          <div className="w-full max-w-[380px]">
-            <h1 className="font-display text-[2rem] font-semibold leading-tight text-foreground">{title}</h1>
-            {description && <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted-foreground">{description}</p>}
+        <main className="flex flex-1 items-start justify-center px-6 pb-16 pt-4 sm:px-10 lg:items-center lg:pb-24 lg:pt-0">
+          <div className="w-full max-w-[400px]">
+            <h1 className="font-display text-[2rem] font-semibold leading-tight text-foreground lg:text-[2.375rem]">{title}</h1>
+            {description && <p className="mt-2.5 text-base leading-relaxed text-muted-foreground">{description}</p>}
             <div className="mt-8">{children}</div>
             {footer && <div className="mt-6 text-sm">{footer}</div>}
           </div>

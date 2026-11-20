@@ -170,16 +170,49 @@
   --sidebar-border: rgba(251, 245, 233, 0.09);
 }
 
+/* Autofill keeps the field's own surface instead of the browser's blue. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  box-shadow: 0 0 0 1000px var(--card) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
 /* Sign-in screens are always the light set, whatever the console theme. */
 .auth-light {
   color-scheme: light;
   --background: var(--brand-ivory);
 }
+/* On very wide displays the sign-in page scales up as a whole instead of floating small in the middle. */
+.auth-light {
+  --auth-zoom: 1;
+  zoom: var(--auth-zoom);
+}
+@media (min-width: 1800px) {
+  .auth-light {
+    --auth-zoom: 1.15;
+  }
+}
+@media (min-width: 2300px) {
+  .auth-light {
+    --auth-zoom: 1.3;
+  }
+}
+/* zoom scales viewport units too: these keep the zoomed page exactly one screen tall */
+.auth-screen {
+  min-height: calc(100vh / var(--auth-zoom, 1));
+}
+@media (min-width: 1024px) {
+  .auth-stage {
+    height: calc(100vh / var(--auth-zoom, 1));
+  }
+}
 
 /** Theme Setup **/
 @theme inline {
-  --font-sans: "Readex Pro", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Readex Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Readex Pro Variable", "Readex Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Readex Pro Variable", "Readex Pro", ui-sans-serif, system-ui, sans-serif;
   --color-terracotta: var(--terracotta);
   --color-oil: var(--oil);
   --color-brand-burgundy: var(--brand-burgundy);
