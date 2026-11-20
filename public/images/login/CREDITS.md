@@ -11,3 +11,12 @@ No attribution is required.
 # Models and textures
 
 - public/textures/table/black_oak_*: Poly Haven "Black Oak Veneer", CC0 (https://polyhaven.com/a/black_oak_veneer), 1k.
+
+# Sign-in dishes (public/images/login/dishes)
+
+Cropped and resized from CC0 photographs on Wikimedia Commons (originally from Unsplash). No attribution is required.
+
+- hummus.webp - "Winter Hummus (Unsplash).jpg"
+- shakshuka.webp - "Shakshuka (Unsplash).jpg"
+- salad.webp - "Vegetable Salad (Unsplash).jpg"
+- ravioli.webp - cropped from public/identity/shoof-food-concept.webp (Shoof brand concept photo)

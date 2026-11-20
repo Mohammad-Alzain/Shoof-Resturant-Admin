@@ -2,53 +2,51 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The Shoof mark at stage scale: two plates seen from above, each with a pupil (shoof-plate-icon.svg geometry,
- * scaled ×100/17: plate r 100, rim 38.8, inner rim 11, pupil r 17 sitting 23.5 right and 20.6 up of centre).
- * The pupils move within the brand book's gaze limits (±5 / ±4 source units → ±29 / ±23.5 here).
- * An ivory lid can slide down to the plate's centre line: the plates themselves never change.
+ * "Shoof" made literal: the mark's two plates at stage scale (shoof-plate-icon.svg geometry ×100/17), where the first
+ * plate holds a real dish, seen from above and turning slowly, and the second is the watching eye. The eye keeps the
+ * brand book's gaze limits (±5 / ±4 source units → ±29 / ±23.5 here); an espresso lid can close it down to its
+ * centre line. The dishes cross-fade; the eye glances at each new one.
  */
 
 const VB = { w: 560, h: 300 };
-const EYES = [
-  { cx: 160, cy: 150 },
-  { cx: 400, cy: 150 },
-] as const;
+const DISH = { cx: 160, cy: 150 };
+const EYE = { cx: 400, cy: 150 };
 const R = 100;
 const RIM = 38.8;
-const INNER = R - RIM / 2; // the plate's open centre
+const OUTER = R + RIM / 2; // the dish fills the whole plate
+const INNER = R - RIM / 2;
 const PUPIL = { dx: 23.5, dy: -20.6, r: 17 };
 const LIMIT = { x: 29, y: 23.5 };
 const LID_OPEN = -(INNER + 8);
 
 export interface GazeApi {
-  /** Look at a point on the page (client coordinates). */
   lookAt: (x: number, y: number) => void;
-  /** Pupils to a direction in limit units (-1..1). */
   look: (x: number, y: number) => void;
+  /** Look across at the dish plate. */
+  glanceAtDish: () => void;
   close: (closed: boolean) => void;
   blink: () => void;
   shake: () => void;
-  /** Look around while something is being checked; returns a stop function. */
   think: () => () => void;
 }
 
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export const GazeStage = forwardRef<GazeApi, { className?: string; color?: string; lid?: string }>(function GazeStage(
-  { className, color = "#541F2D", lid = "#F3EADC" },
-  ref,
-) {
+export const GazeStage = forwardRef<
+  GazeApi,
+  { className?: string; dishes: string[]; current: number; ring?: string; well?: string }
+>(function GazeStage({ className, dishes, current, ring = "#FBF5E9", well = "#261C1A" }, ref) {
   const svg = useRef<SVGSVGElement>(null);
   const head = useRef<SVGGElement>(null);
-  const pupils = useRef<(SVGGElement | null)[]>([]);
-  const lids = useRef<(SVGGElement | null)[]>([]);
+  const pupil = useRef<SVGGElement>(null);
+  const lid = useRef<SVGGElement>(null);
   const closed = useRef(false);
 
-  const setPupils = (ox: number, oy: number) => {
-    pupils.current.forEach((p) => p && (p.style.transform = `translate(${ox}px, ${oy}px)`));
+  const setPupil = (ox: number, oy: number) => {
+    if (pupil.current) pupil.current.style.transform = `translate(${ox}px, ${oy}px)`;
   };
-  const setLids = (shut: boolean) => {
-    lids.current.forEach((l) => l && (l.style.transform = `translateY(${shut ? 0 : LID_OPEN}px)`));
+  const setLid = (shut: boolean) => {
+    if (lid.current) lid.current.style.transform = `translateY(${shut ? 0 : LID_OPEN}px)`;
   };
 
   useImperativeHandle(ref, () => {
@@ -59,27 +57,27 @@ export const GazeStage = forwardRef<GazeApi, { className?: string; color?: strin
         const b = el.getBoundingClientRect();
         if (!b.width) return;
         const s = b.width / VB.w;
-        // aim from the point between the eyes so both pupils move together, like the logo's gaze
-        const cx = b.left + (VB.w / 2) * s;
-        const cy = b.top + EYES[0].cy * s;
-        const dx = x - cx;
-        const dy = y - cy;
+        const dx = x - (b.left + EYE.cx * s);
+        const dy = y - (b.top + EYE.cy * s);
         const d = Math.hypot(dx, dy) || 1;
-        const reach = Math.min(1, d / (260 * s + 120));
+        const reach = Math.min(1, d / (200 * s + 100));
         api.look((dx / d) * reach, (dy / d) * reach);
       },
       look(x, y) {
-        setPupils(Math.max(-1, Math.min(1, x)) * LIMIT.x, Math.max(-1, Math.min(1, y)) * LIMIT.y);
+        setPupil(Math.max(-1, Math.min(1, x)) * LIMIT.x, Math.max(-1, Math.min(1, y)) * LIMIT.y);
+      },
+      glanceAtDish() {
+        if (!closed.current) api.look(-1, 0.15);
       },
       close(shut) {
         closed.current = shut;
-        if (shut) setPupils(0, 0);
-        setLids(shut);
+        if (shut) setPupil(0, 0);
+        setLid(shut);
       },
       blink() {
         if (closed.current || reduced()) return;
-        setLids(true);
-        window.setTimeout(() => !closed.current && setLids(false), 130);
+        setLid(true);
+        window.setTimeout(() => !closed.current && setLid(false), 130);
       },
       shake() {
         if (reduced()) return;
@@ -90,7 +88,7 @@ export const GazeStage = forwardRef<GazeApi, { className?: string; color?: strin
       },
       think() {
         if (reduced()) return () => {};
-        const path: [number, number][] = [[-0.9, 0.2], [0.2, -0.9], [0.9, -0.3], [0.1, 0.6]];
+        const path: [number, number][] = [[-1, 0.1], [0.2, -0.9], [0.9, -0.2], [0.1, 0.7]];
         let i = 0;
         api.look(...path[0]);
         const id = window.setInterval(() => api.look(...path[++i % path.length]), 380);
@@ -100,40 +98,66 @@ export const GazeStage = forwardRef<GazeApi, { className?: string; color?: strin
     return api;
   }, []);
 
-  // pupils and lids ease like the brand book's gaze (220ms); reduced motion jumps without animating
   useEffect(() => {
-    const ease = reduced() ? "none" : "transform 220ms cubic-bezier(.2,.8,.25,1)";
-    pupils.current.forEach((p) => p && (p.style.transition = ease));
-    lids.current.forEach((l) => l && (l.style.transition = reduced() ? "none" : "transform 160ms cubic-bezier(.4,0,.2,1)"));
-    setLids(false);
+    const still = reduced();
+    if (pupil.current) pupil.current.style.transition = still ? "none" : "transform 220ms cubic-bezier(.2,.8,.25,1)";
+    if (lid.current) lid.current.style.transition = still ? "none" : "transform 160ms cubic-bezier(.4,0,.2,1)";
+    setLid(false);
   }, []);
 
   return (
-    <svg ref={svg} viewBox={`0 0 ${VB.w} ${VB.h}`} className={cn("block", className)} aria-hidden="true" focusable="false">
+    <svg ref={svg} viewBox={`0 0 ${VB.w} ${VB.h}`} className={cn("block overflow-visible", className)} aria-hidden="true" focusable="false">
       <defs>
-        {EYES.map((e, i) => (
-          <clipPath key={i} id={`gaze-eye-${i}`}>
-            <circle cx={e.cx} cy={e.cy} r={INNER} />
-          </clipPath>
-        ))}
+        <clipPath id="gaze-dish">
+          <circle cx={DISH.cx} cy={DISH.cy} r={OUTER} />
+        </clipPath>
+        <clipPath id="gaze-eye">
+          <circle cx={EYE.cx} cy={EYE.cy} r={INNER} />
+        </clipPath>
+        <filter id="gaze-lift" x="-40%" y="-40%" width="180%" height="190%">
+          <feDropShadow dx="0" dy="18" stdDeviation="18" floodColor="#140a09" floodOpacity="0.55" />
+        </filter>
       </defs>
+
       <g ref={head}>
-        {EYES.map((e, i) => (
-          <g key={i}>
-            <g ref={(n) => void (pupils.current[i] = n)}>
-              <circle cx={e.cx + PUPIL.dx} cy={e.cy + PUPIL.dy} r={PUPIL.r} fill={color} />
+        {/* plate one: a real dish, turning slowly, the dishes cross-fading */}
+        <g filter="url(#gaze-lift)">
+          <circle cx={DISH.cx} cy={DISH.cy} r={OUTER} fill={well} />
+          <g clipPath="url(#gaze-dish)">
+            <g className="gaze-turntable" style={{ transformOrigin: `${DISH.cx}px ${DISH.cy}px` }}>
+              {dishes.map((src, i) => (
+                <image
+                  key={src}
+                  href={src}
+                  x={DISH.cx - OUTER}
+                  y={DISH.cy - OUTER}
+                  width={OUTER * 2}
+                  height={OUTER * 2}
+                  preserveAspectRatio="xMidYMid slice"
+                  className="transition-opacity duration-700 ease-out motion-reduce:transition-none"
+                  style={{ opacity: i === current ? 1 : 0 }}
+                />
+              ))}
             </g>
-            {/* the lid: ivory from above, its lash line stopping on the plate's centre line */}
-            <g clipPath={`url(#gaze-eye-${i})`}>
-              <g ref={(n) => void (lids.current[i] = n)} style={{ transform: `translateY(${LID_OPEN}px)` }}>
-                <rect x={e.cx - INNER} y={e.cy - INNER - 4} width={INNER * 2} height={INNER + 4} fill={lid} />
-                <path d={`M${e.cx - INNER} ${e.cy}h${INNER * 2}`} stroke={color} strokeWidth={11} strokeLinecap="round" />
-              </g>
-            </g>
-            <circle cx={e.cx} cy={e.cy} r={R} fill="none" stroke={color} strokeWidth={RIM} />
-            <path d={`M${e.cx - 58.8} ${e.cy + 5.9}a61.8 61.8 0 0 0 47.1 52.9`} fill="none" stroke={color} strokeWidth={11} strokeLinecap="round" />
           </g>
-        ))}
+          <circle cx={DISH.cx} cy={DISH.cy} r={OUTER - 2} fill="none" stroke={ring} strokeWidth="4" />
+        </g>
+
+        {/* plate two: the watching eye */}
+        <g filter="url(#gaze-lift)">
+          <circle cx={EYE.cx} cy={EYE.cy} r={OUTER} fill={well} />
+          <g ref={pupil}>
+            <circle cx={EYE.cx + PUPIL.dx} cy={EYE.cy + PUPIL.dy} r={PUPIL.r} fill={ring} />
+          </g>
+          <g clipPath="url(#gaze-eye)">
+            <g ref={lid} style={{ transform: `translateY(${LID_OPEN}px)` }}>
+              <rect x={EYE.cx - INNER} y={EYE.cy - INNER - 4} width={INNER * 2} height={INNER + 4} fill={well} />
+              <path d={`M${EYE.cx - INNER} ${EYE.cy}h${INNER * 2}`} stroke={ring} strokeWidth={11} strokeLinecap="round" />
+            </g>
+          </g>
+          <circle cx={EYE.cx} cy={EYE.cy} r={R} fill="none" stroke={ring} strokeWidth={RIM} />
+          <path d={`M${EYE.cx - 58.8} ${EYE.cy + 5.9}a61.8 61.8 0 0 0 47.1 52.9`} fill="none" stroke={ring} strokeWidth={11} strokeLinecap="round" />
+        </g>
       </g>
     </svg>
   );
