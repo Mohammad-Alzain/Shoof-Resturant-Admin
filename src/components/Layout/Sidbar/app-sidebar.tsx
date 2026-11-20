@@ -55,16 +55,16 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="h-16 justify-center overflow-hidden px-2 py-0">
         <Link to="/dashboard" className="flex items-center gap-2.5 px-1" aria-label={t("app_name")}>
           {restaurant?.logoUrl ? (
-            <img src={restaurant.logoUrl} alt="" className="size-9 shrink-0 rounded-xl bg-sidebar-strong object-cover" />
+            <img src={restaurant.logoUrl} alt="" className="size-9 shrink-0 rounded-full bg-sidebar-strong object-cover ring-2 ring-sidebar-oil/70" />
           ) : (
-            <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-xl bg-terracotta font-display text-base font-bold text-white">
+            <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-sidebar-oil font-display text-base font-semibold text-sidebar-primary-foreground shadow-[inset_0_0_0_3px_rgb(255_255_255/0.35)]">
               {(restaurant?.name ?? "S").trim().charAt(0).toUpperCase()}
             </span>
           )}
           <span className={cn("flex min-w-0 flex-col leading-none whitespace-nowrap", FADE)}>
             <span className="truncate text-[0.9375rem] font-semibold text-sidebar-strong">{restaurant?.name ?? t("restaurant")}</span>
-            <span className="mt-1.5 flex items-center gap-1.5 text-[0.625rem] font-medium uppercase tracking-[0.14em] text-sidebar-foreground">
-              <Wordmark className="h-[11px] text-sidebar-foreground" />
+            <span className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-sidebar-foreground">
+              <Wordmark className="h-[11px] text-brand-ivory" />
               {t("super_admin")}
             </span>
           </span>
