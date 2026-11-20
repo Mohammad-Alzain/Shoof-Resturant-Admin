@@ -1,3 +1,4 @@
+import { normalizePermissions, permissionsFromToken } from "../permissions";
 import { httpClient } from "@/Api/httpClient";
 import { tenantIdFromToken } from "../tenant";
 import type {
@@ -29,7 +30,8 @@ export const normalizeSession = (reply: ITokenReply, previous?: IProfile): IProf
   return {
     user: reply.user ?? { ...(previous?.user ?? { email: "" }), ...(reply.fullName ? { fullName: reply.fullName, name: reply.fullName, id: reply.userId } : {}) },
     roles: reply.roles ?? previous?.roles ?? [],
-    permissions: previous?.permissions ?? [],
+    // The reply or the JWT may carry them; otherwise fetchProfile asks the API. Never stored: a reload resolves them again.
+    permissions: normalizePermissions(reply.permissions) ?? permissionsFromToken(token) ?? previous?.permissions ?? null,
     token,
     refreshToken: reply.refreshToken ?? previous?.refreshToken,
     mustChangePassword: Boolean(reply.mustChangePassword),

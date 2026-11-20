@@ -101,11 +101,14 @@ handle `403` gracefully (empty body → "You don't have permission to do this").
   contains the role **names** only (`roles[]`).
 - SuperAdmin: permissions are assigned **directly per user**. The login response has no permissions.
 
-> ⚠️ **Open item (backend):** there is no "my permissions" endpoint. Today the role/permission lookups
-> (`GET api/roles/{id}`, `GET api/super-admin-users/{id}/permissions`) themselves require `Roles.View` /
-> `SuperAdminUsers.View`, so a limited user can't read their own permissions. Until a
-> `GET api/auth/me`-style endpoint exists, show navigation optimistically and rely on `403` handling.
-> Agree the approach with the backend team before building permission-gated navigation.
+> **How the console resolves them.** After sign-in it reads the user's permissions from, in order: the login reply, claims in the
+> JWT, `GET api/account/me`, then the user's own list `GET api/admin-users/{id}/permissions` (the same contract as the SuperAdmin
+> console's `super-admin-users/{id}/permissions`; silent, so an older server that lacks it simply falls through), and last the
+> roles (`GET api/roles/{id}`, which needs `Roles.View`; the Owner role means everything). The result lives in memory only and
+> is resolved again on every load. The menu, the routes and the action buttons are filtered by it; a `403` is still handled
+> wherever it happens.
+> ⚠️ **To confirm with the backend:** the path and shape of `admin-users/{id}/permissions` (a flat list, `{ permissions: [...] }`
+> or groups with actions are all accepted).
 
 Each spec lists the permission needed per action.
 

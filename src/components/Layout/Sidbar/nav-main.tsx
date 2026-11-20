@@ -44,16 +44,28 @@ interface NavGroup {
   items: RouteI[];
 }
 
-/** Routes carry `titleOfGroup` on the first item of each section; the items after it belong to that section. */
+/**
+ * Routes carry `titleOfGroup` on the first item of each section; the items after it belong to that section.
+ * Sections are assigned on the full route list, before permissions filter it: otherwise a user who may not open the item
+ * that carries a section's title would see that section's other items under the previous section.
+ */
+const sectionOf = (() => {
+  const map = new Map<string, string | undefined>();
+  let current: string | undefined;
+  for (const r of flatRoutes) {
+    if (r.titleOfGroup) current = r.titleOfGroup;
+    map.set(r.href, current);
+  }
+  return map;
+})();
+
 const toGroups = (links: RouteI[]): NavGroup[] => {
   const groups: NavGroup[] = [];
   for (const link of links) {
-    if (link.titleOfGroup || !groups.length)
-      groups.push({
-        key: link.titleOfGroup ?? "main",
-        label: link.titleOfGroup,
-        items: [],
-      });
+    const section = sectionOf.get(link.href);
+    const last = groups[groups.length - 1];
+    if (!last || last.label !== section)
+      groups.push({ key: section ?? "main", label: section, items: [] });
     groups[groups.length - 1].items.push(link);
   }
   return groups;

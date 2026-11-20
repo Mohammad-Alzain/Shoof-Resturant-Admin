@@ -22,7 +22,8 @@ export interface IPermission {
 export interface IProfile {
   user: IUser;
   roles: string[];
-  permissions: IPermission[];
+  /** What the user may do ("Group.Action"). null = not resolved yet. Kept in memory only, never in local storage. */
+  permissions: string[] | null;
   token?: string;
   refreshToken?: string;
   /** Set by the server for temporary passwords: only the change-password screen may be used. */

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { getAuth, removeAuth, setAuth } from "@/modules/Auth/core/utils/AuthHelpers";
 import { GetMeApi, LogoutApi, normalizeSession } from "@/modules/Auth/core/api/api-auth";
 import type { IProfile, ITokenReply } from "@/modules/Auth/core/types";
-import { normalizePermissions, permissionsFromToken, rolesFromToken } from "@/modules/Auth/core/permissions";
+import { fetchOwnPermissions, normalizePermissions, permissionsFromToken, rolesFromToken } from "@/modules/Auth/core/permissions";
 import { ALL_PERMISSIONS, resolvePermissions } from "@/modules/Team/core/api";
 
 export interface AuthState {
@@ -63,21 +63,24 @@ const useAuthStore = create<AuthState>((set, get) => ({
     const current = get().auth;
     if (!current?.token) return;
     set({ permissionsIsFetching: true });
-    let profileExtra: { permissions?: unknown } | undefined;
+    let profileExtra: { permissions?: unknown; id?: string | number } | undefined;
     try {
       const me = await GetMeApi();
-      profileExtra = me as { permissions?: unknown };
+      profileExtra = me as { permissions?: unknown; id?: string | number };
       const latest = get().auth;
       if (latest) get().saveAuth({ ...latest, user: { ...latest.user, ...me } });
     } catch {
       /* 401 is handled by the client (refresh or logout); other errors keep the stored profile */
     }
     try {
-      // The JWT or the profile may carry the permissions outright; otherwise they come from the user's roles.
-      const carried = permissionsFromToken(get().auth?.token) ?? normalizePermissions(profileExtra?.permissions);
+      // The reply, the JWT or the profile may carry the permissions outright; otherwise the API is asked for the user's own
+      // list (works for a user without `Roles.View`); only then are the user's roles read, which needs `Roles.View`.
+      const token = get().auth?.token;
+      const carried = normalizePermissions(get().auth?.permissions) ?? permissionsFromToken(token) ?? normalizePermissions(profileExtra?.permissions);
+      const own = carried ?? (await fetchOwnPermissions(profileExtra?.id ?? get().auth?.user?.id, token));
       // Roles come from this session's login reply, or from the signed token after a reload (never from storage).
-      const roles = get().auth?.roles?.length ? get().auth!.roles : rolesFromToken(get().auth?.token);
-      const resolved = carried ?? (await resolvePermissions(roles));
+      const roles = get().auth?.roles?.length ? get().auth!.roles : rolesFromToken(token);
+      const resolved = own ?? (await resolvePermissions(roles));
       set({ permissions: Object.freeze([...resolved]) as string[] });
     } catch {
       // Roles could not be read (e.g. no `Roles.View`): show everything and let the server's 403 decide.
