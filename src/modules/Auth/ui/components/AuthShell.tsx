@@ -236,7 +236,7 @@ export function AuthShell({
               {t(DISHES[dish].key)}
             </span>
           </p>
-          <p className="hidden font-display text-[clamp(2.5rem,3.4vw,4rem)] font-semibold leading-[1.1] lg:block rtl:leading-[1.27]">{t("stage_headline")}</p>
+          <p className="hidden whitespace-pre-line font-display text-[clamp(2.25rem,2.9vw,3.4rem)] font-semibold leading-[1.12] text-balance lg:block rtl:leading-[1.3]">{t("stage_headline")}</p>
           <p key={mood} className="gaze-hint text-base text-[#E9DDCF] lg:mt-4 lg:text-lg">
             {t(HINT[mood])}
           </p>
