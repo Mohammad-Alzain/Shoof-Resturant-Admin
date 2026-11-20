@@ -4,11 +4,13 @@ import { LanguageSwitcher } from "@/components/Layout/Header/LanguageSwitcher";
 import { getDirection } from "@/Translation/i18n";
 import { BrandLogo } from "@/components/common/Brand";
 import { GazeStage, type GazeApi } from "./GazeStage";
+import { DISH_COUNT, MenuTable } from "./MenuTable";
 
-type Mood = "idle" | "reading" | "secret" | "looking_away" | "checking" | "error";
+type Mood = "idle" | "browsing" | "reading" | "secret" | "looking_away" | "checking" | "error";
 
 const HINT: Record<Mood, string> = {
   idle: "gaze_idle",
+  browsing: "gaze_browsing",
   reading: "gaze_reading",
   secret: "gaze_secret",
   looking_away: "gaze_looking_away",
@@ -38,8 +40,13 @@ function caretPoint(input: HTMLInputElement) {
  * shuts its eyes for the password (and looks away if the password is shown), looks around while the server checks,
  * shakes its head at an error and blinks now and then. Driven from the form's DOM, so every auth page gets it for free.
  */
-function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.RefObject<GazeApi | null>) {
+function useGazeDirector(
+  form: React.RefObject<HTMLElement | null>,
+  stage: React.RefObject<HTMLElement | null>,
+  gaze: React.RefObject<GazeApi | null>,
+) {
   const [mood, setMood] = useState<Mood>("idle");
+  const [active, setActive] = useState<number | null>(null);
 
   useEffect(() => {
     const root = form.current;
@@ -47,6 +54,24 @@ function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.
     let holding = false;
     let stopThinking: (() => void) | null = null;
     let thinkTimer = 0;
+    let lastPointer = 0;
+    let lastInput = performance.now();
+    let secret = false;
+    let current: number | null = null;
+    let browseIndex = Math.floor(Math.random() * DISH_COUNT);
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /** Centre of a dish on the page, or null when the dish is not shown (phones). */
+    const dishCentre = (i: number) => {
+      const el = stage.current?.querySelector<HTMLElement>(`[data-dish="${i}"] svg`);
+      const r = el?.getBoundingClientRect();
+      return r && r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
+    };
+    const highlight = (i: number | null) => {
+      if (current === i) return;
+      current = i;
+      setActive(i);
+    };
 
     const fieldOf = (el: Element | null): HTMLInputElement | null => {
       if (el instanceof HTMLInputElement) return el;
@@ -65,7 +90,10 @@ function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.
       const input = fieldOf(active);
       if (!input) return;
       if (input.type === "password") input.dataset.secret = "1";
+      secret = Boolean(input.dataset.secret);
+      lastInput = performance.now();
       holding = true;
+      highlight(null);
       if (input.type === "password") {
         gaze.current?.close(true);
         setMood("secret");
@@ -84,16 +112,46 @@ function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.
 
     const onFocus = () => requestAnimationFrame(evaluate);
     const onInput = (e: Event) => {
+      lastInput = performance.now();
       const t = e.target;
       if (t instanceof HTMLInputElement && t.type !== "password" && !t.dataset.secret) {
         const p = caretPoint(t);
         gaze.current?.lookAt(p.x, p.y);
+        highlight(null);
+        setMood((m) => (m === "browsing" ? "reading" : m));
       }
     };
     const onClick = () => requestAnimationFrame(evaluate);
     const onPointer = (e: PointerEvent) => {
-      if (!holding) gaze.current?.lookAt(e.clientX, e.clientY);
+      lastPointer = performance.now();
+      if (holding) return;
+      gaze.current?.lookAt(e.clientX, e.clientY);
+      // the pointer over a dish: that is the one being looked at
+      let near: number | null = null;
+      for (let i = 0; i < DISH_COUNT; i++) {
+        const c = dishCentre(i);
+        if (c && Math.hypot(c.x - e.clientX, c.y - e.clientY) < 70) near = i;
+      }
+      highlight(near);
+      setMood((m) => (m === "browsing" || m === "idle" ? (near === null ? "idle" : "browsing") : m));
     };
+    // left alone, the eyes read the menu: one dish after another
+    const browse = window.setInterval(() => {
+      const now = performance.now();
+      // a field in use keeps the eyes on it; a field left untouched for a while lets them wander back to the menu
+      const busy = holding && (secret || now - lastInput < 4000);
+      if (still || busy || document.hidden || now - lastPointer < 2500) return;
+      for (let tries = 0; tries < DISH_COUNT; tries++) {
+        browseIndex = (browseIndex + 1 + Math.floor(Math.random() * 2)) % DISH_COUNT;
+        const c = dishCentre(browseIndex);
+        if (c) {
+          gaze.current?.lookAt(c.x, c.y);
+          highlight(browseIndex);
+          setMood((m) => (m === "idle" || m === "browsing" || m === "reading" ? "browsing" : m));
+          return;
+        }
+      }
+    }, 1900);
     const onSubmit = () => {
       (document.activeElement as HTMLElement | null)?.blur?.();
       holding = true;
@@ -145,6 +203,7 @@ function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.
     window.addEventListener("pointermove", onPointer);
     return () => {
       observer.disconnect();
+      window.clearInterval(browse);
       cancelAnimationFrame(first);
       stopThinking?.();
       window.clearTimeout(thinkTimer);
@@ -157,9 +216,9 @@ function useGazeDirector(form: React.RefObject<HTMLElement | null>, gaze: React.
       root.removeEventListener("submit", onSubmit, true);
       window.removeEventListener("pointermove", onPointer);
     };
-  }, [form, gaze]);
+  }, [form, stage, gaze]);
 
-  return mood;
+  return { mood, active };
 }
 
 /** Sign-in: the watching gaze on warm sand beside the form on ivory. Mirrored in RTL; the mark itself never mirrors. */
@@ -177,14 +236,16 @@ export function AuthShell({
   const { t } = useTranslation();
   const gaze = useRef<GazeApi>(null);
   const formArea = useRef<HTMLElement>(null);
-  const mood = useGazeDirector(formArea, gaze);
+  const stage = useRef<HTMLElement>(null);
+  const { mood, active } = useGazeDirector(formArea, stage, gaze);
 
   return (
     <div dir={getDirection()} className="auth-light auth-screen grid bg-[#FBF5E9] text-[#261C1A] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <aside aria-hidden className="auth-stage relative flex flex-col items-center justify-center overflow-hidden bg-linear-to-b from-[#F3EADC] to-[#E9DDCF] px-6 py-6 lg:sticky lg:top-0 lg:order-last lg:px-12">
-        <GazeStage ref={gaze} lid="#F0E6D7" className="w-[200px] sm:w-[280px] lg:w-[min(80%,560px)]" />
+      <aside ref={stage} aria-hidden className="auth-stage relative flex flex-col items-center justify-center overflow-hidden bg-linear-to-b from-[#F3EADC] to-[#E9DDCF] px-6 py-6 lg:sticky lg:top-0 lg:order-last lg:px-12">
+        <MenuTable active={active} className="hidden lg:block" />
+        <GazeStage ref={gaze} lid="#F0E6D7" className="relative w-[200px] sm:w-[280px] lg:w-[min(58%,460px)]" />
 
-        <div className="mt-4 text-center lg:mt-14">
+        <div className="relative mt-4 text-center lg:mt-12">
           <p className="hidden font-display text-[clamp(2.5rem,3.4vw,4rem)] font-semibold leading-[1.1] lg:block rtl:leading-[1.27]">{t("stage_headline")}</p>
           <p key={mood} className="gaze-hint text-base text-[#261C1A]/75 lg:mt-4 lg:text-lg">
             {t(HINT[mood])}
