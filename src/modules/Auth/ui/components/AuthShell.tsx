@@ -1,16 +1,24 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { asset } from "@/helpers/asset";
 import { LanguageSwitcher } from "@/components/Layout/Header/LanguageSwitcher";
 import { getDirection } from "@/Translation/i18n";
 import { BrandLogo } from "@/components/common/Brand";
 import { GazeStage, type GazeApi } from "./GazeStage";
-import { DISH_COUNT, MenuTable } from "./MenuTable";
 
-type Mood = "idle" | "browsing" | "reading" | "secret" | "looking_away" | "checking" | "error";
+/** Real dishes, photographed from above (public/images/login/CREDITS.md). */
+const DISHES = [
+  { key: "dish_hummus", src: "images/login/dishes/hummus.webp" },
+  { key: "dish_shakshuka", src: "images/login/dishes/shakshuka.webp" },
+  { key: "dish_salad", src: "images/login/dishes/salad.webp" },
+  { key: "dish_ravioli", src: "images/login/dishes/ravioli.webp" },
+] as const;
+const DISH_EVERY = 5200;
+
+type Mood = "idle" | "reading" | "secret" | "looking_away" | "checking" | "error";
 
 const HINT: Record<Mood, string> = {
   idle: "gaze_idle",
-  browsing: "gaze_browsing",
   reading: "gaze_reading",
   secret: "gaze_secret",
   looking_away: "gaze_looking_away",
@@ -19,7 +27,7 @@ const HINT: Record<Mood, string> = {
 };
 
 let measureCtx: CanvasRenderingContext2D | null = null;
-/** Where the caret sits in a text field, in client coordinates: the eyes read along as the user types. */
+/** Where the caret sits in a text field, in client coordinates: the eye reads along as the user types. */
 function caretPoint(input: HTMLInputElement) {
   const r = input.getBoundingClientRect();
   const cs = getComputedStyle(input);
@@ -36,53 +44,36 @@ function caretPoint(input: HTMLInputElement) {
 }
 
 /**
- * The stage: the Shoof gaze watching the sign-in. It follows the pointer, reads along in the field being typed in,
- * shuts its eyes for the password (and looks away if the password is shown), looks around while the server checks,
- * shakes its head at an error and blinks now and then. Driven from the form's DOM, so every auth page gets it for free.
+ * Directs the stage from the form's DOM, so every auth page gets it for free. The dish plate changes every few seconds
+ * and the eye glances at each new dish; otherwise the eye follows the pointer, reads along in the field being typed in,
+ * closes for the password (and looks away if it is shown), looks around while the server checks, shakes its head at an
+ * error and blinks now and then.
  */
-function useGazeDirector(
-  form: React.RefObject<HTMLElement | null>,
-  stage: React.RefObject<HTMLElement | null>,
-  gaze: React.RefObject<GazeApi | null>,
-) {
+function useStageDirector(form: React.RefObject<HTMLElement | null>, gaze: React.RefObject<GazeApi | null>) {
   const [mood, setMood] = useState<Mood>("idle");
-  const [active, setActive] = useState<number | null>(null);
+  const [dish, setDish] = useState(0);
 
   useEffect(() => {
     const root = form.current;
     if (!root) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let holding = false;
+    let secret = false;
     let stopThinking: (() => void) | null = null;
     let thinkTimer = 0;
-    let lastPointer = 0;
-    let lastInput = performance.now();
-    let secret = false;
-    let current: number | null = null;
-    let browseIndex = Math.floor(Math.random() * DISH_COUNT);
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    /** Centre of a dish on the page, or null when the dish is not shown (phones). */
-    const dishCentre = (i: number) => {
-      const el = stage.current?.querySelector<HTMLElement>(`[data-dish="${i}"] svg`);
-      const r = el?.getBoundingClientRect();
-      return r && r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
-    };
-    const highlight = (i: number | null) => {
-      if (current === i) return;
-      current = i;
-      setActive(i);
-    };
+    let glanceTimer = 0;
+    let lastPointer = { x: 0, y: 0, at: 0 };
 
     const fieldOf = (el: Element | null): HTMLInputElement | null => {
       if (el instanceof HTMLInputElement) return el;
-      // the show/hide password button sits beside its input
-      return el?.closest("div")?.querySelector("input") ?? null;
+      return el?.closest("div")?.querySelector("input") ?? null; // the show/hide button sits beside its input
     };
 
     const evaluate = () => {
       const active = document.activeElement;
       if (!active || !root.contains(active)) {
         holding = false;
+        secret = false;
         gaze.current?.close(false);
         setMood((m) => (m === "error" || m === "checking" ? m : "idle"));
         return;
@@ -91,16 +82,13 @@ function useGazeDirector(
       if (!input) return;
       if (input.type === "password") input.dataset.secret = "1";
       secret = Boolean(input.dataset.secret);
-      lastInput = performance.now();
       holding = true;
-      highlight(null);
       if (input.type === "password") {
         gaze.current?.close(true);
         setMood("secret");
       } else if (input.dataset.secret) {
-        // the password is shown: eyes open, looking politely away
         gaze.current?.close(false);
-        gaze.current?.look(getDirection() === "rtl" ? 0.8 : -0.8, -1);
+        gaze.current?.look(0.6, -1); // shown password: eye open, looking politely away
         setMood("looking_away");
       } else {
         gaze.current?.close(false);
@@ -110,48 +98,18 @@ function useGazeDirector(
       }
     };
 
-    const onFocus = () => requestAnimationFrame(evaluate);
+    const onFocus = () => window.setTimeout(evaluate, 0); // after focusout, activeElement settles on the next task
     const onInput = (e: Event) => {
-      lastInput = performance.now();
       const t = e.target;
       if (t instanceof HTMLInputElement && t.type !== "password" && !t.dataset.secret) {
         const p = caretPoint(t);
         gaze.current?.lookAt(p.x, p.y);
-        highlight(null);
-        setMood((m) => (m === "browsing" ? "reading" : m));
       }
     };
-    const onClick = () => requestAnimationFrame(evaluate);
     const onPointer = (e: PointerEvent) => {
-      lastPointer = performance.now();
-      if (holding) return;
-      gaze.current?.lookAt(e.clientX, e.clientY);
-      // the pointer over a dish: that is the one being looked at
-      let near: number | null = null;
-      for (let i = 0; i < DISH_COUNT; i++) {
-        const c = dishCentre(i);
-        if (c && Math.hypot(c.x - e.clientX, c.y - e.clientY) < 70) near = i;
-      }
-      highlight(near);
-      setMood((m) => (m === "browsing" || m === "idle" ? (near === null ? "idle" : "browsing") : m));
+      lastPointer = { x: e.clientX, y: e.clientY, at: performance.now() };
+      if (!holding) gaze.current?.lookAt(e.clientX, e.clientY);
     };
-    // left alone, the eyes read the menu: one dish after another
-    const browse = window.setInterval(() => {
-      const now = performance.now();
-      // a field in use keeps the eyes on it; a field left untouched for a while lets them wander back to the menu
-      const busy = holding && (secret || now - lastInput < 4000);
-      if (still || busy || document.hidden || now - lastPointer < 2500) return;
-      for (let tries = 0; tries < DISH_COUNT; tries++) {
-        browseIndex = (browseIndex + 1 + Math.floor(Math.random() * 2)) % DISH_COUNT;
-        const c = dishCentre(browseIndex);
-        if (c) {
-          gaze.current?.lookAt(c.x, c.y);
-          highlight(browseIndex);
-          setMood((m) => (m === "idle" || m === "browsing" || m === "reading" ? "browsing" : m));
-          return;
-        }
-      }
-    }, 1900);
     const onSubmit = () => {
       (document.activeElement as HTMLElement | null)?.blur?.();
       holding = true;
@@ -166,10 +124,8 @@ function useGazeDirector(
         setMood((m) => (m === "checking" ? "idle" : m));
       }, 2400);
     };
-    // an error appears in the form: stop looking around, shake the head
     const observer = new MutationObserver(() => {
-      const failed = root.querySelector('[role="alert"], [aria-invalid="true"]');
-      if (failed) {
+      if (root.querySelector('[role="alert"], [aria-invalid="true"]')) {
         stopThinking?.();
         window.clearTimeout(thinkTimer);
         holding = false;
@@ -182,7 +138,23 @@ function useGazeDirector(
     });
     observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-invalid", "type"] });
 
-    // a blink every few seconds keeps the gaze alive
+    // a new dish on the plate; the eye glances over at it unless it is busy with the password
+    const cycle = still
+      ? 0
+      : window.setInterval(() => {
+          if (document.hidden) return;
+          setDish((d) => (d + 1) % DISHES.length);
+          if (secret) return;
+          gaze.current?.glanceAtDish();
+          window.clearTimeout(glanceTimer);
+          glanceTimer = window.setTimeout(() => {
+            const focused = fieldOf(document.activeElement);
+            if (holding && focused && root.contains(focused)) evaluate();
+            else if (lastPointer.at) gaze.current?.lookAt(lastPointer.x, lastPointer.y);
+            else gaze.current?.look(0, 0);
+          }, 1300);
+        }, DISH_EVERY);
+
     let blinkTimer = 0;
     const scheduleBlink = () => {
       blinkTimer = window.setTimeout(() => {
@@ -191,37 +163,39 @@ function useGazeDirector(
       }, 3500 + Math.random() * 4000);
     };
     scheduleBlink();
-    // a field may already hold focus (autoFocus) before these listeners exist
-    const first = requestAnimationFrame(evaluate);
+    const first = window.setTimeout(evaluate, 0); // autoFocus may have happened before these listeners
 
     root.addEventListener("focusin", onFocus);
     root.addEventListener("focusout", onFocus);
     root.addEventListener("input", onInput);
     root.addEventListener("keyup", onInput);
-    root.addEventListener("click", onClick);
+    root.addEventListener("click", onFocus);
     root.addEventListener("submit", onSubmit, true);
     window.addEventListener("pointermove", onPointer);
     return () => {
       observer.disconnect();
-      window.clearInterval(browse);
-      cancelAnimationFrame(first);
+      window.clearTimeout(first);
+      window.clearInterval(cycle);
       stopThinking?.();
-      window.clearTimeout(thinkTimer);
-      window.clearTimeout(blinkTimer);
+      [thinkTimer, glanceTimer, blinkTimer].forEach((t) => window.clearTimeout(t));
       root.removeEventListener("focusin", onFocus);
       root.removeEventListener("focusout", onFocus);
       root.removeEventListener("input", onInput);
       root.removeEventListener("keyup", onInput);
-      root.removeEventListener("click", onClick);
+      root.removeEventListener("click", onFocus);
       root.removeEventListener("submit", onSubmit, true);
       window.removeEventListener("pointermove", onPointer);
     };
-  }, [form, stage, gaze]);
+  }, [form, gaze]);
 
-  return { mood, active };
+  return { mood, dish };
 }
 
-/** Sign-in: the watching gaze on warm sand beside the form on ivory. Mirrored in RTL; the mark itself never mirrors. */
+/**
+ * Sign-in. The stage: the dish of the moment, blown up and softened behind a dining-light wash, and in front of it the
+ * mark made literal (a real dish in the first plate, the watching eye in the second) under «قبل أول لقمة.».
+ * The form sits on warm ivory with the official logo. Mirrored in RTL; the mark itself never mirrors.
+ */
 export function AuthShell({
   title,
   description,
@@ -236,18 +210,36 @@ export function AuthShell({
   const { t } = useTranslation();
   const gaze = useRef<GazeApi>(null);
   const formArea = useRef<HTMLElement>(null);
-  const stage = useRef<HTMLElement>(null);
-  const { mood, active } = useGazeDirector(formArea, stage, gaze);
+  const { mood, dish } = useStageDirector(formArea, gaze);
+  const srcs = DISHES.map((d) => asset(d.src));
 
   return (
     <div dir={getDirection()} className="auth-light auth-screen grid bg-[#FBF5E9] text-[#261C1A] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <aside ref={stage} aria-hidden className="auth-stage relative flex flex-col items-center justify-center overflow-hidden bg-linear-to-b from-[#F3EADC] to-[#E9DDCF] px-6 py-6 lg:sticky lg:top-0 lg:order-last lg:px-12">
-        <MenuTable active={active} className="hidden lg:block" />
-        <GazeStage ref={gaze} lid="#F0E6D7" className="relative w-[200px] sm:w-[280px] lg:w-[min(58%,460px)]" />
+      <aside aria-hidden className="auth-stage relative flex flex-col items-center justify-center overflow-hidden bg-[#261C1A] px-6 pb-6 pt-8 text-[#FBF5E9] lg:sticky lg:top-0 lg:order-last lg:px-12 lg:py-0">
+        {/* the real dish, large and soft, behind everything */}
+        {srcs.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            decoding="async"
+            className="absolute inset-0 size-full scale-110 object-cover blur-[3px] transition-opacity duration-1000 ease-out motion-reduce:transition-none"
+            style={{ opacity: i === dish ? 1 : 0 }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-linear-to-b from-[#541F2D]/72 via-[#3d1620]/60 to-[#261C1A]/90" />
 
-        <div className="relative mt-4 text-center lg:mt-12">
+        <GazeStage ref={gaze} dishes={srcs} current={dish} className="relative w-[230px] sm:w-[300px] lg:w-[min(78%,540px)]" />
+
+        <div className="relative mt-5 text-center lg:mt-14">
+          <p className="mb-3 hidden h-7 lg:block">
+            <span key={dish} className="gaze-hint inline-flex items-center gap-2 rounded-full border border-[#FBF5E9]/25 px-3 py-1 text-sm text-[#E9DDCF]">
+              <span className="size-1.5 rounded-full bg-[#B95035]" />
+              {t(DISHES[dish].key)}
+            </span>
+          </p>
           <p className="hidden font-display text-[clamp(2.5rem,3.4vw,4rem)] font-semibold leading-[1.1] lg:block rtl:leading-[1.27]">{t("stage_headline")}</p>
-          <p key={mood} className="gaze-hint text-base text-[#261C1A]/75 lg:mt-4 lg:text-lg">
+          <p key={mood} className="gaze-hint text-base text-[#E9DDCF] lg:mt-4 lg:text-lg">
             {t(HINT[mood])}
           </p>
         </div>

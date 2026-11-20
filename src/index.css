@@ -663,3 +663,19 @@ tbody > tr:hover {
     animation: none;
   }
 }
+
+/* Sign-in: the dish on the first plate turns slowly, a nod to the 3D models it becomes */
+.gaze-turntable {
+  transform-box: view-box;
+  animation: gaze-turn 70s linear infinite;
+}
+@keyframes gaze-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gaze-turntable {
+    animation: none;
+  }
+}
