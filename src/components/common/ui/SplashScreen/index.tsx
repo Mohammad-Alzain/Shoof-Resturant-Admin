@@ -7,7 +7,7 @@ const SplashScreen = () => {
   return (
     <div role="status" className="flex h-screen w-full flex-col items-center justify-center gap-5 bg-background text-foreground">
       <GazeLoader className="h-16" />
-      <Wordmark className="h-5 text-foreground" />
+      <Wordmark className="h-5 text-brand-ink" />
       <p className="text-sm text-muted-foreground">{dir === "rtl" ? "يرجى الانتظار" : "Loading…"}</p>
     </div>
   );

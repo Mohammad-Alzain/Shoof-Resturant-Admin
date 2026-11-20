@@ -40,8 +40,8 @@ const printSheet = (cards: { label: string; image: string }[], restaurant: strin
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
   w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(restaurant)}</title><style>
     body{font-family:system-ui,sans-serif;margin:0;padding:24px}.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
-    .c{border:2px solid #261c1a;border-radius:16px;padding:18px;text-align:center;break-inside:avoid}.c img{width:100%;max-width:190px}
-    .c b{display:block;font-size:22px;margin-top:8px}.c small{color:#6f5c55}</style><div class="g">${cards
+    .c{border:2px solid #541f2d;border-radius:16px;padding:18px;text-align:center;break-inside:avoid}.c img{width:100%;max-width:190px}
+    .c b{display:block;font-size:22px;margin-top:8px}.c small{color:#6e5d58}</style><div class="g">${cards
       .filter((c) => /^https?:\/\//i.test(c.image) || c.image.startsWith("/"))
       .map((c) => `<div class="c"><img src="${esc(c.image)}" alt=""><b>${esc(c.label)}</b><small>${esc(restaurant)}</small></div>`)
       .join("")}</div><script>window.onload=()=>setTimeout(()=>window.print(),400)</scr"+"ipt>`);

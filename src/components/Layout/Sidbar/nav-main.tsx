@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { LayoutGroup, motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -21,6 +21,14 @@ const BASE_PATH = "/dashboard";
 const fullHref = (href: string) =>
   `${BASE_PATH}${href.startsWith("/") ? href : `/${href}`}`.replace(/\/$/, "");
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+/** Each section owns a spice hue on the burgundy rail (wayfinding): terracotta, ochre, rose, slate. */
+const GROUP_HUES: Record<string, string> = {
+  nav_menu: "var(--rail-menu)",
+  nav_generation: "var(--rail-ai)",
+  nav_restaurant: "var(--rail-restaurant)",
+  nav_team: "var(--rail-team)",
+};
 
 /** One drawn icon per sidebar section (keys are the `titleOfGroup` values in routes). */
 const GROUP_ICONS: Record<string, LucideIcon> = {
@@ -52,7 +60,7 @@ const toGroups = (links: RouteI[]): NavGroup[] => {
 };
 
 /**
- * Expanded: icon + label rows on a sand pill, with a terracotta marker at the start edge of the active row.
+ * Expanded: icon + label rows on a soft pill, with a marker in the section's spice hue at the start edge of the active row.
  * Collapsed (icon rail): a centred 40px square per item; the active one is filled with the action colour.
  * One shared pill (`layoutId`) slides between rows so the sidebar always shows where you are.
  */
@@ -94,9 +102,10 @@ export function NavMain() {
         {groups.map((group, gi) => {
           const isOpen = collapsed || !group.label || !closed[group.key];
           const GroupIcon = GROUP_ICONS[group.key] ?? Layers;
+          const hue = GROUP_HUES[group.key] ?? "var(--sidebar-oil)";
           const groupActive = group.items.some((r) => checkIsActive(pathname, fullHref(r.href), { strict: r.href === "/" }));
           return (
-            <section key={group.key} className="flex w-full min-w-0 flex-col overflow-hidden">
+            <section key={group.key} className="flex w-full min-w-0 flex-col overflow-hidden" style={{ "--hue": hue } as CSSProperties}>
               {group.label && (
                 <div className="relative">
                   <button
@@ -109,8 +118,8 @@ export function NavMain() {
                       groupActive ? "text-sidebar-strong" : "text-sidebar-foreground/70",
                     )}
                   >
-                    {/* a bare icon on the same column as the items' icons, in the same ivory: no box, no extra colour */}
-                    <GroupIcon aria-hidden className="size-[17px] shrink-0 opacity-80 transition-opacity duration-200 group-hover/head:opacity-100" strokeWidth={1.9} />
+                    {/* the section's spice hue marks its head: a bare icon on the same column as the items' icons */}
+                    <GroupIcon aria-hidden className="size-[17px] shrink-0 text-(--hue)" strokeWidth={2} />
                     <span className="min-w-0 flex-1 truncate text-start">{t(group.label)}</span>
                     <ChevronDown className={cn("size-3.5 shrink-0 opacity-70 transition-transform duration-200", !isOpen && "-rotate-90 rtl:rotate-90")} />
                   </button>
@@ -171,7 +180,7 @@ export function NavMain() {
                                     damping: 40,
                                   }}
                                 >
-                                  <span className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-terracotta group-data-[collapsible=icon]:hidden" />
+                                  <span className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-(--hue) group-data-[collapsible=icon]:hidden" />
                                 </motion.span>
                               ) : (
                                 <span
@@ -182,7 +191,10 @@ export function NavMain() {
                               {Icon && (
                                 <Icon
                                   strokeWidth={active ? 2.2 : 1.9}
-                                  className="relative size-[19px]! shrink-0 transition-transform duration-200 group-hover/nav:scale-110"
+                                  className={cn(
+                                    "relative size-[19px]! shrink-0 transition-[transform,color] duration-200 group-hover/nav:scale-110",
+                                    active && "text-(--hue) group-data-[collapsible=icon]:text-sidebar",
+                                  )}
                                 />
                               )}
                               <span className="relative min-w-0 flex-1 truncate whitespace-nowrap text-start transition-opacity duration-200 group-data-[collapsible=icon]:opacity-0">

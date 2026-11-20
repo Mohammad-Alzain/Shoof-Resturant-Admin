@@ -16,7 +16,7 @@ export const FormErrorMessage = ({
   const { t } = useTranslation();
   return (
     error?.message && (
-      <p role="alert" className={"text-[#d32f2f] text-xs ps-2 pt-2 " + className}>
+      <p role="alert" className={"text-destructive text-xs ps-2 pt-2 " + className}>
         {t(error.message)}
       </p>
     )

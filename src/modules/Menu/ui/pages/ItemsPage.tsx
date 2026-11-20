@@ -1,6 +1,6 @@
 import { can } from "@/modules/Auth/core/can";
 import { useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Box, ImageOff } from "lucide-react";
@@ -23,7 +23,10 @@ export default function ItemsPage() {
   const qc = useQueryClient();
   const currencies = useCurrencies();
   const { restaurant } = useCurrentRestaurant();
-  const [onlyNoModel, setOnlyNoModel] = useState(false);
+  const plateWantsMissing = useRouterState({ select: (s) => Boolean((s.location.search as { withoutModelOnly?: boolean }).withoutModelOnly) });
+  const [onlyNoModel, setOnlyNoModel] = useState(plateWantsMissing);
+  // opened from a plate on the dashboard: start filtered to that category
+  const fromPlate = useRouterState({ select: (s) => (s.location.search as { menuCategoryId?: string }).menuCategoryId });
 
   const models = useQuery({
     queryKey: ["menu-item-3d-models", "all"],
@@ -50,8 +53,8 @@ export default function ItemsPage() {
       title="items"
       api={itemsApi}
       deleteLabel="name"
-      defaultParams={onlyNoModel ? { withoutModelOnly: true } : undefined}
-      key={String(onlyNoModel)}
+      defaultParams={onlyNoModel || fromPlate ? { ...(onlyNoModel ? { withoutModelOnly: true } : {}), ...(fromPlate ? { menuCategoryId: fromPlate } : {}) } : undefined}
+      key={`${onlyNoModel}-${fromPlate ?? ""}`}
       belowTitle={
         <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground">
           <Switch checked={onlyNoModel} onCheckedChange={setOnlyNoModel} aria-label={t("only_without_model")} />

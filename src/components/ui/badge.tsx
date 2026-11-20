@@ -94,7 +94,7 @@ const badgeVariants = cva(
         variant: 'primary',
         appearance: 'outline',
         className:
-          'text-[#b01600] border-[var(--color-primary-soft,var(--color-blue-100))] bg-[var(--color-primary-soft,var(--color-blue-50))] dark:bg-[var(--color-primary-soft,var(--color-blue-950))] dark:border-[var(--color-primary-soft,var(--color-blue-900))] dark:text-[var(--color-primary-soft,var(--color-blue-600))]',
+          'text-primary border-[var(--color-primary-soft,var(--color-blue-100))] bg-[var(--color-primary-soft,var(--color-blue-50))] dark:bg-[var(--color-primary-soft,var(--color-blue-950))] dark:border-[var(--color-primary-soft,var(--color-blue-900))] dark:text-[var(--color-primary-soft,var(--color-blue-600))]',
       },
       {
         variant: 'success',
@@ -124,7 +124,7 @@ const badgeVariants = cva(
       {
         variant: 'primary',
         appearance: 'ghost',
-        className: 'text-[#b01600] dark:text-primary',
+        className: 'text-primary',
       },
       {
         variant: 'secondary',

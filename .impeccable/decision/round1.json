@@ -1,0 +1,131 @@
+{
+  "title": "اختر عالم لوحة المطعم — Choose the restaurant console's world",
+  "question": "The roll assigned The Sufra (the mezze table seen from above). Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The Sufra — السُّفرة",
+      "kicker": "THE ROLL",
+      "lineage": "Levantine mezze spread: many small plates around one table, seen from above",
+      "thesis": "The restaurant's back office set like its own table: za'atar, sumac, olive oil and tahini doing the jobs of colour.",
+      "palette": ["#233D2B", "#F4F6F1", "#D4A72C", "#B8364A", "#E9DFC4"],
+      "materials": ["glazed small plates", "za'atar green rail", "olive-oil gold marks", "sumac for alerts"],
+      "viewport": "Login: the 3D dish on a brass tray in a top-down sufra of small plates, green ground, form on a white panel. Dashboard: za'atar-green rail, herb-white ground, the 'sufra map' leading: each menu category a plate whose fill shows items with photos and 3D models; tap a plate to open them.",
+      "risk": "Food palette can turn into a theme if the sufra map is not a real, clickable data graphic.",
+      "raised": [
+        {"from": "rw-manual-acetate-tab-board", "raise": "Each nav section owns a spice hue (za'atar Menu, turmeric AI, sumac Restaurant, nigella Team) used as wayfinding."},
+        {"from": "brand-identity-canon-saville-catalog-sleeve", "raise": "The sufra map is the dashboard's one owning graphic, not one widget among many."},
+        {"from": "digital-design-canon-dark-first-developer-console", "raise": "Destructive actions stand alone, separated by deliberate space, outline until focused."},
+        {"from": "pop-culture-shelf-doujin-event-catalog", "raise": "Dish photos pack as whole-cell thumbnails: dense, the photo carries the row."},
+        {"from": "variable-font-specimen", "raise": "Hierarchy by scale contrast: big Arabic numerals and titles, small quiet labels, few weights."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "Shopfront sign — يافطة المحل",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "hand-painted Arabic restaurant shopfront signs and backlit menu boards",
+      "thesis": "Every page title painted like the restaurant's own sign; enamel colours on a clean working surface.",
+      "palette": ["#C8102E", "#123C8C", "#F2C200", "#FFFFFF", "#141414"],
+      "materials": ["sign enamel", "bold painted Arabic lettering", "lightbox glow"],
+      "viewport": "Login: the name painted as a shop sign above a lit menu-board panel where the 3D dish turns. Dashboard: white surface, cobalt rail, titles in a sign-painter Arabic display face.",
+      "risk": "Familiar to every Arab street, and loud: the display type must stay on titles or it shouts over the work."
+    },
+    {
+      "id": "challenger-boarding-pass",
+      "label": "Boarding pass & gate board",
+      "verdict": "competitive",
+      "lineage": "airport departure boards and segmented boarding passes",
+      "thesis": "Generation jobs as a live departures board: rows rerank in place, a changed status stays lit until seen.",
+      "palette": ["#0E1116", "#F5F5F2", "#FFB000", "#2BB673"],
+      "materials": ["tabular figures", "segmented pass", "split-flap rows"],
+      "viewport": "Dashboard led by the AI queue as a board; items carry a segmented pass (photo, mesh, texture, AR-ready).",
+      "case": "Holds product clarity (the 3D queue is a departures board) but owners don't identify with airports.",
+      "risk": "Reads as a travel app outside the jobs screen.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board.webp"
+    },
+    {
+      "id": "challenger-acetate",
+      "label": "Acetate tab manual",
+      "verdict": "declined",
+      "lineage": "boxed-software manuals with coloured tab dividers",
+      "thesis": "Sections as coloured divider boards under acetate leaves.",
+      "palette": ["#E8622C", "#F2C200", "#2E8B57", "#3046C9"],
+      "materials": ["acetate", "divider board"],
+      "viewport": "A stepped tab rail down the edge.",
+      "case": "Restaurant owners don't live in manuals.",
+      "kept": "Section hues as wayfinding (a spice per nav section).",
+      "risk": "Costume of a manual.",
+      "hero": "https://impeccable.style/worlds/cards/rw-manual-acetate-tab-board-hero.webp"
+    },
+    {
+      "id": "challenger-saville",
+      "label": "Factory catalog sleeve",
+      "verdict": "declined",
+      "lineage": "Factory Records sleeves",
+      "thesis": "Coded colour strips instead of words, one plot on black.",
+      "palette": ["#0B0B0B", "#FFFFFF", "#E4002B", "#0057B8"],
+      "materials": ["matte black", "hairline plot"],
+      "viewport": "One plot owning the field.",
+      "case": "Coded labels fight clarity for busy owners.",
+      "kept": "One graphic owns the dashboard (the sufra map).",
+      "risk": "Cryptic.",
+      "hero": "https://impeccable.style/worlds/cards/brand-identity-canon-saville-catalog-sleeve-hero.webp"
+    },
+    {
+      "id": "challenger-devconsole",
+      "label": "Dark developer console",
+      "verdict": "declined",
+      "lineage": "dark-first IDE panels",
+      "thesis": "Graphite panels split by hairlines.",
+      "palette": ["#1E1F22", "#2B2D31", "#7AA2F7", "#F7768E"],
+      "materials": ["graphite", "hairline seams"],
+      "viewport": "Tiled persistent panels.",
+      "case": "Engineer's world, and too close to SuperAdmin's dark console.",
+      "kept": "Destructive actions isolated by space.",
+      "risk": "Cold for hospitality.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-dark-first-developer-console-hero.webp"
+    },
+    {
+      "id": "challenger-doujin",
+      "label": "Convention circle catalog",
+      "verdict": "declined",
+      "lineage": "doujin event catalogs",
+      "thesis": "Hundreds of stamp-size thumbnails in a numbered grid.",
+      "palette": ["#F1EFE8", "#1A1A1A", "#E2007A"],
+      "materials": ["newsprint", "biro circles"],
+      "viewport": "Dense thumbnail grid keyed to a map.",
+      "case": "Foreign to the audience.",
+      "kept": "Whole-cell dense dish thumbnails.",
+      "risk": "Fan-culture costume.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-doujin-event-catalog-hero.webp"
+    },
+    {
+      "id": "challenger-specimen",
+      "label": "Variable font specimen",
+      "verdict": "declined",
+      "lineage": "foundry specimens",
+      "thesis": "Hierarchy by scale contrast alone.",
+      "palette": ["#FAFAF7", "#111111", "#FF4F00"],
+      "materials": ["paper", "ink"],
+      "viewport": "One giant glyph with sliders.",
+      "case": "No link to restaurants or dishes.",
+      "kept": "Scale-contrast hierarchy.",
+      "risk": "Typographic showpiece.",
+      "hero": "https://impeccable.style/worlds/cards/variable-font-specimen-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": false},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A clean restaurant SaaS admin, executed impeccably.",
+    "palette": ["#FFFFFF", "#111827", "#16A34A"],
+    "materials": ["clean grid", "dish photography"],
+    "viewport": "White sidebar, KPI cards, tables; login with a dish photo beside the form.",
+    "risk": "Indistinguishable from every restaurant SaaS by design."
+  },
+  "steer": true
+}
