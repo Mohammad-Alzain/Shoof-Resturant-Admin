@@ -1,73 +1,98 @@
 import { asset } from "@/helpers/asset";
-import { lazy, Suspense, useState, useSyncExternalStore, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/Layout/Header/LanguageSwitcher";
 import { getDirection } from "@/Translation/i18n";
 import { BrandMark, Wordmark } from "@/components/common/Brand";
 
-// three.js is ~180 kB gzipped: it loads after the form is already usable.
-const Dish3D = lazy(() => import("./Dish3D"));
-
-const subscribeMotion = (cb: () => void) => {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-};
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-const MEZZE = ["mezze_hummus", "mezze_muhammara", "mezze_tabbouleh", "mezze_olives", "mezze_labneh"] as const;
+const POINTS = ["stage_point_models", "stage_point_partners", "stage_point_billing"] as const;
 
 /**
- * The sufra: the 3D dish is served in daylight on a glazed plate and a brass tray, and the mezze bowls are set around it.
- * The cloth is za'atar green; the copy sits on a green scrim at the bottom so it reads over the scene.
+ * Shoof's mark made real: the logo is two plates seen from above, each with a pupil. Here the first plate is a real
+ * dish photographed from above, and the second is the ivory plate whose pupil turns toward it ("the tasting gaze").
+ * A terracotta arc with the identity's rotation cue says the dish can be turned. Logos never mirror, so neither does this.
+ * Static: one ~55 kB photo plus inline vectors.
  */
+function GazeOnDish({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 800 440" className={className} aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="sh-plate">
+          <circle cx="210" cy="220" r="160" />
+        </clipPath>
+        <filter id="sh-lift" x="-30%" y="-30%" width="160%" height="170%">
+          <feDropShadow dx="0" dy="22" stdDeviation="22" floodColor="#261C1A" floodOpacity="0.55" />
+        </filter>
+      </defs>
+
+      {/* orbit with the rotation cue: the dish turns */}
+      <g fill="none" stroke="#B95035" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="210" cy="220" r="196" strokeOpacity="0.28" strokeWidth="2" />
+        <path d="M37.5 311.9A196 196 0 0 1 112 50.3" strokeWidth="4" />
+        <path d="M112 50.3l-3 26M112 50.3l-25.5 -5.5" strokeWidth="4" />
+      </g>
+      <circle cx="37.5" cy="311.9" r="7" fill="#B95035" />
+
+      {/* plate one: the real dish, seen from above, clipped just inside its own ceramic rim */}
+      <g filter="url(#sh-lift)">
+        <circle cx="210" cy="220" r="160" fill="#E9DDCF" />
+        <image
+          href={asset("images/login/shoof-dish.webp")}
+          x="42"
+          y="52"
+          width="336"
+          height="336"
+          clipPath="url(#sh-plate)"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </g>
+
+      {/* plate two: the ivory plate of the mark, its pupil looking at the dish */}
+      <circle cx="590" cy="220" r="128" fill="none" stroke="#FBF5E9" strokeWidth="52" />
+      <circle cx="548" cy="206" r="30" fill="#FBF5E9" />
+    </svg>
+  );
+}
+
 function Stage() {
   const { t } = useTranslation();
-  const reduced = useSyncExternalStore(subscribeMotion, prefersReducedMotion, () => false);
-  const [unsupported, setUnsupported] = useState(false);
 
   return (
-    <aside className="relative h-[260px] overflow-hidden bg-[#1f3a2a] text-[#f4f7ee] sm:h-[320px] lg:h-auto lg:min-h-screen">
-      <div className="absolute inset-0">
-        {unsupported ? (
-          <img src={asset("images/login/sufra-still.png")} alt="" className="size-full object-cover" />
-        ) : (
-          <Suspense fallback={null}>
-            <Dish3D
-              reducedMotion={reduced}
-              ariaLabel={t("stage_aria")}
-              mezze={MEZZE.map((k) => t(k))}
-              onUnsupported={() => setUnsupported(true)}
-            />
-          </Suspense>
-        )}
-      </div>
+    <aside className="relative h-[240px] overflow-hidden bg-brand-burgundy text-brand-ivory sm:h-[300px] lg:h-auto lg:min-h-screen">
+      <img src={asset("images/login/shoof-stage.svg")} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-2/5 bg-linear-to-t from-brand-espresso/85 to-transparent lg:block" />
 
-      {/* top and bottom scrims in the cloth's own green, so the lockup and the copy read over the table */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#132619]/70 to-transparent" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[#102016]/92 via-[#132619]/55 to-transparent" />
-
-      <div className="pointer-events-none relative flex h-full flex-col justify-between p-5 sm:p-7 lg:p-12">
+      <div className="relative flex h-full flex-col p-5 sm:p-7 lg:p-12">
         <div className="flex items-center gap-3">
-          <BrandMark className="size-10 shadow-[0_6px_18px_-6px_rgb(0_0_0/0.45)]" />
+          <BrandMark className="size-10 ring-1 ring-brand-ivory/20" />
           <Wordmark className="h-[22px] text-brand-ivory" />
-          <span className="ms-1 hidden rounded-full bg-brand-burgundy px-2.5 py-1 text-[0.6875rem] font-medium text-brand-ivory lg:inline">{t("console_for_restaurants")}</span>
+          <span className="ms-1 hidden rounded-full border border-brand-ivory/25 px-2.5 py-1 text-[0.6875rem] font-medium text-brand-sand lg:inline">
+            {t("console_for_restaurants")}
+          </span>
+        </div>
+
+        <div className="flex min-h-0 flex-1 items-center justify-center py-3 lg:py-10">
+          <GazeOnDish className="h-full max-h-[150px] w-auto max-w-full sm:max-h-[200px] lg:h-auto lg:max-h-none lg:w-full lg:max-w-[620px]" />
         </div>
 
         <div className="hidden max-w-lg lg:block">
-          <h2 className="font-display text-[3.25rem] font-semibold leading-[1.08] text-balance">{t("stage_headline")}</h2>
-          <p className="mt-4 max-w-md text-[1.0625rem] leading-relaxed text-[#d6e3d2]">{t("stage_subline")}</p>
-          <p className="mt-6 flex items-center gap-2 text-xs text-[#b7c8b4]">
-            <span aria-hidden className="size-1.5 rounded-full bg-[#e0b23a]" />
-            {t("stage_demo_note")}
-          </p>
+          <h2 className="font-display text-[2.75rem] font-semibold leading-[1.12] text-balance rtl:leading-[1.6]">{t("stage_headline")}</h2>
+          <p className="mt-4 max-w-md text-[1.0625rem] leading-relaxed text-brand-sand">{t("stage_subline")}</p>
+          <ul className="mt-6 space-y-2.5">
+            {POINTS.map((key) => (
+              <li key={key} className="flex items-center gap-3 text-[0.9375rem] text-brand-ivory/90">
+                <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand-terracotta" />
+                {t(key)}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </aside>
   );
 }
 
-/** Stage on top (phones) or beside the form (desktop), mirrored in RTL. Always the light set: a daylight table. */
+/** Stage on top (phones) or beside the form (desktop), mirrored in RTL. Always the light set in the brand palette. */
 export function AuthShell({
   title,
   description,
@@ -80,7 +105,7 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <div dir={getDirection()} className="auth-light grid min-h-screen bg-background text-foreground lg:grid-cols-[1.25fr_1fr]">
+    <div dir={getDirection()} className="auth-light grid min-h-screen bg-background text-foreground lg:grid-cols-[1.2fr_1fr]">
       <Stage />
 
       <div className="flex flex-col">

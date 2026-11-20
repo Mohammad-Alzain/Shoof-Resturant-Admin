@@ -94,19 +94,19 @@ function PlateMark({ plate, size = 112, delay = 0 }: { plate: Plate; size?: numb
     />
   );
   return (
-    <svg viewBox="0 0 120 120" width={size} height={size} aria-hidden className="drop-shadow-[0_8px_14px_rgb(8_20_12/0.35)]">
+    <svg viewBox="0 0 120 120" width={size} height={size} aria-hidden className="drop-shadow-[0_8px_14px_rgb(20_6_8/0.35)]">
       {/* the plate: ivory glaze, a cobalt band on the rim */}
-      <circle cx="60" cy="60" r="57" fill="#f6f2e7" />
-      <circle cx="60" cy="60" r="55" fill="none" stroke="#1e4a8c" strokeWidth="2.5" opacity="0.85" />
-      <circle cx="60" cy="60" r="51" fill="none" stroke="#2b8f9a" strokeWidth="0.8" opacity="0.6" />
-      <circle cx="60" cy="60" r={R1} fill="none" stroke="#e4ddcc" strokeWidth="7" />
-      <circle cx="60" cy="60" r={R2} fill="none" stroke="#ece6d8" strokeWidth="4" />
-      {ring(R1, c1, share(plate.models), "#24553a", 7, delay)}
-      {ring(R2, c2, share(plate.photos), "#c9951f", 4, delay + 0.15)}
-      <text x="60" y="56" textAnchor="middle" dominantBaseline="middle" fontSize="24" fontWeight="600" fill="#17251b" style={{ fontFamily: "var(--font-display)" }}>
+      <circle cx="60" cy="60" r="57" fill="#fbf5e9" />
+      <circle cx="60" cy="60" r="55" fill="none" stroke="#b95035" strokeWidth="2.5" opacity="0.85" />
+      <circle cx="60" cy="60" r="51" fill="none" stroke="#541f2d" strokeWidth="0.8" opacity="0.6" />
+      <circle cx="60" cy="60" r={R1} fill="none" stroke="#e9ddcf" strokeWidth="7" />
+      <circle cx="60" cy="60" r={R2} fill="none" stroke="#f1e8da" strokeWidth="4" />
+      {ring(R1, c1, share(plate.models), "#541f2d", 7, delay)}
+      {ring(R2, c2, share(plate.photos), "#b95035", 4, delay + 0.15)}
+      <text x="60" y="56" textAnchor="middle" dominantBaseline="middle" fontSize="24" fontWeight="600" fill="#261c1a" style={{ fontFamily: "var(--font-display)" }}>
         {plate.items.toLocaleString(i18n.language)}
       </text>
-      <text x="60" y="78" textAnchor="middle" fontSize="13" fontWeight="500" fill="#24553a" style={{ fontFamily: "var(--font-sans)" }}>
+      <text x="60" y="78" textAnchor="middle" fontSize="13" fontWeight="500" fill="#541f2d" style={{ fontFamily: "var(--font-sans)" }}>
         {plate.items ? `${Math.round(share(plate.models) * 100).toLocaleString(i18n.language)}%` : "—"}
       </text>
     </svg>
@@ -129,13 +129,13 @@ function PlateLink({ plate, size, delay, className, style }: { plate: Plate; siz
         search={(missing > 0 ? { menuCategoryId: plate.target, withoutModelOnly: true } : { menuCategoryId: plate.target }) as never}
         aria-label={t("sufra_aria", { name: plate.name, items: plate.items, models: plate.models, photos: plate.photos })}
         title={t("sufra_open", { name: plate.name })}
-        className="group/plate flex w-[9.5rem] flex-col items-center gap-2 rounded-2xl p-1.5 text-center outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#e0b23a]"
+        className="group/plate flex w-[9.5rem] flex-col items-center gap-2 rounded-2xl p-1.5 text-center outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#e9a283]"
       >
         <span className="transition-transform duration-300 group-hover/plate:rotate-[8deg]">
           <PlateMark plate={plate} size={size} delay={delay + 0.2} />
         </span>
-        <span className="w-full truncate text-sm font-semibold text-[#f4f7ee]">{plate.name}</span>
-        <span className={cn("text-xs", missing > 0 ? "text-[#f1d68f]" : "text-[#b9d3bd]")}>
+        <span className="w-full truncate text-sm font-semibold text-[#fbf5e9]">{plate.name}</span>
+        <span className={cn("text-xs", missing > 0 ? "text-[#f2b7a0]" : "text-[#d8c5ba]")}>
           {plate.items === 0 ? t("sufra_items_n", { n: (0).toLocaleString(i18n.language) }) : missing > 0 ? t("sufra_needs", { n: missing.toLocaleString(i18n.language) }) : t("sufra_done")}
         </span>
       </Link>
@@ -158,15 +158,15 @@ export function SufraMap({ restaurantId, className }: { restaurantId?: string; c
   if (!allowed) return null;
 
   return (
-    <section className={cn("sufra-cloth relative overflow-hidden rounded-3xl p-5 text-[#f4f7ee] sm:p-7", className)} aria-labelledby="sufra-title">
+    <section className={cn("sufra-cloth relative overflow-hidden rounded-3xl p-5 text-[#fbf5e9] sm:p-7", className)} aria-labelledby="sufra-title">
       <header className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="max-w-md">
           <h2 id="sufra-title" className="font-display text-xl font-semibold sm:text-2xl">{t("sufra_title")}</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-[#c9dbc6]">{t("sufra_desc")}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-[#e6d3c9]">{t("sufra_desc")}</p>
         </div>
-        <ul className="flex items-center gap-4 text-xs text-[#d6e3d2]">
-          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#f6f2e7]"><span className="h-1.5 w-5 rounded-full bg-[#24553a]" /></span>{t("sufra_models")}</li>
-          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#f6f2e7]"><span className="h-1 w-5 rounded-full bg-[#c9951f]" /></span>{t("sufra_photos")}</li>
+        <ul className="flex items-center gap-4 text-xs text-[#e6d3c9]">
+          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#fbf5e9]"><span className="h-1.5 w-5 rounded-full bg-[#541f2d]" /></span>{t("sufra_models")}</li>
+          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#fbf5e9]"><span className="h-1 w-5 rounded-full bg-[#b95035]" /></span>{t("sufra_photos")}</li>
         </ul>
       </header>
 
@@ -178,9 +178,9 @@ export function SufraMap({ restaurantId, className }: { restaurantId?: string; c
 
       {q.isSuccess && plates.length === 0 && (
         <div className="relative mt-8 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 p-8 text-center">
-          <p className="max-w-sm text-sm text-[#d6e3d2]">{t("sufra_empty")}</p>
+          <p className="max-w-sm text-sm text-[#e6d3c9]">{t("sufra_empty")}</p>
           {can("MenuCategories.Add") && (
-            <Link to={"/dashboard/menu/categories" as never} className="inline-flex items-center gap-2 rounded-xl bg-[#f4f7ee] px-4 py-2 text-sm font-semibold text-[#1c3526] hover:bg-white">
+            <Link to={"/dashboard/menu/categories" as never} className="inline-flex items-center gap-2 rounded-xl bg-[#fbf5e9] px-4 py-2 text-sm font-semibold text-[#541f2d] hover:bg-white">
               <Plus className="size-4" />
               {t("add_category")}
             </Link>
@@ -194,12 +194,12 @@ export function SufraMap({ restaurantId, className }: { restaurantId?: string; c
           {round && (
             <div className="relative mx-auto mt-2 hidden aspect-[1.1] w-full max-w-[38rem] md:block">
               <div className="absolute inset-[33%] grid place-items-center">
-                <svg viewBox="0 0 200 200" aria-hidden className="absolute inset-0 size-full drop-shadow-[0_10px_18px_rgb(8_20_12/0.45)]">
-                  <circle cx="100" cy="100" r="99" fill="#c79a44" />
-                  <circle cx="100" cy="100" r="92" fill="none" stroke="#a87c2c" strokeWidth="3" />
-                  {[80, 66, 52].map((r) => <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="#b58a38" strokeWidth="1" strokeDasharray="2 5" />)}
+                <svg viewBox="0 0 200 200" aria-hidden className="absolute inset-0 size-full drop-shadow-[0_10px_18px_rgb(20_6_8/0.45)]">
+                  <circle cx="100" cy="100" r="99" fill="#b95035" />
+                  <circle cx="100" cy="100" r="92" fill="none" stroke="#8f3a25" strokeWidth="3" />
+                  {[80, 66, 52].map((r) => <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="#d9876b" strokeWidth="1" strokeDasharray="2 5" />)}
                 </svg>
-                <div className="relative text-center text-[#2a1f0c]">
+                <div className="relative text-center text-[#fbf5e9]">
                   <p className="font-display text-3xl font-semibold tabular-nums leading-none">{pct.toLocaleString(i18n.language)}%</p>
                   <p className="mt-1 text-[0.6875rem] font-medium">{t("sufra_models")}</p>
                   <p className="mt-2 text-xs tabular-nums">{t("sufra_items_n", { n: totals.items.toLocaleString(i18n.language) })}</p>

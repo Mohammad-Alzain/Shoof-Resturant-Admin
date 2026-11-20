@@ -22,7 +22,7 @@ const fullHref = (href: string) =>
   `${BASE_PATH}${href.startsWith("/") ? href : `/${href}`}`.replace(/\/$/, "");
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-/** Each section owns a spice hue on the green rail (wayfinding): za'atar, turmeric, sumac, nigella. */
+/** Each section owns a spice hue on the burgundy rail (wayfinding): terracotta, ochre, rose, slate. */
 const GROUP_HUES: Record<string, string> = {
   nav_menu: "var(--rail-menu)",
   nav_generation: "var(--rail-ai)",

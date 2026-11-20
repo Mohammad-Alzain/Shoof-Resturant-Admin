@@ -137,6 +137,8 @@ components:
     size: "104px"
 ---
 
+> **Palette update (current).** The console now wears Shoof's own identity from `public/identity/shoof-tokens.json`, replacing the za'atar-green and olive-gold values named below: deep burgundy `#541F2D` is the rail, cloth and primary action; warm ivory `#FBF5E9` / paper `#FAF5EC` is the work surface; espresso `#261C1A` is the ink; roasted terracotta `#B95035` marks what is active. Section hues: terracotta (Menu), ochre (AI), rose (Restaurant), slate (Team). Dark mode is espresso ground with light terracotta `#E2876A` as the action. The sign-in stage is a static composition (real dish photo + the logo's second plate with its pupil, `AuthShell.tsx`); there is no 3D scene on sign-in. Where the text below says green, za'atar or gold, read burgundy, ivory or terracotta.
+
 # Design System: Shoof Restaurant Console
 
 ## Overview

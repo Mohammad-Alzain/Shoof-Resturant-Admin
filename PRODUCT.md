@@ -29,11 +29,11 @@ Restaurant back office, bilingual (Arabic / English, full RTL), light and dark t
 - Stack: Vite, React 19, TypeScript, Tailwind 4, shadcn/Radix components, react-hook-form + zod, i18next (ar/en), TanStack Router/Query.
 - API contract: docs/README.md and docs/01-restaurant-admin-portal.md.
 - No customers, testimonials, metrics or claims may be invented.
-- 3D must degrade gracefully (no WebGL, reduced motion) and must not block sign-in.
+- Sign-in is static and light: no 3D scene, no heavy libraries.
 
 ## Brand Commitments
 
-Name: Shoof (Arabic: شوف, "look / see"). Brand assets in public/identity/ (Brand Book Study 01, `shoof-tokens.json`, "the tasting gaze" mark). The product story to preserve: 3D dishes. The restaurant dashboard keeps a turning 3D dish on sign-in, in its own world distinct from the SuperAdmin console.
+Name: Shoof (Arabic: شوف, "look / see"). Brand assets in public/identity/ (Brand Book Study 01, `shoof-tokens.json`, "the tasting gaze" mark). The product story to preserve: 3D dishes. The restaurant dashboard wears the Shoof identity colours (burgundy, ivory, espresso, terracotta) and its sign-in shows a real dish photo with the logo's gaze (static, no 3D), distinct from the SuperAdmin console.
 
 ## Evidence on Hand
 

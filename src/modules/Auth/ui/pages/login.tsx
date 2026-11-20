@@ -100,7 +100,7 @@ function LoginComponent() {
             autoFocus
             autoCapitalize="none"
             autoCorrect="off"
-            placeholder="pizzahut"
+            placeholder="my-restaurant"
             error={errors.tenantSlug?.message}
             {...register("tenantSlug")}
           />

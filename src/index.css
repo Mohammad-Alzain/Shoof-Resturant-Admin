@@ -5,10 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /**
- * The Sufra: the restaurant console is set like a Levantine table seen from above (DESIGN.md).
- * Za'atar green owns the shell, herb-white carries the work, olive-oil gold marks what is active, sumac is for alarms.
- * Each nav section owns a spice hue for wayfinding: za'atar (menu), turmeric (AI), sumac (restaurant), nigella (team).
- * `--terracotta` is kept as the name of the small-mark accent so existing classes keep working; its value is olive-oil gold.
+ * The restaurant console wears Shoof's own identity (public/identity/shoof-tokens.json): deep burgundy owns the rail,
+ * warm ivory carries the work, espresso is the ink and roasted terracotta marks what is active; red is for alarms.
+ * Each nav section owns a hue for wayfinding: terracotta (menu), ochre (AI), rose (restaurant), slate (team).
  * Sign-in screens always use the light set (`.auth-light`): the owner opens the console in daylight.
  */
 /**
@@ -33,74 +32,75 @@
 
 :root,
 .auth-light {
-  --background: #f3f5ef;
-  --foreground: #17251b;
+  /* Shoof identity, light: warm ivory paper, espresso ink, burgundy actions, terracotta marks */
+  --background: #faf5ec;
+  --foreground: #261c1a;
 
-  --card: #ffffff;
-  --card-foreground: #17251b;
+  --card: #fffdf8;
+  --card-foreground: #261c1a;
 
-  --popover: #ffffff;
-  --popover-foreground: #17251b;
+  --popover: #fffdf8;
+  --popover-foreground: #261c1a;
 
-  --primary: #24553a;
-  --primary-foreground: #ffffff;
+  --primary: #541f2d;
+  --primary-foreground: #fbf5e9;
 
-  --secondary: #e7ede2;
-  --secondary-foreground: #2c3d30;
+  --secondary: #efe5d6;
+  --secondary-foreground: #3a2a27;
 
-  --accent: #e5efdf;
-  --accent-foreground: #1d4a30;
+  --accent: #f3e8dc;
+  --accent-foreground: #541f2d;
 
-  --muted: #eaefe5;
-  --muted-foreground: #536253;
+  --muted: #f1e9dd;
+  --muted-foreground: #6e5d58;
 
-  --destructive: #a92e43;
+  --destructive: #b42318;
   --destructive-foreground: #ffffff;
 
-  --success: #2e7a49;
+  --success: #3b7a50;
   --success-foreground: #ffffff;
-  --warning: #9a6205;
+  --warning: #96600b;
   --warning-foreground: #ffffff;
-  --info: #2f4e7a;
+  --info: #35567a;
   --info-foreground: #ffffff;
 
-  /* olive-oil gold: indicators and small marks, never body text */
-  --terracotta: #b8861a;
-  --oil: #d9a62b;
+  /* terracotta: indicators and small marks, never body text */
+  --terracotta: #b95035;
+  --oil: #c65f43;
 
-  /* spice hues per nav section (on light surfaces) */
-  --spice-menu: #2f6b47;
-  --spice-ai: #a86a06;
-  --spice-restaurant: #a92e43;
-  --spice-team: #2f4e7a;
+  /* hues per nav section (on light surfaces) */
+  --spice-menu: #b95035;
+  --spice-ai: #96600b;
+  --spice-restaurant: #8f2f4a;
+  --spice-team: #35567a;
 
-  --border: #dce3d5;
-  --input: #c6d0bf;
-  --ring: #2f6b47;
+  --border: #e3d6c6;
+  --input: #d6c5b2;
+  --ring: #b95035;
 
-  --page: #e8eee3;
+  --page: #f1e8da;
 
-  --chart-1: #24553a;
-  --chart-2: #d9a62b;
-  --chart-3: #a92e43;
-  --chart-4: #2f4e7a;
-  --chart-5: #8a9a7c;
+  --chart-1: #541f2d;
+  --chart-2: #b95035;
+  --chart-3: #c9951f;
+  --chart-4: #35567a;
+  --chart-5: #a89684;
 
-  --sidebar-background: #1c3526;
-  --sidebar-foreground: #c3d3c1;
-  --sidebar-primary: #f4f7ee;
-  --sidebar-primary-foreground: #1c3526;
-  --sidebar-accent: rgba(233, 245, 220, 0.09);
-  --sidebar-accent-foreground: #f4f7ee;
-  --sidebar-border: rgba(233, 245, 220, 0.12);
-  --sidebar-strong: #f4f7ee;
-  --sidebar-ring: #e0b23a;
-  --sidebar-oil: #e0b23a;
-  /* spice hues on the green rail */
-  --rail-menu: #8cc79a;
-  --rail-ai: #e7a93a;
-  --rail-restaurant: #ec8c98;
-  --rail-team: #a9bce2;
+  --sidebar-background: #541f2d;
+  --sidebar-foreground: #e6d3c9;
+  --sidebar-primary: #fbf5e9;
+  --sidebar-primary-foreground: #541f2d;
+  --sidebar-accent: rgba(251, 245, 233, 0.09);
+  --sidebar-accent-foreground: #fbf5e9;
+  --sidebar-border: rgba(251, 245, 233, 0.13);
+  --sidebar-strong: #fbf5e9;
+  --sidebar-ring: #e9a283;
+  --sidebar-oil: #e9a283;
+  /* section hues on the burgundy rail */
+  --rail-menu: #f0a98a;
+  --rail-ai: #e9c46a;
+  --rail-restaurant: #f2a3b5;
+  --rail-team: #a9c0e2;
 
   --radius: 0.875rem;
   --header-height: 64px;
@@ -108,70 +108,72 @@
 }
 
 .dark {
-  --background: #111813;
-  --foreground: #e8efe3;
+  /* Shoof identity, dark: espresso ground, ivory ink, terracotta carries the action */
+  --background: #1a1311;
+  --foreground: #f3e9dc;
 
-  --card: #18211a;
-  --card-foreground: #e8efe3;
+  --card: #251b19;
+  --card-foreground: #f3e9dc;
 
-  --popover: #1c261e;
-  --popover-foreground: #e8efe3;
+  --popover: #2b201e;
+  --popover-foreground: #f3e9dc;
 
-  /* on green-black the gold carries the action */
-  --primary: #e0b23a;
-  --primary-foreground: #1a1a0c;
+  --primary: #e2876a;
+  --primary-foreground: #1f1311;
 
-  --secondary: #212c23;
-  --secondary-foreground: #d3dfcd;
+  --secondary: #32252a;
+  --secondary-foreground: #e6d6ca;
 
-  --accent: #213021;
-  --accent-foreground: #cfe3c7;
+  --accent: #3a2229;
+  --accent-foreground: #f2d9d0;
 
-  --muted: #1f2a21;
-  --muted-foreground: #9dab9c;
+  --muted: #2a2020;
+  --muted-foreground: #b3a095;
 
-  --destructive: #e27286;
-  --destructive-foreground: #1b0c10;
+  --destructive: #f08a80;
+  --destructive-foreground: #200a07;
 
   --success: #7cc892;
   --success-foreground: #0f1f14;
-  --warning: #e7a93a;
+  --warning: #e9c46a;
   --warning-foreground: #1d1405;
   --info: #93aedb;
   --info-foreground: #0e1626;
 
-  --terracotta: #e0b23a;
-  --oil: #e0b23a;
+  --terracotta: #e2876a;
+  --oil: #e2876a;
 
-  --spice-menu: #8cc79a;
-  --spice-ai: #e7a93a;
-  --spice-restaurant: #ec8c98;
-  --spice-team: #a9bce2;
+  --spice-menu: #f0a98a;
+  --spice-ai: #e9c46a;
+  --spice-restaurant: #f2a3b5;
+  --spice-team: #a9c0e2;
 
-  --border: #2a372c;
-  --input: #3b4a3d;
-  --ring: #e0b23a;
+  --border: #3a2c29;
+  --input: #4a3935;
+  --ring: #e2876a;
 
-  --page: #0b110d;
+  --page: #130d0c;
 
-  --chart-1: #8cc79a;
-  --chart-2: #e0b23a;
-  --chart-3: #ec8c98;
-  --chart-4: #a9bce2;
-  --chart-5: #7d8b78;
+  --chart-1: #f0a98a;
+  --chart-2: #e9c46a;
+  --chart-3: #f2a3b5;
+  --chart-4: #a9c0e2;
+  --chart-5: #a89684;
 
-  --sidebar-background: #0e1a12;
-  --sidebar-foreground: #aebfab;
-  --sidebar-accent: rgba(233, 245, 220, 0.07);
-  --sidebar-accent-foreground: #f4f7ee;
-  --sidebar-primary: #f4f7ee;
-  --sidebar-primary-foreground: #0e1a12;
-  --sidebar-strong: #f1f6ea;
-  --sidebar-border: rgba(233, 245, 220, 0.09);
+  --sidebar-background: #140d0c;
+  --sidebar-foreground: #c7b4aa;
+  --sidebar-accent: rgba(251, 245, 233, 0.07);
+  --sidebar-accent-foreground: #fbf5e9;
+  --sidebar-primary: #fbf5e9;
+  --sidebar-primary-foreground: #261c1a;
+  --sidebar-strong: #fbf5e9;
+  --sidebar-border: rgba(251, 245, 233, 0.09);
 }
 
+/* Sign-in screens are always the light set, whatever the console theme. */
 .auth-light {
   color-scheme: light;
+  --background: var(--brand-ivory);
 }
 
 /** Theme Setup **/
@@ -183,6 +185,8 @@
   --color-brand-burgundy: var(--brand-burgundy);
   --color-brand-ivory: var(--brand-ivory);
   --color-brand-terracotta: var(--brand-terracotta);
+  --color-brand-sand: var(--brand-sand);
+  --color-brand-espresso: var(--brand-espresso);
   --color-brand-ink: var(--brand-ink);
   --color-sidebar-oil: var(--sidebar-oil);
   --color-spice-menu: var(--spice-menu);
@@ -239,7 +243,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --shadow-card: 0 1px 2px 0 rgb(23 37 27 / 6%), 0 12px 28px -16px rgb(23 37 27 / 22%);
+  --shadow-card: 0 1px 2px 0 rgb(38 28 26 / 6%), 0 12px 28px -16px rgb(38 28 26 / 22%);
 }
 
 /** Global Styles **/
@@ -503,7 +507,7 @@ a {
 .canvas-card {
   background-color: var(--background);
 }
-/* The rail: flat za'atar green */
+/* The rail: flat deep burgundy */
 
 /** Table rows settle in one after another when a list loads (CSS only: the table library stays untouched) */
 @keyframes row-in {
@@ -602,11 +606,11 @@ tbody > tr:hover {
 [data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(5) { animation-delay: 340ms; }
 [data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(n + 6) { animation-delay: 390ms; }
 
-/** The sufra cloth: flat za'atar green, the plates and the tray carry the material */
+/** The map cloth: flat deep burgundy */
 .sufra-cloth {
-  background-color: #1f3a2a;
+  background-color: #541f2d;
   box-shadow: var(--shadow-card);
 }
 .dark .sufra-cloth {
-  background-color: #152a1d;
+  background-color: #2d1218;
 }
