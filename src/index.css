@@ -211,8 +211,8 @@ input:-webkit-autofill:focus {
 
 /** Theme Setup **/
 @theme inline {
-  --font-sans: "Readex Pro Variable", "Readex Pro", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Readex Pro Variable", "Readex Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans Variable", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans Variable", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
   --color-terracotta: var(--terracotta);
   --color-oil: var(--oil);
   --color-brand-burgundy: var(--brand-burgundy);
