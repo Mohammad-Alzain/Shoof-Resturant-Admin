@@ -11,4 +11,3 @@ No attribution is required.
 # Models and textures
 
 - public/textures/table/black_oak_*: Poly Haven "Black Oak Veneer", CC0 (https://polyhaven.com/a/black_oak_veneer), 1k.
-- shoof-dish.webp - resized from public/identity/shoof-food-concept.webp (Shoof brand concept photo).

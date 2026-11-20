@@ -647,3 +647,19 @@ tbody > tr:hover {
 .dark .sufra-cloth {
   background-color: #2d1218;
 }
+
+/* Sign-in gaze: each new hint settles in softly */
+.gaze-hint {
+  animation: gaze-hint-in 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes gaze-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gaze-hint {
+    animation: none;
+  }
+}
