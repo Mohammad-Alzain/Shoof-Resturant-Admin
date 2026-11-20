@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, Box, CalendarClock, Download, Loader2, QrCode, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Box, CalendarClock, CheckCircle2, CircleSlash, Download, Layers, ListChecks, Loader2, QrCode, Sparkles, Utensils, Wallet } from "lucide-react";
+import { asset } from "@/helpers/asset";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
@@ -59,6 +60,166 @@ const Row = ({ label, value, tone }: { label: React.ReactNode; value: React.Reac
   </div>
 );
 
+/** The share of the menu that already has a 3D model, drawn as the logo's plate: a ring that fills. */
+function ReadyRing({ value }: { value: number }) {
+  const { i18n } = useTranslation();
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative grid size-32 shrink-0 place-items-center sm:size-36">
+      <svg viewBox="0 0 120 120" className="absolute inset-0 size-full -rotate-90" aria-hidden>
+        <circle cx="60" cy="60" r={r} fill="none" className="stroke-[#541f2d]/12 dark:stroke-[#fbf5e9]/12" strokeWidth="11" />
+        <motion.circle
+          cx="60"
+          cy="60"
+          r={r}
+          fill="none"
+          className="stroke-[#541f2d] dark:stroke-[#e2876a]"
+          strokeWidth="11"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: c }}
+          animate={{ strokeDashoffset: c * (1 - value) }}
+          transition={{ duration: 1.2, ease: EASE }}
+        />
+      </svg>
+      <span className="font-display text-[2rem] font-semibold tabular-nums text-foreground sm:text-[2.25rem]">
+        {Math.round(value * 100).toLocaleString(i18n.language)}%
+      </span>
+    </div>
+  );
+}
+
+const BAND_DISHES = ["hummus", "shakshuka", "pancakes"];
+const BAND_SPOTS: React.CSSProperties[] = [
+  { width: 144, height: 144, insetInlineEnd: 0, top: 22 },
+  { width: 100, height: 100, insetInlineEnd: 126, top: 0 },
+  { width: 88, height: 88, insetInlineEnd: 120, top: 100 },
+];
+
+/**
+ * The band that opens the dashboard: how much of the menu guests can already turn in 3D, what is missing, and the one
+ * action that closes the gap. Three real dishes sit at its end as plates, the way sign-in shows them.
+ */
+function ReadinessBand({ total, missing }: { total: number; missing: number }) {
+  const { t, i18n } = useTranslation();
+  const ready = Math.max(0, total - missing);
+  const value = total ? ready / total : 0;
+  const n = (v: number) => v.toLocaleString(i18n.language);
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: EASE, delay: 0.05 }}
+      className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#fbf5e9] to-[#efe3d3] p-5 shadow-card sm:p-7 dark:from-[#2b201e] dark:to-[#221817]"
+      aria-labelledby="ready-title"
+    >
+      <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center">
+        <ReadyRing value={value} />
+        <div className="min-w-0 flex-1 lg:pe-64">
+          <h2 id="ready-title" className="font-display text-xl font-semibold leading-snug text-foreground sm:text-2xl">
+            {missing > 0 ? t("ready_title") : t("ready_title_done")}
+          </h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {t("ready_counts", { ready: n(ready), total: n(total) })}
+            {missing > 0 && <span className="ms-1">· {t("ready_missing", { n: n(missing) })}</span>}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {missing > 0 ? (
+              <>
+                <Link to={"/dashboard/generation/bulk" as never} className={cn(buttonVariants({ variant: "primary", size: "md" }), "gap-2 whitespace-nowrap")}>
+                    <Sparkles />
+                    {t("ready_generate")}
+                  </Link>
+                <Link to={"/dashboard/menu/items" as never} search={{ withoutModelOnly: true } as never} className={cn(buttonVariants({ variant: "ghost", size: "md" }), "whitespace-nowrap")}>
+                    {t("ready_view_missing")}
+                  </Link>
+              </>
+            ) : (
+              <Link to={"/dashboard/menu/items" as never} className={cn(buttonVariants({ variant: "outline", size: "md" }), "gap-2 whitespace-nowrap")}>
+                  <Utensils />
+                  {t("ready_open_menu")}
+                </Link>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* three real dishes as plates at the band's end */}
+      <div aria-hidden className="pointer-events-none absolute end-6 top-1/2 hidden -translate-y-1/2 lg:block">
+        <div className="relative h-[190px] w-[240px]">
+          {BAND_DISHES.map((dish, i) => (
+            <motion.img
+              key={dish}
+              src={asset(`images/login/dishes/${dish}.webp`)}
+              alt=""
+              decoding="async"
+              initial={{ opacity: 0, scale: 0.9, rotate: -12 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.8, ease: EASE, delay: 0.15 + i * 0.1 }}
+              className="absolute rounded-full object-cover shadow-[0_18px_30px_-14px_rgb(38_28_26/0.55)] ring-4 ring-[#fbf5e9] dark:ring-[#2b201e]"
+              style={BAND_SPOTS[i]}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+type Todo = {
+  key: string;
+  n: number;
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "warn" | "bad" | "info";
+};
+
+/** What needs the owner today, most urgent first; each row links to where it gets fixed. */
+function Attention({ items }: { items: Todo[] }) {
+  const { t, i18n } = useTranslation();
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6" aria-labelledby="attention-title">
+      <header className="mb-3 flex items-center gap-2">
+        <ListChecks className="size-4 text-terracotta" />
+        <h2 id="attention-title" className="text-sm font-semibold text-foreground">{t("attention_title")}</h2>
+        {items.length > 0 && (
+          <span className="ms-auto rounded-full bg-terracotta/12 px-2 py-0.5 text-xs font-semibold tabular-nums text-terracotta">
+            {items.length.toLocaleString(i18n.language)}
+          </span>
+        )}
+      </header>
+      {items.length === 0 ? (
+        <p className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
+          <CheckCircle2 className="size-5 text-success" />
+          {t("attention_clear")}
+        </p>
+      ) : (
+        <ul>
+          {items.map((it) => (
+            <li key={it.key} className="border-t border-border first:border-t-0">
+              <Link to={it.href as never} className="group/todo -mx-2 flex items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-accent/70">
+                <span
+                  className={cn(
+                    "grid size-9 shrink-0 place-items-center rounded-xl",
+                    it.tone === "bad" ? "bg-destructive/10 text-destructive" : it.tone === "warn" ? "bg-terracotta/12 text-terracotta" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  <it.icon className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1 text-sm text-foreground">{it.label}</span>
+                <span className="font-display text-lg font-semibold tabular-nums text-foreground">{it.n.toLocaleString(i18n.language)}</span>
+                <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover/todo:-translate-y-0.5 rtl:-scale-x-100" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const user = useAuthStore((s) => s.auth?.user);
@@ -87,6 +248,21 @@ export default function DashboardPage() {
   const m = d?.models.counts;
   const n = (v: number) => v.toLocaleString(i18n.language);
   const today = new Date().toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" });
+  const total = d ? d.menuContent.activeItemCount + d.menuContent.inactiveItemCount : 0;
+  const monthShare = d?.generationUsage.monthlyLimit ? d.generationUsage.monthlyUsed / d.generationUsage.monthlyLimit : 0;
+  const todos: Todo[] = d
+    ? ([
+        { key: "failed", n: d.models.counts.failed, label: t("att_failed"), href: "/dashboard/generation/jobs", icon: AlertTriangle, tone: "bad" },
+        { key: "no_model", n: d.menuContent.itemsMissingModelCount, label: t("att_no_model"), href: "/dashboard/generation/bulk", icon: Layers, tone: "warn" },
+        { key: "no_qr", n: d.tablesAndQr.tablesWithoutQrCode, label: t("att_no_qr"), href: "/dashboard/restaurant/tables", icon: QrCode, tone: "warn" },
+        { key: "no_ingredients", n: d.menuContent.itemsMissingIngredientsCount, label: t("att_no_ingredients"), href: "/dashboard/menu/items", icon: Utensils, tone: "info" },
+        { key: "inactive", n: d.menuContent.inactiveItemCount, label: t("att_inactive"), href: "/dashboard/menu/items", icon: CircleSlash, tone: "info" },
+        ...(left !== null && left >= 0 && left <= 14 ? [{ key: "sub", n: left, label: t("att_sub_days"), href: "/dashboard", icon: CalendarClock, tone: "warn" as const }] : []),
+        ...(monthShare >= 0.8
+          ? [{ key: "quota", n: Math.round(monthShare * 100), label: t("att_quota"), href: "/dashboard/generation/jobs", icon: Wallet, tone: monthShare >= 1 ? ("bad" as const) : ("warn" as const) }]
+          : []),
+      ] as Todo[]).filter((x) => x.n > 0)
+    : [];
 
   return (
     <section className="space-y-6">
@@ -112,13 +288,13 @@ export default function DashboardPage() {
         </div>
       </motion.header>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-        <div className="space-y-5">
-          <SufraMap restaurantId={restaurant?.id} />
+      {q.isLoading && <Skeleton className="h-48 rounded-3xl" />}
+      {q.isError && <p className="text-sm text-destructive">{t("stats_unavailable")}</p>}
+      {d && <ReadinessBand total={total} missing={d.menuContent.itemsMissingModelCount} />}
 
           {/* the menu in numbers: one hairline-divided row of linked figures */}
           {d && (
-            <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-3 xl:grid-cols-6">
+            <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card shadow-card sm:grid-cols-3 xl:grid-cols-6">
               {([
                 [t("categories"), d.menuContent.categoryCount, "/dashboard/menu/categories", false],
                 [t("items_active"), d.menuContent.activeItemCount, "/dashboard/menu/items", false],
@@ -134,12 +310,13 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </div>
 
-        <div className="space-y-5">
-          {q.isLoading && <Skeleton className="h-56 rounded-2xl" />}
-          {q.isError && <p className="text-sm text-destructive">{t("stats_unavailable")}</p>}
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <SufraMap restaurantId={restaurant?.id} />
+        {d && <Attention items={todos} />}
+      </div>
 
+      <div className="grid items-start gap-5 md:grid-cols-2 2xl:grid-cols-4">
           {d && (
             <Card title={t("ai_queue")} icon={Box} action={<Link to={"/dashboard/generation/jobs" as never} className="text-xs font-medium text-primary hover:underline">{t("view_all")}</Link>}>
               <dl className="grid grid-cols-4 gap-2">
@@ -236,7 +413,6 @@ export default function DashboardPage() {
               </dl>
             </Card>
           )}
-        </div>
       </div>
     </section>
   );

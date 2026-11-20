@@ -639,14 +639,6 @@ tbody > tr:hover {
 [data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(5) { animation-delay: 340ms; }
 [data-slot="sheet-content"][data-state="open"] .sheet-form form > :nth-child(n + 6) { animation-delay: 390ms; }
 
-/** The map cloth: flat deep burgundy */
-.sufra-cloth {
-  background-color: #541f2d;
-  box-shadow: var(--shadow-card);
-}
-.dark .sufra-cloth {
-  background-color: #2d1218;
-}
 
 /* Sign-in gaze: each new hint settles in softly */
 .gaze-hint {

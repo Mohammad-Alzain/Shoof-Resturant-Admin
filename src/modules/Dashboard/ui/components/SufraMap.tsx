@@ -94,9 +94,9 @@ function PlateMark({ plate, size = 112, delay = 0 }: { plate: Plate; size?: numb
     />
   );
   return (
-    <svg viewBox="0 0 120 120" width={size} height={size} aria-hidden className="drop-shadow-[0_8px_14px_rgb(20_6_8/0.35)]">
-      {/* the plate: ivory glaze, a cobalt band on the rim */}
-      <circle cx="60" cy="60" r="57" fill="#fbf5e9" />
+    <svg viewBox="0 0 120 120" width={size} height={size} aria-hidden className="drop-shadow-[0_6px_10px_rgb(38_28_26/0.18)]">
+      {/* the plate: ivory glaze with a terracotta band on the rim */}
+      <circle cx="60" cy="60" r="57" fill="#fbf5e9" stroke="#e3d6c6" strokeWidth="1" />
       <circle cx="60" cy="60" r="55" fill="none" stroke="#b95035" strokeWidth="2.5" opacity="0.85" />
       <circle cx="60" cy="60" r="51" fill="none" stroke="#541f2d" strokeWidth="0.8" opacity="0.6" />
       <circle cx="60" cy="60" r={R1} fill="none" stroke="#e9ddcf" strokeWidth="7" />
@@ -129,13 +129,13 @@ function PlateLink({ plate, size, delay, className, style }: { plate: Plate; siz
         search={(missing > 0 ? { menuCategoryId: plate.target, withoutModelOnly: true } : { menuCategoryId: plate.target }) as never}
         aria-label={t("sufra_aria", { name: plate.name, items: plate.items, models: plate.models, photos: plate.photos })}
         title={t("sufra_open", { name: plate.name })}
-        className="group/plate flex w-[9.5rem] flex-col items-center gap-2 rounded-2xl p-1.5 text-center outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#e9a283]"
+        className="group/plate flex w-[9.5rem] flex-col items-center gap-2 rounded-2xl p-1.5 text-center outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="transition-transform duration-300 group-hover/plate:rotate-[8deg]">
           <PlateMark plate={plate} size={size} delay={delay + 0.2} />
         </span>
-        <span className="w-full truncate text-sm font-semibold text-[#fbf5e9]">{plate.name}</span>
-        <span className={cn("text-xs", missing > 0 ? "text-[#f2b7a0]" : "text-[#d8c5ba]")}>
+        <span className="w-full truncate text-sm font-semibold text-foreground">{plate.name}</span>
+        <span className={cn("text-xs", missing > 0 ? "text-terracotta" : "text-success")}>
           {plate.items === 0 ? t("sufra_items_n", { n: (0).toLocaleString(i18n.language) }) : missing > 0 ? t("sufra_needs", { n: missing.toLocaleString(i18n.language) }) : t("sufra_done")}
         </span>
       </Link>
@@ -144,43 +144,41 @@ function PlateLink({ plate, size, delay, className, style }: { plate: Plate; siz
 }
 
 /**
- * The dashboard's owning graphic: the menu laid out as a sufra. Categories are plates around a brass tray that carries the
- * totals; each plate opens its items. On narrow screens, or with many categories, the plates wrap into rows on the cloth.
+ * The menu laid out as plates, one per top-level category: the outer ring fills with 3D coverage, the inner ring with
+ * photo coverage, and each plate opens its items (filtered to those still missing a model). The overall readiness sits in
+ * the band at the top of the dashboard.
  */
 export function SufraMap({ restaurantId, className }: { restaurantId?: string; className?: string }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const allowed = can("MenuCategories.View") && can("MenuItems.View");
   const q = useSufra(allowed ? restaurantId : undefined);
   const plates = useMemo(() => q.data ?? [], [q.data]);
-  const totals = plates.reduce((a, p) => ({ items: a.items + p.items, models: a.models + p.models, photos: a.photos + p.photos }), { items: 0, models: 0, photos: 0 });
-  const pct = totals.items ? Math.round((totals.models / totals.items) * 100) : 0;
-  const round = plates.length >= 3 && plates.length <= 8;
   if (!allowed) return null;
 
   return (
-    <section className={cn("sufra-cloth relative overflow-hidden rounded-3xl p-5 text-[#fbf5e9] sm:p-7", className)} aria-labelledby="sufra-title">
-      <header className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+    <section className={cn("rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6", className)} aria-labelledby="sufra-title">
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="max-w-md">
-          <h2 id="sufra-title" className="font-display text-xl font-semibold sm:text-2xl">{t("sufra_title")}</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-[#e6d3c9]">{t("sufra_desc")}</p>
+          <h2 id="sufra-title" className="font-display text-lg font-semibold text-foreground">{t("sufra_title")}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t("sufra_desc")}</p>
         </div>
-        <ul className="flex items-center gap-4 text-xs text-[#e6d3c9]">
-          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#fbf5e9]"><span className="h-1.5 w-5 rounded-full bg-[#541f2d]" /></span>{t("sufra_models")}</li>
-          <li className="flex items-center gap-2"><span aria-hidden className="grid h-3 w-7 place-items-center rounded-full bg-[#fbf5e9]"><span className="h-1 w-5 rounded-full bg-[#b95035]" /></span>{t("sufra_photos")}</li>
+        <ul className="flex items-center gap-4 text-xs text-muted-foreground">
+          <li className="flex items-center gap-2"><span aria-hidden className="h-1.5 w-6 rounded-full bg-[#541f2d] dark:bg-[#f0c9b8]" />{t("sufra_models")}</li>
+          <li className="flex items-center gap-2"><span aria-hidden className="h-1 w-6 rounded-full bg-[#b95035]" />{t("sufra_photos")}</li>
         </ul>
       </header>
 
       {q.isLoading && (
-        <div className="relative mt-8 flex flex-wrap justify-center gap-6">
-          {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="size-28 rounded-full bg-white/10" />)}
+        <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="mx-auto size-24 rounded-full" />)}
         </div>
       )}
 
       {q.isSuccess && plates.length === 0 && (
-        <div className="relative mt-8 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/20 p-8 text-center">
-          <p className="max-w-sm text-sm text-[#e6d3c9]">{t("sufra_empty")}</p>
+        <div className="mt-6 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border p-8 text-center">
+          <p className="max-w-sm text-sm text-muted-foreground">{t("sufra_empty")}</p>
           {can("MenuCategories.Add") && (
-            <Link to={"/dashboard/menu/categories" as never} className="inline-flex items-center gap-2 rounded-xl bg-[#fbf5e9] px-4 py-2 text-sm font-semibold text-[#541f2d] hover:bg-white">
+            <Link to={"/dashboard/menu/categories" as never} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
               <Plus className="size-4" />
               {t("add_category")}
             </Link>
@@ -189,48 +187,11 @@ export function SufraMap({ restaurantId, className }: { restaurantId?: string; c
       )}
 
       {plates.length > 0 && (
-        <>
-          {/* round table: plates set around the brass tray (wide screens, 3 to 8 categories) */}
-          {round && (
-            <div className="relative mx-auto mt-2 hidden aspect-[1.1] w-full max-w-[38rem] md:block">
-              <div className="absolute inset-[33%] grid place-items-center">
-                <svg viewBox="0 0 200 200" aria-hidden className="absolute inset-0 size-full drop-shadow-[0_10px_18px_rgb(20_6_8/0.45)]">
-                  <circle cx="100" cy="100" r="99" fill="#b95035" />
-                  <circle cx="100" cy="100" r="92" fill="none" stroke="#8f3a25" strokeWidth="3" />
-                  {[80, 66, 52].map((r) => <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="#d9876b" strokeWidth="1" strokeDasharray="2 5" />)}
-                </svg>
-                <div className="relative text-center text-[#fbf5e9]">
-                  <p className="font-display text-3xl font-semibold tabular-nums leading-none">{pct.toLocaleString(i18n.language)}%</p>
-                  <p className="mt-1 text-[0.6875rem] font-medium">{t("sufra_models")}</p>
-                  <p className="mt-2 text-xs tabular-nums">{t("sufra_items_n", { n: totals.items.toLocaleString(i18n.language) })}</p>
-                </div>
-              </div>
-              {plates.map((p, i) => {
-                const a = -Math.PI / 2 + (i / plates.length) * Math.PI * 2;
-                // physical left/top: the circle is symmetric, and translate(-50%) is physical too, so RTL needs no mirroring
-                const x = 50 + Math.cos(a) * 39;
-                const y = 50 + Math.sin(a) * 37;
-                return (
-                  <PlateLink
-                    key={p.id}
-                    plate={p}
-                    size={104}
-                    delay={0.08 * i}
-                    className="absolute -translate-x-1/2 -translate-y-1/2"
-                    style={{ left: `${x}%`, top: `${y}%` }}
-                  />
-                );
-              })}
-            </div>
-          )}
-
-          {/* rows on the cloth: phones, and menus with many categories */}
-          <div className={cn("relative mt-6 flex flex-wrap justify-center gap-x-2 gap-y-5", round && "md:hidden")}>
-            {plates.map((p, i) => (
-              <PlateLink key={p.id} plate={p} size={96} delay={0.05 * Math.min(i, 12)} />
-            ))}
-          </div>
-        </>
+        <div className="mt-6 grid grid-cols-2 justify-items-center gap-x-2 gap-y-6 sm:grid-cols-3">
+          {plates.map((p, i) => (
+            <PlateLink key={p.id} plate={p} size={100} delay={0.05 * Math.min(i, 12)} />
+          ))}
+        </div>
       )}
     </section>
   );
