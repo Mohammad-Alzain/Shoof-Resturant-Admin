@@ -1,4 +1,6 @@
+import { useEffect, useRef, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,18 +13,21 @@ const PLATE_R = { cx: 63, cy: 46, r: 15 };
 const PUPIL_L = { cx: 27, cy: 43.5, r: 3.3 };
 const PUPIL_R = { cx: 67, cy: 43.5, r: 3.3 };
 /** The compact icon, centred in a 32 box. */
+/** Identity colours, written out so the logo never depends on a theme variable resolving (shoof-tokens.json). */
+const BURGUNDY = "#541F2D";
+const IVORY = "#FBF5E9";
 const FIT = "translate(16 16.4) scale(0.345) translate(-43 -46)";
 
 /** App icon tile in Shoof's own colours (burgundy tile, ivory plates), whatever the console theme. */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("brand-mark size-9", className)} aria-hidden="true" focusable="false">
-      <rect width="32" height="32" rx="9" fill="var(--brand-burgundy)" />
-      <g transform={FIT} fill="none" stroke="var(--brand-ivory)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="32" height="32" rx="9" fill={BURGUNDY} />
+      <g transform={FIT} fill="none" stroke={IVORY} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
         <circle {...PLATE_L} />
         <circle {...PLATE_R} />
       </g>
-      <g className="brand-mark-pupils" transform={FIT} fill="var(--brand-ivory)">
+      <g className="brand-mark-pupils" transform={FIT} fill={IVORY}>
         <circle {...PUPIL_L} />
         <circle {...PUPIL_R} />
       </g>
@@ -30,8 +35,40 @@ export function BrandMark({ className }: { className?: string }) {
   );
 }
 
-/** The "Shoof" wordmark as drawn paths (never set in a UI font), coloured by `currentColor`. */
-export function Wordmark({ className }: { className?: string }) {
+/**
+ * The gaze from the brand book: the pupils follow the pointer within ±5 / ±4 source units (220ms), return to centre
+ * when it leaves, and stay still with reduced motion. Applied to any logo whose pupils group carries the ref.
+ */
+function useGaze(pupils: RefObject<SVGGElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const g = pupils.current;
+    const svg = g?.ownerSVGElement;
+    if (!enabled || !g || !svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    g.style.transition = "transform 220ms cubic-bezier(.2,.8,.25,1)";
+    const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v));
+    const onMove = (e: PointerEvent) => {
+      const b = svg.getBoundingClientRect();
+      if (!b.width) return;
+      // distance from the logo, scaled so the eyes turn toward the pointer anywhere on the page
+      const x = clamp(((e.clientX - (b.left + b.width / 2)) / window.innerWidth) * 14, 5);
+      const y = clamp(((e.clientY - (b.top + b.height / 2)) / window.innerHeight) * 12, 4);
+      g.style.transform = `translate(${x}px, ${y}px)`;
+    };
+    const reset = () => (g.style.transform = "");
+    window.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerleave", reset);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", reset);
+      reset();
+    };
+  }, [pupils, enabled]);
+}
+
+/** The "Shoof" wordmark ("Table Rim", shoof-tasting-gaze.svg) as drawn paths, coloured by `currentColor`. */
+export function Wordmark({ className, gaze = false }: { className?: string; gaze?: boolean }) {
+  const pupils = useRef<SVGGElement>(null);
+  useGaze(pupils, gaze);
   return (
     <svg viewBox="0 6 205 65" className={cn("h-5 w-auto", className)} role="img" aria-label="Shoof" focusable="false">
       <g fill="none" stroke="currentColor" strokeWidth="7" strokeLinejoin="round" strokeLinecap="round">
@@ -47,9 +84,67 @@ export function Wordmark({ className }: { className?: string }) {
         <path d="M100 47a10.5 10.5 0 0 0 8 9" />
         <path d="M144 47a10.5 10.5 0 0 0 8 9" />
       </g>
-      <g fill="currentColor">
+      <g ref={pupils} fill="currentColor">
         <circle cx="114" cy="42.5" r="2.9" />
         <circle cx="158" cy="42.5" r="2.9" />
+      </g>
+    </svg>
+  );
+}
+
+const AR_PATHS = [
+  "M33.462 61.936Q25.038 61.936 19.227 61.039Q13.416 60.142 9.867 58.075Q6.318 56.008 4.758 52.653999999999996Q3.198 49.3 3.198 44.464Q3.198 41.344 4.017 37.717Q4.836 34.09 6.396 30.346L13.104 32.296Q11.7 35.182 10.92 37.756Q10.14 40.33 10.14 42.358000000000004Q10.14 44.698 11.115 46.297Q12.09 47.896 14.274 48.871Q16.458 49.846000000000004 19.929 50.314Q23.4 50.782 28.392 50.782H40.014Q45.942 50.782 50.232 50.431Q54.522 50.08 57.251999999999995 49.144Q59.982 48.208 61.269 46.647999999999996Q62.556 45.088 62.556 42.67V39.394H62.088Q59.748 45.4 51.948 45.4Q45.63 45.4 42.120000000000005 42.123999999999995Q38.61 38.848 38.61 32.998000000000005Q38.61 29.098 39.78 25.744Q40.95 22.39 43.017 19.933Q45.084 17.476 47.892 16.072Q50.7 14.668 54.054 14.668Q61.386 14.668 65.52 20.908Q69.654 27.148000000000003 69.654 38.224000000000004Q69.654 45.322 68.094 49.924Q66.534 54.525999999999996 62.478 57.178Q58.422 59.83 51.402 60.882999999999996Q44.382 61.936 33.462 61.936ZM54.132 36.196Q57.252 36.196 59.241 35.884Q61.23 35.572 62.478 34.714Q62.088 30.268 59.553 27.616Q57.018 24.964 53.196 24.964Q49.842 24.964 47.775 26.836Q45.708 28.708 45.708 31.672Q45.708 34.09 47.462999999999994 35.143Q49.217999999999996 36.196 52.494 36.196ZM53.352000000000004 7.492000000000004Q51.480000000000004 7.492000000000004 50.271 6.361000000000004Q49.062 5.230000000000004 49.062 2.7340000000000018Q49.062 0.1600000000000037 50.271 -0.9709999999999965Q51.480000000000004 -2.1019999999999968 53.352000000000004 -2.1019999999999968H54.678Q56.55 -2.1019999999999968 57.759 -0.9709999999999965Q58.968 0.1600000000000037 58.968 2.7340000000000018Q58.968 5.230000000000004 57.759 6.361000000000004Q56.55 7.492000000000004 54.678 7.492000000000004Z",
+  "M75.036 69.502H79.794Q87.672 69.502 92.235 67.24Q96.798 64.978 98.43599999999999 61.0H89.154Q82.836 61.0 79.326 57.412Q75.81599999999999 53.824 75.81599999999999 47.428Q75.81599999999999 43.528 76.98599999999999 40.174Q78.15599999999999 36.82 80.22299999999998 34.324Q82.28999999999999 31.828 85.137 30.424Q87.984 29.02 91.25999999999999 29.02Q98.202 29.02 102.258 34.753Q106.314 40.486000000000004 106.548 50.782H110.37V58.894L108.264 61.0H105.612Q103.584 69.97 97.26599999999999 74.845Q90.948 79.72 80.33999999999999 79.72H75.036ZM82.91399999999999 46.102000000000004Q82.91399999999999 48.598 84.66899999999998 49.69Q86.42399999999999 50.782 89.69999999999999 50.782H99.372V49.924Q99.372 45.01 96.876 42.123999999999995Q94.38 39.238 90.40199999999999 39.238Q87.12599999999999 39.238 85.01999999999998 41.188Q82.91399999999999 43.138000000000005 82.91399999999999 46.102000000000004Z",
+  "M108.26400000000001 52.888 110.37 50.782H111.22800000000001Q112.944 50.782 114.27000000000001 50.548Q115.596 50.314 116.571 49.768Q117.546 49.222 118.287 48.325Q119.028 47.428 119.652 46.102000000000004L122.772 39.706L129.558 42.982L126.28200000000001 49.456Q128.466 50.548 130.65 51.172Q132.834 51.796 135.018 51.796Q138.45 51.796 140.01 50.275Q141.57 48.754 141.57 44.932V39.706H149.214V44.932Q149.214 48.442 150.38400000000001 50.001999999999995Q151.554 51.562 153.738 51.562H154.752Q158.808 51.562 158.808 46.57Q158.808 44.074 158.02800000000002 39.472L157.32600000000002 35.416L164.97 34.245999999999995L165.51600000000002 38.224000000000004Q166.21800000000002 42.903999999999996 166.21800000000002 46.57Q166.21800000000002 61.936 154.284 61.936Q148.98000000000002 61.936 146.211 59.479Q143.442 57.022 142.506 52.03H142.038Q141.41400000000002 57.022 139.23000000000002 59.479Q137.046 61.936 133.536 61.936Q131.274 61.936 128.934 61.078Q126.59400000000001 60.22 123.24000000000001 58.192L121.36800000000001 57.1Q119.028 59.518 115.986 60.259Q112.944 61.0 108.26400000000001 61.0ZM150.54000000000002 32.53Q148.746 32.53 147.537 31.399Q146.328 30.268 146.328 27.772Q146.328 25.198 147.537 24.067Q148.746 22.936 150.54000000000002 22.936H151.94400000000002Q153.738 22.936 154.947 24.067Q156.156 25.198 156.156 27.772Q156.156 30.268 154.947 31.399Q153.738 32.53 151.94400000000002 32.53ZM138.918 32.53Q137.04600000000002 32.53 135.83700000000002 31.399Q134.62800000000001 30.268 134.62800000000001 27.772Q134.62800000000001 25.198 135.83700000000002 24.067Q137.04600000000002 22.936 138.918 22.936H140.244Q142.116 22.936 143.32500000000002 24.067Q144.53400000000002 25.198 144.53400000000002 27.772Q144.53400000000002 30.268 143.32500000000002 31.399Q142.116 32.53 140.244 32.53ZM144.768 21.766Q142.89600000000002 21.766 141.726 20.634999999999998Q140.556 19.503999999999998 140.556 17.008000000000003Q140.556 14.512 141.726 13.341999999999999Q142.89600000000002 12.171999999999997 144.768 12.171999999999997H146.09400000000002Q147.966 12.171999999999997 149.13600000000002 13.341999999999999Q150.306 14.512 150.306 17.008000000000003Q150.306 19.503999999999998 149.13600000000002 20.634999999999998Q147.966 21.766 146.09400000000002 21.766Z",
+];
+
+/** The Arabic lockup (shoof-arabic-lockup.svg): «شوف» drawn as paths beside the plate mark. For Arabic interfaces. */
+export function ArabicLockup({ className, gaze = false }: { className?: string; gaze?: boolean }) {
+  const pupils = useRef<SVGGElement>(null);
+  useGaze(pupils, gaze);
+  return (
+    <svg viewBox="0 -4 195.3 77" className={cn("h-6 w-auto", className)} role="img" aria-label="شوف" focusable="false">
+      <g transform="translate(0 12) scale(.73)" fill="currentColor">
+        {AR_PATHS.map((d) => <path key={d.slice(0, 12)} d={d} />)}
+      </g>
+      <g transform="translate(134.297 5) scale(.67)">
+        <g fill="none" stroke="currentColor" strokeWidth="6.6" strokeLinejoin="round" strokeLinecap="round">
+          <circle cx="24" cy="46" r="17" />
+          <circle cx="65" cy="46" r="17" />
+        </g>
+        <g fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" strokeLinecap="round">
+          <path d="M14 47a10.5 10.5 0 0 0 8 9" />
+          <path d="M55 47a10.5 10.5 0 0 0 8 9" />
+        </g>
+        <g ref={pupils} fill="currentColor">
+          <circle cx="28" cy="42.5" r="2.9" />
+          <circle cx="69" cy="42.5" r="2.9" />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * The primary logo for the interface language: the Arabic lockup in Arabic, the Latin wordmark otherwise.
+ * Brand book minimum: 88px wide on screen; keep clear space of one plate radius on all sides.
+ */
+export function BrandLogo({ className, gaze = false }: { className?: string; gaze?: boolean }) {
+  const { i18n } = useTranslation();
+  return i18n.language?.startsWith("ar") ? <ArabicLockup className={className} gaze={gaze} /> : <Wordmark className={className} gaze={gaze} />;
+}
+
+/** The compact plate mark without a tile (shoof-micro-icon.svg), for small endorsements; `currentColor`. */
+export function BrandGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 22 86 48" className={cn("h-3 w-auto", className)} aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round">
+        <circle {...PLATE_L} />
+        <circle {...PLATE_R} />
+      </g>
+      <g fill="currentColor">
+        <circle {...PUPIL_L} />
+        <circle {...PUPIL_R} />
       </g>
     </svg>
   );

@@ -16,7 +16,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
-import { Wordmark } from "@/components/common/Brand";
+import { BrandGlyph } from "@/components/common/Brand";
 import { useCurrentRestaurant } from "@/modules/shared/core/restaurant";
 import { cn } from "@/lib/utils";
 
@@ -64,7 +64,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <span className={cn("flex min-w-0 flex-col leading-none whitespace-nowrap", FADE)}>
             <span className="truncate text-[0.9375rem] font-semibold text-sidebar-strong">{restaurant?.name ?? t("restaurant")}</span>
             <span className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-sidebar-foreground">
-              <Wordmark className="h-[11px] text-brand-ivory" />
+              <BrandGlyph className="h-2.5 text-brand-ivory" />
               {t("super_admin")}
             </span>
           </span>

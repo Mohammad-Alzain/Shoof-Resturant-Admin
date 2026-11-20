@@ -3,96 +3,46 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/Layout/Header/LanguageSwitcher";
 import { getDirection } from "@/Translation/i18n";
-import { BrandMark, Wordmark } from "@/components/common/Brand";
-
-const POINTS = ["stage_point_models", "stage_point_partners", "stage_point_billing"] as const;
+import { BrandLogo } from "@/components/common/Brand";
 
 /**
- * Shoof's mark made real: the logo is two plates seen from above, each with a pupil. Here the first plate is a real
- * dish photographed from above, and the second is the ivory plate whose pupil turns toward it ("the tasting gaze").
- * A terracotta arc with the identity's rotation cue says the dish can be turned. Logos never mirror, so neither does this.
- * Static: one ~55 kB photo plus inline vectors.
+ * The dish column, as in the brand book's landing study: one dish, soft side light, a calm linen ground that lets it
+ * breathe. The slogan sits on a warm-paper fade at the foot of the photo. Colours are written out: this column looks the
+ * same in every theme.
  */
-function GazeOnDish({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 800 440" className={className} aria-hidden="true" focusable="false">
-      <defs>
-        <clipPath id="sh-plate">
-          <circle cx="210" cy="220" r="160" />
-        </clipPath>
-        <filter id="sh-lift" x="-30%" y="-30%" width="160%" height="170%">
-          <feDropShadow dx="0" dy="22" stdDeviation="22" floodColor="#261C1A" floodOpacity="0.55" />
-        </filter>
-      </defs>
-
-      {/* orbit with the rotation cue: the dish turns */}
-      <g fill="none" stroke="#B95035" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="210" cy="220" r="196" strokeOpacity="0.28" strokeWidth="2" />
-        <path d="M37.5 311.9A196 196 0 0 1 112 50.3" strokeWidth="4" />
-        <path d="M112 50.3l-3 26M112 50.3l-25.5 -5.5" strokeWidth="4" />
-      </g>
-      <circle cx="37.5" cy="311.9" r="7" fill="#B95035" />
-
-      {/* plate one: the real dish, seen from above, clipped just inside its own ceramic rim */}
-      <g filter="url(#sh-lift)">
-        <circle cx="210" cy="220" r="160" fill="#E9DDCF" />
-        <image
-          href={asset("images/login/shoof-dish.webp")}
-          x="42"
-          y="52"
-          width="336"
-          height="336"
-          clipPath="url(#sh-plate)"
-          preserveAspectRatio="xMidYMid slice"
-        />
-      </g>
-
-      {/* plate two: the ivory plate of the mark, its pupil looking at the dish */}
-      <circle cx="590" cy="220" r="128" fill="none" stroke="#FBF5E9" strokeWidth="52" />
-      <circle cx="548" cy="206" r="30" fill="#FBF5E9" />
-    </svg>
-  );
-}
-
-function Stage() {
+function DishColumn() {
   const { t } = useTranslation();
 
   return (
-    <aside className="relative h-[240px] overflow-hidden bg-brand-burgundy text-brand-ivory sm:h-[300px] lg:h-auto lg:min-h-screen">
-      <img src={asset("images/login/shoof-stage.svg")} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-2/5 bg-linear-to-t from-brand-espresso/85 to-transparent lg:block" />
+    <aside className="relative h-[220px] overflow-hidden bg-[#d9b089] sm:h-[280px] lg:sticky lg:top-0 lg:order-last auth-stage">
+      <img
+        src={asset("images/login/shoof-dish.webp")}
+        alt={t("stage_photo_alt")}
+        width={880}
+        height={1100}
+        decoding="async"
+        fetchPriority="high"
+        className="absolute inset-0 size-full object-cover object-[50%_45%] lg:object-[50%_68%]"
+      />
 
-      <div className="relative flex h-full flex-col p-5 sm:p-7 lg:p-12">
-        <div className="flex items-center gap-3">
-          <BrandMark className="size-10 ring-1 ring-brand-ivory/20" />
-          <Wordmark className="h-[22px] text-brand-ivory" />
-          <span className="ms-1 hidden rounded-full border border-brand-ivory/25 px-2.5 py-1 text-[0.6875rem] font-medium text-brand-sand lg:inline">
-            {t("console_for_restaurants")}
-          </span>
-        </div>
+      <span className="absolute end-4 top-4 rounded-full bg-[#FBF5E9]/85 px-3 py-1 text-xs font-medium text-[#261C1A] backdrop-blur-sm lg:end-8 lg:top-8">
+        {t("stage_caption")}
+      </span>
 
-        <div className="flex min-h-0 flex-1 items-center justify-center py-3 lg:py-10">
-          <GazeOnDish className="h-full max-h-[150px] w-auto max-w-full sm:max-h-[200px] lg:h-auto lg:max-h-none lg:w-full lg:max-w-[620px]" />
-        </div>
-
-        <div className="hidden max-w-lg lg:block">
-          <h2 className="font-display text-[2.75rem] font-semibold leading-[1.12] text-balance rtl:leading-[1.6]">{t("stage_headline")}</h2>
-          <p className="mt-4 max-w-md text-[1.0625rem] leading-relaxed text-brand-sand">{t("stage_subline")}</p>
-          <ul className="mt-6 space-y-2.5">
-            {POINTS.map((key) => (
-              <li key={key} className="flex items-center gap-3 text-[0.9375rem] text-brand-ivory/90">
-                <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand-terracotta" />
-                {t(key)}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="absolute inset-x-0 bottom-0 hidden bg-linear-to-t from-[#E9DDCF] via-[#E9DDCF]/85 to-transparent px-12 pb-12 pt-40 lg:block xl:px-16 xl:pb-16">
+        <p className="font-display text-[clamp(2.5rem,3.4vw,4rem)] font-semibold leading-[1.1] text-[#261C1A] rtl:leading-[1.27]">
+          {t("stage_headline")}
+        </p>
+        <p className="mt-3 max-w-md text-lg leading-relaxed text-[#261C1A]/80">{t("stage_subline")}</p>
       </div>
     </aside>
   );
 }
 
-/** Stage on top (phones) or beside the form (desktop), mirrored in RTL. Always the light set in the brand palette. */
+/**
+ * Sign-in: warm ivory carries the form and the logo (Arabic lockup in Arabic, Latin wordmark in English), the dish
+ * column sits beside it on desktop and above it on phones. Mirrored in RTL; the logo itself never mirrors.
+ */
 export function AuthShell({
   title,
   description,
@@ -104,19 +54,26 @@ export function AuthShell({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <div dir={getDirection()} className="auth-light grid min-h-screen bg-background text-foreground lg:grid-cols-[1.2fr_1fr]">
-      <Stage />
+    <div dir={getDirection()} className="auth-light auth-screen grid bg-[#FBF5E9] text-[#261C1A] lg:grid-cols-2">
+      <DishColumn />
 
-      <div className="flex flex-col">
-        <div className="flex justify-end gap-1 p-4">
+      <div className="flex min-h-full flex-col px-6 sm:px-10 lg:px-14 xl:px-20">
+        <header className="flex items-center justify-between gap-4 py-5 lg:py-8">
+          <div className="flex items-center gap-4">
+            <BrandLogo gaze className="h-9 text-[#541F2D]" />
+            <span aria-hidden className="h-6 w-px bg-[#261C1A]/15" />
+            <span className="text-sm font-medium text-[#261C1A]/70">{t("console_for_restaurants")}</span>
+          </div>
           <LanguageSwitcher />
-        </div>
+        </header>
 
-        <main className="flex flex-1 items-start justify-center px-6 pb-16 pt-2 sm:px-10 lg:items-center lg:pt-0">
-          <div className="w-full max-w-[380px]">
-            <h1 className="font-display text-[2rem] font-semibold leading-tight text-foreground">{title}</h1>
-            {description && <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted-foreground">{description}</p>}
+        <main className="flex flex-1 items-start justify-center pb-16 pt-6 lg:items-center lg:pb-24 lg:pt-0">
+          <div className="w-full max-w-[400px]">
+            <h1 className="font-display text-[2rem] font-semibold leading-tight lg:text-[2.5rem] rtl:leading-[1.35]">{title}</h1>
+            {description && <p className="mt-2.5 text-base leading-relaxed text-muted-foreground">{description}</p>}
             <div className="mt-8">{children}</div>
             {footer && <div className="mt-6 text-sm">{footer}</div>}
           </div>
