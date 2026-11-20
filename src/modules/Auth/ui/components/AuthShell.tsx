@@ -5,15 +5,20 @@ import { LanguageSwitcher } from "@/components/Layout/Header/LanguageSwitcher";
 import { getDirection } from "@/Translation/i18n";
 import { BrandLogo } from "@/components/common/Brand";
 import { GazeStage, type GazeApi } from "./GazeStage";
+import { FoodWall } from "./FoodWall";
 
 /** Real dishes, photographed from above (public/images/login/CREDITS.md). */
 const DISHES = [
   { key: "dish_hummus", src: "images/login/dishes/hummus.webp" },
+  { key: "dish_cappuccino", src: "images/login/dishes/cappuccino.webp" },
   { key: "dish_shakshuka", src: "images/login/dishes/shakshuka.webp" },
+  { key: "dish_pancakes", src: "images/login/dishes/pancakes.webp" },
   { key: "dish_salad", src: "images/login/dishes/salad.webp" },
+  { key: "dish_curry", src: "images/login/dishes/curry.webp" },
   { key: "dish_ravioli", src: "images/login/dishes/ravioli.webp" },
+  { key: "dish_smoothie", src: "images/login/dishes/smoothie.webp" },
 ] as const;
-const DISH_EVERY = 5200;
+const DISH_EVERY = 4200;
 
 type Mood = "idle" | "reading" | "secret" | "looking_away" | "checking" | "error";
 
@@ -216,18 +221,11 @@ export function AuthShell({
   return (
     <div dir={getDirection()} className="auth-light auth-screen grid bg-[#FBF5E9] text-[#261C1A] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <aside aria-hidden className="auth-stage relative flex flex-col items-center justify-center overflow-hidden bg-[#261C1A] px-6 pb-6 pt-8 text-[#FBF5E9] lg:sticky lg:top-0 lg:order-last lg:px-12 lg:py-0">
-        {/* the real dish, large and soft, behind everything */}
-        {srcs.map((src, i) => (
-          <img
-            key={src}
-            src={src}
-            alt=""
-            decoding="async"
-            className="absolute inset-0 size-full scale-110 object-cover blur-[3px] transition-opacity duration-1000 ease-out motion-reduce:transition-none"
-            style={{ opacity: i === dish ? 1 : 0 }}
-          />
-        ))}
-        <div className="absolute inset-0 bg-linear-to-b from-[#541F2D]/72 via-[#3d1620]/60 to-[#261C1A]/90" />
+        {/* the menu as a wall of real dishes, washed in the identity's dining light so the gaze stays the hero */}
+        <FoodWall />
+        <div className="absolute inset-0 bg-[#541F2D] mix-blend-multiply opacity-45" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_42%,rgb(38_28_26/0.86)_0%,rgb(61_22_32/0.7)_55%,rgb(38_28_26/0.55)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-[#261C1A]/85 to-transparent" />
 
         <GazeStage ref={gaze} dishes={srcs} current={dish} className="relative w-[230px] sm:w-[300px] lg:w-[min(78%,540px)]" />
 
