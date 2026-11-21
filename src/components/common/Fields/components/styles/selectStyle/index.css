@@ -182,3 +182,29 @@
 .react-select-container .react-select__loading-indicator {
   color: var(--terracotta);
 }
+
+/* ---- Dark mode: the menu must read as its own layer above the panel, and the three option states must differ ---- */
+.dark .react-select__menu {
+  background-color: color-mix(in srgb, var(--popover) 93%, white) !important;
+  border-color: color-mix(in srgb, var(--input) 55%, var(--border));
+  box-shadow:
+    0 18px 40px -10px rgb(0 0 0 / 0.65),
+    0 0 0 1px rgb(0 0 0 / 0.35) !important;
+}
+.dark .react-select__option {
+  color: var(--foreground) !important;
+}
+.dark .react-select__option--is-focused {
+  background-color: color-mix(in srgb, var(--foreground) 11%, transparent) !important;
+  color: var(--foreground) !important;
+}
+.dark .react-select__option--is-selected {
+  background-color: color-mix(in srgb, var(--terracotta) 24%, transparent) !important;
+  color: var(--foreground) !important;
+}
+.dark .react-select__option--is-selected.react-select__option--is-focused {
+  background-color: color-mix(in srgb, var(--terracotta) 34%, transparent) !important;
+}
+.dark .react-select__menu-notice {
+  color: var(--muted-foreground) !important;
+}
