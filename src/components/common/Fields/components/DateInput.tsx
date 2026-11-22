@@ -1,3 +1,4 @@
+import { DatePickerLayer } from "./DatePickerLayer";
 import i18next from "@/Translation/i18n";
 /* eslint-disable react-refresh/only-export-components */
 
@@ -168,9 +169,7 @@ function DatePickerInput(props: FieldPropsInterface) {
           {!selectedDate && props?.placeholder}
         </span>
         <DatePicker
-          popperContainer={({ children }) => (
-            <div className=" fixed z-[99999999999999] w-full">{children}</div>
-          )}
+          popperContainer={DatePickerLayer}
           showFullMonthYearPicker
           // popperClassName=" z-[9999]"
           // popperContainer={CalendarContainer}

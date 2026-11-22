@@ -1,3 +1,4 @@
+import { DatePickerLayer } from "./DatePickerLayer";
 import i18next from "@/Translation/i18n";
 /* eslint-disable react-refresh/only-export-components */
 
@@ -161,9 +162,7 @@ function DateTimePicker(props: FieldPropsInterface) {
         <DatePicker
           // portalId="calendar-portal"
           // appendTo={typeof window !== "undefined" ? document.body : undefined} // 👈 Important
-          popperContainer={({ children }) => (
-            <div className=" fixed z-[99999999999999] w-full">{children}</div>
-          )}
+          popperContainer={DatePickerLayer}
           selected={selectedDate}
           onChange={handleDateChange}
           minDate={maxField ? new Date(props?.watch(maxField)) : minDate}

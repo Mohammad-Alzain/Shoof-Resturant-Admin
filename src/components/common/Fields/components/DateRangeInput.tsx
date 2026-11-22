@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePickerLayer } from "./DatePickerLayer";
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -95,9 +96,7 @@ function DateRangePicker({
         )}
       >
         <DatePicker
-          popperContainer={({ children }) => (
-            <div className=" fixed z-[99999999999999] w-full">{children}</div>
-          )}
+          popperContainer={DatePickerLayer}
           // popperContainer={CalendarContainer}
           selected={startDate}
           onChange={handleDateChange}
