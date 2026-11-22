@@ -11,17 +11,19 @@ import { cn } from "@/lib/utils";
 import { useMarkRead, useNotificationsInfinite, type NotificationFilter } from "../../core/hooks";
 import { NOTIFICATION_TYPE_KEYS, notificationTarget, type INotification } from "../../core/api";
 
-/** Notifications with infinite scroll: a sentinel at the end loads the next page when it scrolls into view. */
+/** A notification's time in the interface language (dates arrive already in the restaurant's local time, docs 00 §2.6). */
+const when = (iso: string, lang: string) => new Date(iso).toLocaleString(lang, { dateStyle: "medium", timeStyle: "short" });
+
 /** Announcements from Shoof (type 4) are plain text: read in full here (spec 01 §17). */
 const AnnouncementDialog = NiceModal.create(({ n }: { n: INotification }) => {
   const modal = useModal();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <Dialog open={modal.visible} onOpenChange={(o) => !o && modal.hide()}>
       <DialogContent dir={getDirection()} className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2"><Megaphone className="size-4 text-terracotta" />{n.title}</DialogTitle>
-          <DialogDescription>{t("notif_announcement")} · {new Date(n.creationDateTime).toLocaleString()}</DialogDescription>
+          <DialogDescription>{t("notif_announcement")} · {when(n.creationDateTime, i18n.language)}</DialogDescription>
         </DialogHeader>
         <p className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-foreground">{n.body}</p>
       </DialogContent>
@@ -29,8 +31,9 @@ const AnnouncementDialog = NiceModal.create(({ n }: { n: INotification }) => {
   );
 });
 
+/** Notifications with infinite scroll: a sentinel at the end loads the next page when it scrolls into view. */
 export function NotificationList({ filter, onOpen, className }: { filter: NotificationFilter; onOpen?: () => void; className?: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const read = useMarkRead();
   const query = useNotificationsInfinite(filter);
@@ -92,7 +95,7 @@ export function NotificationList({ filter, onOpen, className }: { filter: Notifi
                   <span className="block truncate text-sm font-medium text-foreground">{n.title}</span>
                   {n.body && <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">{n.body}</span>}
                   <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
-                    {t(NOTIFICATION_TYPE_KEYS[n.type] ?? "notif_generic")} · {new Date(n.creationDateTime).toLocaleString()}
+                    {t(NOTIFICATION_TYPE_KEYS[n.type] ?? "notif_generic")} · {when(n.creationDateTime, i18n.language)}
                   </span>
                 </span>
               </button>

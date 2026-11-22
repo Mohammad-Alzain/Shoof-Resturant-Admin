@@ -29,7 +29,8 @@ export function ModelViewer({ glb, usdz, poster, className }: { glb?: string | n
     "auto-rotate": true,
     ar: true,
     "shadow-intensity": "1",
-    style: { width: "100%", height: "100%", minHeight: "16rem", borderRadius: "0.75rem", background: "var(--muted)" },
+    // a size from `className` wins; without one the viewer fills its box (an inline height would override the class)
+    style: { width: "100%", ...(className ? {} : { height: "100%" }), minHeight: "16rem", borderRadius: "0.75rem", background: "var(--muted)" },
     class: className,
   });
 }

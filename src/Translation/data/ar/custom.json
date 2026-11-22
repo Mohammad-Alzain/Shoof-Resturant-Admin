@@ -1414,11 +1414,10 @@
   "owner_permission_locked": "لا يمكن إزالة هذه الصلاحية من دور المالك",
   "add_model_by_url": "أو أضف نموذجًا عبر رابط",
   "all_models": "كل نماذج هذا الصنف ({{n}})",
-  "file_too_large_5mb": "حجم الملف أكبر من 5 ميغابايت.",
   "hidden": "مخفي",
-  "item_name_search": "اسم الصنف (عربي أو إنجليزي)",
   "upload_model_hint": "ملف GLB مطلوب (للعارض على الويب)، وUSDZ اختياري (للواقع المعزز على iPhone)، وكل ملف 5 ميغابايت كحد أقصى.",
   "model_glbUrl": "رابط GLB",
   "model_usdzUrl": "رابط USDZ",
-  "model_thumbnailUrl": "رابط الصورة المصغّرة"
+  "model_thumbnailUrl": "رابط الصورة المصغّرة",
+  "edit_model_urls": "تعديل روابط النموذج"
 }

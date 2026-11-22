@@ -345,6 +345,37 @@ function IngredientsTab({ item }: { item: IItem }) {
 }
 
 /* ------------------------------ 3D model ------------------------------ */
+/** Edit a model's file URLs (spec 01 §8): the save replaces all three and keeps whether it shows on the menu. */
+function ModelUrlsEditor({ model, onSaved }: { model: { id: string; glbUrl?: string | null; usdzUrl?: string | null; thumbnailUrl?: string | null; isActive: boolean }; onSaved: () => void }) {
+  const { t } = useTranslation();
+  const [v, setV] = useState({ glbUrl: model.glbUrl ?? "", usdzUrl: model.usdzUrl ?? "", thumbnailUrl: model.thumbnailUrl ?? "" });
+  const save = useMutation({
+    mutationFn: () => model3dApi.update({ id: model.id, body: { glbUrl: v.glbUrl.trim(), usdzUrl: v.usdzUrl.trim() || null, thumbnailUrl: v.thumbnailUrl.trim() || null, isActive: model.isActive } }),
+    onSuccess: () => {
+      onSaved();
+      toast.success(t("saved"));
+    },
+  });
+  const changed = v.glbUrl !== (model.glbUrl ?? "") || v.usdzUrl !== (model.usdzUrl ?? "") || v.thumbnailUrl !== (model.thumbnailUrl ?? "");
+  return (
+    <details className="mt-3 border-t border-border px-1 pt-3">
+      <summary className="cursor-pointer text-xs font-medium text-primary">{t("edit_model_urls")}</summary>
+      <div className="mt-3 space-y-2">
+        {(["glbUrl", "usdzUrl", "thumbnailUrl"] as const).map((k) => (
+          <label key={k} className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">
+            {t(`model_${k}`)}{k === "glbUrl" && " *"}
+            <Input dir="ltr" value={v[k]} onChange={(e) => setV((x) => ({ ...x, [k]: e.target.value }))} placeholder="https://" className="h-9 font-mono text-xs" />
+          </label>
+        ))}
+        <Button type="button" variant="outline" size="sm" disabled={!changed || !/^https:\/\//i.test(v.glbUrl.trim()) || save.isPending} onClick={() => save.mutate()}>
+          {save.isPending && <Loader2 className="animate-spin" />}
+          {t("save")}
+        </Button>
+      </div>
+    </details>
+  );
+}
+
 function ModelTab({ item }: { item: IItem }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
@@ -394,7 +425,7 @@ function ModelTab({ item }: { item: IItem }) {
   });
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       <div className="overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-card">
         {active ? <ModelViewer glb={active.glbUrl} usdz={active.usdzUrl} poster={active.thumbnailUrl} className="h-[22rem] w-full" /> : (
           <EmptyState icon={Box} title={t("no_model_yet")} hint={t("no_model_hint")} />
@@ -411,6 +442,7 @@ function ModelTab({ item }: { item: IItem }) {
             </span>
           </div>
         )}
+        {active && can("MenuItem3DModels.Edit") && <ModelUrlsEditor key={active.id} model={active} onSaved={refresh} />}
         {all.length > 1 && (
           <div className="mt-3 border-t border-border px-1 pt-3">
             <p className="mb-2 text-xs font-semibold text-muted-foreground">{t("all_models", { n: all.length })}</p>

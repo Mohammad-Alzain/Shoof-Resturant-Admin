@@ -1,5 +1,5 @@
 import { Can } from "@/components/common/Can";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Ban, ExternalLink, Zap } from "lucide-react";
 import { FieldTypes } from "@/components/common/Fields/Enums/Field";
@@ -16,10 +16,12 @@ export default function JobsPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const cancel = useCancelJob();
-  const batch = new URLSearchParams(window.location.search).get("batchId") ?? undefined;
+  // the batch link in a row (and notification deep links) change only the query string: follow it
+  const batch = useRouterState({ select: (s) => (s.location.search as { batchId?: string }).batchId }) || undefined;
 
   return (
     <ResourcePage<IJob>
+      key={batch ?? "all"}
       permissionGroup="ModelGenerationJobs"
       title="generation_jobs"
       api={jobsApi}
@@ -108,7 +110,6 @@ export default function JobsPage() {
           ],
         },
         { name: "kind", control: FieldTypes.select, label: t("job_kind"), options: [{ value: 0, label: t("job_kind_model") }, { value: 1, label: t("job_kind_image") }] },
-        { name: "search", control: FieldTypes.text, label: t("item_name_search") },
         { ...restaurantPicker({ label: t("restaurant") }) },
         { ...categoryPicker({ name: "menuCategoryId", label: t("category") }) },
         { name: "batchId", control: FieldTypes.text, label: t("batch") },

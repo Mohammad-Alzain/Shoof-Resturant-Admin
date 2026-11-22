@@ -1,5 +1,3 @@
-import { http } from "@/Api/httpClient";
-
 /**
  * "What may this operator do?" is answered once after sign-in and drives the menu and the routes.
  *
@@ -7,9 +5,9 @@ import { http } from "@/Api/httpClient";
  *   1. a `permissions` field on the login / refresh / change-password reply,
  *   2. permission claims inside the JWT,
  *   3. a `permissions` field on `GET account/me`,
- *   4. the user's own permission list (`GET admin-users/{id}/permissions`, see `fetchOwnPermissions`),
- *   5. last resort: the Owner role means everything, otherwise the permissions of the user's roles
- *      (`resolvePermissions` in the Team module; needs `Roles.View`, so a limited user cannot use it).
+ *   4. the Owner role means everything, otherwise the permissions of the user's roles (`resolvePermissions` in the
+ *      Team module). That needs `Roles.View`; there is no "my permissions" endpoint yet (docs 00 §2.2), so a user
+ *      without it sees the full menu and the server's 403 decides.
  * `null` means "the API did not tell us": the menu then stays complete and 403s are handled where they happen.
  * An empty list is an answer too: the operator may do nothing.
  */
@@ -66,21 +64,6 @@ export function permissionsFromToken(token?: string): string[] | null {
   const found = Object.entries(payload).filter(([k]) => /(^|[/.])(permissions?|perms?)$/i.test(k));
   if (!found.length) return null;
   return [...new Set(found.flatMap(([, v]) => normalizePermissions(v) ?? []))];
-}
-
-/**
- * Step 4: ask for the user's own list. Silent: any failure (an older server without the endpoint, a network blip) just
- * means "not answered", and the next step runs. Same contract as the SuperAdmin console's `super-admin-users/{id}/permissions`.
- */
-export async function fetchOwnPermissions(userId: string | number | undefined, token?: string): Promise<string[] | null> {
-  const id = userId ?? (jwtPayload(token)?.sub as string | undefined);
-  if (!id) return null;
-  try {
-    const raw = await http.get<unknown>(`admin-users/${encodeURIComponent(String(id))}/permissions`, { silent: true });
-    return normalizePermissions(raw);
-  } catch {
-    return null;
-  }
 }
 
 /** Role names from the JWT (`role` / `roles` / the long ClaimTypes.Role URI). Roles are never read back from local storage. */

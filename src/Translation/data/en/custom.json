@@ -1375,11 +1375,10 @@
   "owner_permission_locked": "The Owner role can't lose this permission",
   "add_model_by_url": "Or add a model by URL",
   "all_models": "All models of this item ({{n}})",
-  "file_too_large_5mb": "The file is larger than 5 MB.",
   "hidden": "Hidden",
-  "item_name_search": "Item name (EN or AR)",
   "upload_model_hint": "GLB is required (web viewer); USDZ is optional (iPhone AR); each file 5 MB at most.",
   "model_glbUrl": "GLB URL",
   "model_usdzUrl": "USDZ URL",
-  "model_thumbnailUrl": "Thumbnail URL"
+  "model_thumbnailUrl": "Thumbnail URL",
+  "edit_model_urls": "Edit model URLs"
 }
