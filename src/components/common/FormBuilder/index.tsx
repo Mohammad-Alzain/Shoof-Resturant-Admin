@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Controller, useForm, FormProvider } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IFormBuilder } from "./interfaces/IFormBuilder";
 import FormField from "../Fields";
@@ -35,6 +36,9 @@ function Form(props: IFormBuilder<any>) {
     control,
     formState: { errors },
   } = form;
+  // Re-render on every change only when a field depends on the values (showWhen).
+  const needsValues = props.fields?.some((f) => f.showWhen) ?? false;
+  const liveValues = useWatch({ control: form.control, disabled: !needsValues }) as Record<string, any>;
   const [isDisabled, setIsDisabled] = useState(false);
   const { t } = useTranslation();
   const [apiErrors, setApiErrors] = useState({});
@@ -133,7 +137,7 @@ function Form(props: IFormBuilder<any>) {
       >
         {props.fields?.map(({ setValue, ...item }, key) => {
           return (
-            item?.show !== false && (
+            item?.show !== false && (!item?.showWhen || item.showWhen(liveValues ?? {})) && (
               <div
                 className={clsx(item?.className, "flex flex-col gap-0 mb-2")}
                 key={key}

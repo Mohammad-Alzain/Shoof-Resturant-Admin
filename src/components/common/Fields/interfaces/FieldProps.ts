@@ -50,6 +50,8 @@ export interface FieldProps {
   gridClassName?: string;
   register?: any;
   show?: boolean;
+  /** Show the field only while this holds for the current form values (e.g. a discount once its type is chosen). */
+  showWhen?: (values: Record<string, any>) => boolean;
   showImagePreview?: boolean;
   controlField?: any;
   isSearchable?: boolean;
