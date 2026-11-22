@@ -1392,5 +1392,6 @@
   "roles_you_can_grant": "You can give only roles whose permissions you all have; only an Owner can give the Owner role.",
   "delete_role_revokes": "Everyone with this role loses its permissions within 30 seconds. This can't be undone; a new role with the same name starts with no members.",
   "cannot_grant_permission": "You can only grant permissions you have yourself",
-  "notif_subscription_expiring": "Subscription expiring"
+  "notif_subscription_expiring": "Subscription expiring",
+  "access_no_roles": "Your sign-in carries no role, so the server refuses every page. The account was created without being linked to the Owner role: the backend must link it (login returns roles from its Release 1)."
 }
