@@ -1,12 +1,12 @@
 # 03 — SuperAdmin Console (platform operator)
 
-**Users:** Lambdor staff. **Backend:** `EMenu.Api.SuperAdmin`.
+**Users:** Lambdor staff. **Backend:** `Shoof.Api.SuperAdmin`.
 **Purpose:** onboard customers, sell and track subscriptions and AI credits, manage partner API keys, review
 AI 3D models for the shared library, broadcast announcements, tune the AI provider, and monitor the platform
 through dashboards, reports and logs. **Cross-tenant**: sees all customers.
 
 Read [README.md](README.md) §2 first. API details:
-[guide §5](../FE-API-INTEGRATION-GUIDE.md#5-emenuapisuperadmin--endpoint-reference).
+[guide §5](../FE-API-INTEGRATION-GUIDE.md#5-shoofapisuperadmin--endpoint-reference).
 
 Requests send `Authorization: Bearer <superadmin jwt>` and `X-Language`. **No** `X-Api-Key`, **no** `X-Tenant-Id`.
 
@@ -57,7 +57,7 @@ Same account screens as the dashboard, without a slug:
 - **Forced first-login change:** `POST api/account/change-password`.
 - **My profile:** `GET` / `PUT api/account/me`.
 - **Forgot password:** `POST api/account/forgot-password` `{ email }`. It emails a link to
-  `https://superadmin.shawefni.com/reset-password?email=…&token=…`.
+  `https://superadmin.shoof.lambdor.com/reset-password?email=…&token=…`.
 - **Reset password page** at `/reset-password`: `POST api/account/reset-password`.
 
 **The primary SuperAdmin** (`me.isPrimary`) is the platform owner's account, created on the first
@@ -102,12 +102,14 @@ Show a live preview: `https://{slug}.<menu-domain>` and warn that **changing the
 **Deactivate** = the tenant's admins, public menu and API keys stop working (up to ~5 min cache lag). Prefer it over delete.
 
 ### Onboarding wizard (suggested)
-1. Create tenant (name, slug).
-2. Create restaurant(s) (§4).
-3. Bootstrap the owner admin (creates the **Owner** role with every permission; email must be unique).
-4. Create a subscription (§5) — without an active subscription, generation quotas fall back to defaults and
-   API keys of the tenant are refused.
-5. Optionally issue an API key (§9).
+1. **Onboard the restaurant** in one form (§4): restaurant details + tenant name/slug + first admin. One call
+   creates the tenant, restaurant, Owner role and admin together.
+2. Create a subscription (§5) for the new tenant — without an active subscription, generation quotas fall back to
+   defaults and API keys of the tenant are refused.
+3. Optionally issue an API key (§9).
+
+`POST api/tenants` + `bootstrap-admin` remain for special cases (for example a partner tenant with no
+restaurant yet).
 
 ### Tenant detail page (suggested tabs)
 Overview + usage · Restaurants (`GET api/restaurants?tenantId=`) · Subscriptions · API keys (`GET api/api-keys?tenantId=`) ·
@@ -121,9 +123,23 @@ Credit purchases (`GET api/credit-purchases?tenantId=`) · Audit log (`GET api/a
 |---|---|---|
 | List across all tenants (tenant, countries) | View | `GET api/restaurants?tenantId=&countryIds=` |
 | Detail | View | `GET api/restaurants/{id}` |
-| Create | Add | `POST api/restaurants` (`tenantId`, `nameEn`, `nameAr?`, `currencyId`, `countryId`) |
+| **Onboard** (new tenant + restaurant + owner) | Add | `POST api/restaurants` (see below) |
+| What the Owner role gets | View | `GET api/restaurants/permissions` (read-only list to show on the form) |
 
-No edit or delete here: the restaurant's own admins edit branding in their portal. The country sets the time zone.
+**Onboard form** — one screen, three parts:
+- Restaurant: name EN*, name AR, currency*, country*, contact email, contact phone.
+- Tenant: name*, slug* (same rules and live URL preview as §3).
+- First admin (owner): full name*, email*, password* (temporary; they must change it at first login).
+
+Body: `{ nameEn, nameAr?, currencyId, countryId, contactEmail?, contactPhone?, tenant: { name, slug }, admin: { fullName, email, password } }`.
+It always creates a **new** tenant. If anything is wrong (slug taken/invalid/reserved, weak password, invalid
+contact email, phone > 50) you get a `400` with the message and **nothing** is created, so the form can be fixed and
+resent. After success, go to the new tenant's page to add the subscription.
+
+The **contact email** receives the subscription-expiry reminders (30, 7 and 1 days before the end date); when empty,
+they go to the restaurant's Owner admins.
+
+No edit or delete here: the restaurant's own admins edit branding and contact details in their portal. The country sets the time zone.
 
 ---
 
@@ -255,7 +271,8 @@ AI-generated 3D models enter a shared library. They're reused for **other** rest
 | Approve | Model3DAssets.Approve | `POST api/model3d-assets/{id}/approve` |
 | Reject | Model3DAssets.Approve | `POST api/model3d-assets/{id}/reject` (`reason`* plain text ≤ 500) |
 
-- **Review screen:** 3D viewer (GLB; asset URLs are relative → prefix the **Restaurant API host**), thumbnail,
+- **Review screen:** 3D viewer (GLB; asset URLs are full absolute URLs, e.g.
+  `https://shared.shoof.lambdor.com/backend/shared/models/{file}.glb` — public, use as-is), thumbnail,
   dish text (`matchText`), ingredient signature, source tenant, created date. Approve / Reject (reason dialog).
 - Statuses: 0 Pending · 1 Approved · 2 Rejected. Only Pending can be decided; if another SuperAdmin already decided:
   "This 3D model has already been reviewed." → refresh the row.
@@ -341,7 +358,8 @@ e.g. `Asia/Damascus`; "'…' is not a valid IANA time zone id."). Use a searchab
 
 Permission editor: group rows × action checkboxes, built from the catalogue (it includes custom actions such as
 `Rotate`, `Approve`, `Cancel`, `Export`). Add "select all in group" and "grant all".
-Unknown strings are silently dropped. Warn before removing your own permissions.
+Unknown strings are silently dropped. Warn before removing your own permissions. The catalogue contains only
+SuperAdmin permissions (restaurant-only ones such as MenuItems or Tables are not listed and are dropped if sent).
 
 - A created user must change the password you set at their first login.
 - **The primary SuperAdmin** (`isPrimary` on its profile) can't be edited, deactivated, deleted, have its

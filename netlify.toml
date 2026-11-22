@@ -16,7 +16,7 @@
 # Netlify has no /backend of its own: forward it to the restaurant host. Change the host for production.
 [[redirects]]
   from = "/backend/*"
-  to = "https://pizzahut.emenu.lambdor.com/backend/:splat"
+  to = "https://pizzahut.shoof.lambdor.com/backend/:splat"
   status = 200
   force = true
 

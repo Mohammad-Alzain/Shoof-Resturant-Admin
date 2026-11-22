@@ -51,7 +51,9 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
   const [description, setDescription] = useState(role?.description ?? "");
   const [perms, setPerms] = useState<Set<string>>(initial);
   const [filter, setFilter] = useState("");
-  const isOwner = role?.name === "Owner";
+  const isOwner = !!role && (role.isOwner ?? role.name === "Owner");
+  /** The Owner role can only gain permissions: the ones it already has are locked on. */
+  const locked = isOwner ? initial : new Set<string>();
 
   const groups = useMemo(() => parse(catalogue.data ?? []), [catalogue.data]);
   const total = useMemo(() => groups.reduce((n, g) => n + g.actions.length, 0), [groups]);
@@ -62,7 +64,7 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
   const dirty = name !== (role?.name ?? "") || description !== (role?.description ?? "") || !sameSet(perms, initial);
   useEffect(() => { onDirty(dirty); }, [dirty, onDirty]);
 
-  const mutate = (fn: (n: Set<string>) => void) => setPerms((cur) => { const n = new Set(cur); fn(n); return n; });
+  const mutate = (fn: (n: Set<string>) => void) => setPerms((cur) => { const n = new Set(cur); fn(n); locked.forEach((p) => n.add(p)); return n; });
   /** Add/Edit/Delete need View to be of any use, and removing View removes them, so a role can't end up half-working. */
   const toggle = (g: string, a: string, actions: string[]) => mutate((n) => {
     const key = `${g}.${a}`;
@@ -120,12 +122,12 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
               <p className="text-xs text-muted-foreground">{t("n_of_perms", { n: perms.size, total })}</p>
             </div>
           </div>
-          {role && <Can permission="Roles.Delete"><Button type="button" variant="ghost" size="sm" onClick={remove} className="text-muted-foreground hover:text-destructive"><Trash2 />{t("delete")}</Button></Can>}
+          {role && !isOwner && <Can permission="Roles.Delete"><Button type="button" variant="ghost" size="sm" onClick={remove} className="text-muted-foreground hover:text-destructive"><Trash2 />{t("delete")}</Button></Can>}
         </div>
-        {isOwner && <p className="flex items-start gap-2 rounded-xl bg-warning/10 p-3 text-sm"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />{t("owner_role_warning")}</p>}
+        {isOwner && <p className="flex items-start gap-2 rounded-xl bg-warning/10 p-3 text-sm"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />{t("owner_role_locked")}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("role_name")} *<Input value={name} maxLength={100} onChange={(e) => setName(e.target.value)} className="h-10" /></label>
-          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("description")}<Input value={description} maxLength={500} onChange={(e) => setDescription(e.target.value)} className="h-10" /></label>
+          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("role_name")} *<Input value={name} maxLength={100} disabled={isOwner} onChange={(e) => setName(e.target.value)} className="h-10" /></label>
+          <label className="flex flex-col gap-2 text-xs font-medium text-muted-foreground">{t("description")}<Input value={description} maxLength={500} disabled={isOwner} onChange={(e) => setDescription(e.target.value)} className="h-10" /></label>
         </div>
       </div>
 
@@ -170,9 +172,11 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
                           type="button"
                           role="switch"
                           aria-checked={on}
+                          disabled={locked.has(`${group}.${a}`)}
+                          title={locked.has(`${group}.${a}`) ? t("owner_permission_locked") : undefined}
                           onClick={() => toggle(group, a, actions)}
                           className={cn(
-                            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-80",
                             on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
                           )}
                         >
@@ -241,7 +245,7 @@ export default function RolesPage() {
               )}
               {roles.map((r) => {
                 const active = r.id === currentId;
-                const owner = r.name === "Owner";
+                const owner = r.isOwner ?? r.name === "Owner";
                 return (
                   <li key={r.id}>
                     <button

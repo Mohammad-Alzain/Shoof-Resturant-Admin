@@ -67,9 +67,9 @@ export default function RestaurantProfilePage() {
           <fieldset disabled={!can("Restaurants.Edit")} className="m-0 min-w-0 border-0 p-0">
           <FormBuilder
             query={() => save}
-            initialState={{ nameEn: bi.data!.en.name, nameAr: bi.data!.ar.name, currencyId: restaurant.currencyId, countryId: restaurant.countryId }}
-            validationSchema={z.object({ nameEn: z.string().min(1, t("field_required")).max(200), nameAr: z.string().max(200).optional().nullable(), currencyId: z.string().min(1, t("field_required")), countryId: z.string().min(1, t("field_required")) })}
-            valuesBody={(v: any) => ({ nameEn: v.nameEn, nameAr: strOrNull(v.nameAr), logoUrl: restaurant.logoUrl ?? null, currencyId: String(v.currencyId), countryId: String(v.countryId) })}
+            initialState={{ nameEn: bi.data!.en.name, nameAr: bi.data!.ar.name, contactEmail: restaurant.contactEmail ?? "", contactPhone: restaurant.contactPhone ?? "", currencyId: restaurant.currencyId, countryId: restaurant.countryId }}
+            validationSchema={z.object({ nameEn: z.string().min(1, t("field_required")).max(200), nameAr: z.string().max(200).optional().nullable(), contactEmail: z.union([z.literal(""), z.string().trim().email(t("contact_email_invalid"))]).optional().nullable(), contactPhone: z.string().max(50, t("phone_too_long")).optional().nullable(), currencyId: z.string().min(1, t("field_required")), countryId: z.string().min(1, t("field_required")) })}
+            valuesBody={(v: any) => ({ nameEn: v.nameEn, nameAr: strOrNull(v.nameAr), logoUrl: restaurant.logoUrl ?? null, contactEmail: strOrNull(v.contactEmail), contactPhone: strOrNull(v.contactPhone), currencyId: String(v.currencyId), countryId: String(v.countryId) })}
             refreshOnSubmit={false}
             buttonText={t("save")}
             onSuccessFunction={() => {
@@ -78,6 +78,8 @@ export default function RestaurantProfilePage() {
             }}
             fields={[
               { name: "nameEn", pairName: "nameAr", control: FieldTypes.bilingual, label: t("name"), required: true },
+              { name: "contactEmail", control: FieldTypes.text, label: t("contact_email"), helpertext: t("contact_email_hint") },
+              { name: "contactPhone", control: FieldTypes.text, label: t("contact_phone") },
               { name: "currencyId", control: FieldTypes.select, label: t("currency"), required: true, options: currencies.data.map((c) => ({ value: c.id, label: `${c.isoCode} · ${c.displayName}` })) },
               { name: "countryId", control: FieldTypes.select, label: t("country"), required: true, helpertext: t("country_sets_time_zone"), options: countries.data.map((c) => ({ value: c.id, label: ar && c.nameAr ? c.nameAr : c.nameEn })) },
             ]}

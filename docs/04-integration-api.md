@@ -1,11 +1,11 @@
 # 04 — Integration API (B2B partners)
 
 **Users:** a partner's **backend server** (e.g. a delivery app), not a person or a browser.
-**Backend:** `EMenu.Api.Integration`. Auth: header `X-Integration-Key` only (no login, no JWT, no permissions).
+**Backend:** `Shoof.Api.Integration`. Auth: header `X-Integration-Key` only (no login, no JWT, no permissions).
 
 > **No frontend app is needed for this API.** It's documented here so the frontend team understands what partners
 > can do (it explains several SuperAdmin screens) and to scope a possible future **partner developer console**.
-> Full reference, including webhooks: [guide §6](../FE-API-INTEGRATION-GUIDE.md#6-emenuapiintegration--endpoint-reference).
+> Full reference, including webhooks: [guide §6](../FE-API-INTEGRATION-GUIDE.md#6-shoofapiintegration--endpoint-reference).
 
 ---
 

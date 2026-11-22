@@ -1,7 +1,7 @@
 # 02 — Customer Menu Portal (public menu website)
 
 **Users:** restaurant guests, anonymous, mostly on phones after scanning a QR code.
-**Backend:** `EMenu.Api.Restaurant`, endpoints under `api/portal`.
+**Backend:** `Shoof.Api.Restaurant`, endpoints under `api/portal`.
 **Purpose:** show the restaurant's live menu with photos, ingredients and 3D/AR models, styled by the
 restaurant's active theme. **Read-only** — no ordering, cart, accounts or payments.
 
@@ -12,8 +12,8 @@ API details: [guide §4 "PortalController"](../FE-API-INTEGRATION-GUIDE.md#porta
 ## 1. How a guest arrives
 
 1. The guest scans a QR code printed by the restaurant (general or per-table).
-2. Intended target: the tenant's subdomain, `https://{tenantSlug}.<menu-domain>/menu/{restaurantId}[/table/{tableId}]`
-   (see the QR open item in §4: today's QR image contains only the path).
+2. The QR opens the tenant's subdomain: `https://{tenantSlug}.shoof.lambdor.com/menu/{restaurantId}[/table/{tableId}]`
+   (the QR image and `targetUrl` both hold this full absolute URL).
 3. The site is served on that subdomain. The **backend works out the tenant from the `Host` header** — the
    frontend does not send a tenant id.
 
@@ -85,19 +85,13 @@ to English when the restaurant didn't enter it.
 | Case | Response | UI |
 |---|---|---|
 | Unknown subdomain / tenant deactivated / tenant has no restaurant | `404` | "This menu isn't available" page |
-| No active theme | `404` on theme | default EMenu styling |
+| No active theme | `404` on theme | default Shoof styling |
 | Category with no items | — | hide it, or show "Coming soon" |
 | Too many requests | `429` | short retry message |
 
 ---
 
 ## 4. Open items (need a backend decision before building)
-
-> ⛔ **QR codes are not scannable as links yet:** the server-rendered QR PNG (`imageUrl`) encodes only the
-> relative path (`/menu/{restaurantId}[/table/{tableId}]`), with no scheme or host, so a phone camera shows it as text.
-> Backend needs to encode the absolute URL (`https://{slug}.<menu-domain>…`). A client-side workaround
-> (render the QR from `https://{tenantSlug}.<menu-domain>{targetUrl}`) is not possible yet either: the
-> Restaurant Admin API doesn't expose the tenant slug. Both need a backend fix.
 
 > ⚠️ **Multi-restaurant tenants:** the portal always serves the tenant's **first-created** restaurant. The
 > `restaurantId` in the QR path (`/menu/{restaurantId}`) is **not** sent to or used by the API. A tenant with

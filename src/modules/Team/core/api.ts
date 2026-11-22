@@ -22,6 +22,8 @@ export interface IRole {
   name: string;
   description?: string | null;
   permissions?: string[];
+  /** The auto-created Owner role: name, description and existing permissions are locked; it can only gain permissions. */
+  isOwner?: boolean;
 }
 export const rolesApi = createCrudApi<IRole, { name: string; description?: string | null; permissions: string[] }, { name: string; description?: string | null; permissions: string[] }>("roles", "roles");
 
@@ -46,6 +48,7 @@ export const resolvePermissions = async (roleNames: string[]): Promise<string[]>
   const wanted = new Set(roleNames.map((n) => n.toLowerCase()));
   const list = await http.get<IPagedResponse<IRole>>("roles", { params: { page: 1, pageSize: 100 }, silent: true });
   const mine = (list.data ?? []).filter((r) => wanted.has(r.name.toLowerCase()));
+  if (mine.some((r) => r.isOwner)) return [ALL_PERMISSIONS];
   const full = await Promise.all(mine.map((r) => (r.permissions ? r : http.get<IRole>(`roles/${r.id}`, { silent: true }))));
   return [...new Set(full.flatMap((r) => r.permissions ?? []))];
 };

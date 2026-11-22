@@ -14,6 +14,9 @@ export interface IRestaurant {
   countryIsoCode?: string | null;
   countryName?: string | null;
   timeZoneId?: string | null;
+  /** Gets the subscription-expiry reminders; empty = they go to the Owner admins. */
+  contactEmail?: string | null;
+  contactPhone?: string | null;
 }
 
 const KEY = "shoof-restaurant-selected";

@@ -31,7 +31,8 @@ const originsOf = (...urls: (string | undefined)[]) =>
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const csp = buildCsp(originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL));
+  // The shared 3D library (GLB/USDZ fetched by model-viewer) lives on its own host.
+  const csp = buildCsp(originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL, env.VITE_SHARED_ASSETS_ORIGIN || "https://shared.shoof.lambdor.com"));
   const devApiOrigin = (env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221").replace(/\/+$/, "");
   return {
   plugins: [

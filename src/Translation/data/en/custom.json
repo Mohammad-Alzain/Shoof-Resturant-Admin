@@ -1363,5 +1363,14 @@
   "sufra_aria": "{{name}}: {{items}} dishes, {{models}} with a 3D model, {{photos}} with a photo",
   "sufra_more": "+{{n}} more categories",
   "ai_queue": "AI kitchen",
-  "today_date": "Today"
+  "today_date": "Today",
+  "contact_email": "Contact email",
+  "contact_email_hint": "Gets the subscription-expiry reminders (30, 7 and 1 days before the end). Empty: they go to the Owner admins.",
+  "contact_phone": "Contact phone",
+  "contact_email_invalid": "The contact email address is not valid.",
+  "phone_too_long": "The contact phone number is too long (50 characters at most).",
+  "open_menu": "Open menu",
+  "menu_link": "Menu link",
+  "owner_role_locked": "This is the Owner role: its name and description can't change, it can't be deleted, and it can only gain permissions, never lose them.",
+  "owner_permission_locked": "The Owner role can't lose this permission"
 }

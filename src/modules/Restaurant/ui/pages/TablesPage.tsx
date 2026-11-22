@@ -1,10 +1,12 @@
+import { cn } from "@/lib/utils";
+import { CopyButton } from "@/components/common/CopyButton";
 import { can } from "@/modules/Auth/core/can";
 import { Can } from "@/components/common/Can";
 import { useMemo, useState } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Download, Loader2, Pencil, Plus, Printer, QrCode, Table2, Trash2 } from "lucide-react";
+import { Download, Loader2, Pencil, Plus, Printer, QrCode, Table2, Trash2 , ExternalLink } from "lucide-react";
 import { z } from "zod";
 import { FieldTypes } from "@/components/common/Fields/Enums/Field";
 import { confirmAction } from "@/components/common/Modal/ConfirmDialog";
@@ -47,6 +49,25 @@ const printSheet = (cards: { label: string; image: string }[], restaurant: strin
       .join("")}</div><script>window.onload=()=>setTimeout(()=>window.print(),400)</scr"+"ipt>`);
   w.document.close();
 };
+
+/** Where a QR leads: the full menu URL (spec 01 §13), opened in a new tab and copyable. Anything that is not http(s) stays plain text. */
+function MenuLink({ url, compact }: { url: string; compact?: boolean }) {
+  const { t } = useTranslation();
+  const safe = /^https?:\/\//i.test(url) && isSafeUrl(url);
+  return (
+    <span className={cn("flex min-w-0 max-w-full items-center gap-1", compact && "justify-center")}>
+      {safe ? (
+        <a href={url} target="_blank" rel="noreferrer" title={t("open_menu")} className="inline-flex min-w-0 items-center gap-1 text-xs text-primary underline-offset-2 hover:underline">
+          <ExternalLink className="size-3.5 shrink-0" />
+          <bdi dir="ltr" className="truncate font-mono">{compact ? t("open_menu") : url}</bdi>
+        </a>
+      ) : (
+        <bdi dir="ltr" className="truncate font-mono text-xs text-muted-foreground">{url}</bdi>
+      )}
+      <CopyButton value={url} label={t("menu_link")} />
+    </span>
+  );
+}
 
 /** Tables, each with its QR code; the general QR (no table) opens the whole menu. QR codes cannot be edited or deleted. */
 export default function TablesPage() {
@@ -131,7 +152,7 @@ export default function TablesPage() {
         <div className="min-w-0 flex-1 space-y-1.5 self-stretch">
           <h2 className="font-semibold text-foreground">{t("general_qr")}</h2>
           <p className="text-sm text-muted-foreground">{t("general_qr_desc")}</p>
-          {general?.targetUrl && <p dir="ltr" className="truncate text-start font-mono text-xs text-muted-foreground">{general.targetUrl}</p>}
+          {general?.targetUrl && <MenuLink url={general.targetUrl} />}
         </div>
         {general?.imageUrl ? (
           <div className="flex gap-2">
@@ -163,6 +184,7 @@ export default function TablesPage() {
                   {qr?.imageUrl && isSafeUrl(qr.imageUrl) ? <img src={qr.imageUrl} alt={tb.label} className="size-36 rounded-xl border border-border bg-white p-1.5" /> : <span className="grid size-36 place-items-center rounded-xl border border-dashed border-border text-muted-foreground"><QrCode className="size-9" /></span>}
                   <p className="font-display text-lg font-semibold text-foreground">{tb.label}</p>
                   {qr ? <Badge variant="success" appearance="light" size="sm">{t("has_qr")}</Badge> : <Badge variant="warning" appearance="light" size="sm">{t("no_qr")}</Badge>}
+                  {qr?.targetUrl && <MenuLink url={qr.targetUrl} compact />}
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
                   <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={tb.isActive} disabled={!can("Tables.Edit")} onCheckedChange={(on) => toggle(tb, on)} aria-label={t("active")} />{t("active")}</label>

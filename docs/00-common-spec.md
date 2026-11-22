@@ -1,20 +1,20 @@
-# EMenu — Functional Specifications for the Frontend Team
+# Shoof — Functional Specifications for the Frontend Team
 
-These documents describe **every business functionality** the EMenu backend offers, organised by the
+These documents describe **every business functionality** the Shoof backend offers, organised by the
 application (UI) that should expose it. They tell you *what each screen must do, which rules apply, and
 which errors the user can hit*. For exact request/response field lists, follow the links into
 [`../FE-API-INTEGRATION-GUIDE.md`](../FE-API-INTEGRATION-GUIDE.md) (the API reference, verified against source).
 
 | # | Document | Frontend app | Users | Backend |
 |---|---|---|---|---|
-| 1 | [01-restaurant-admin-portal.md](01-restaurant-admin-portal.md) | Restaurant Admin dashboard (CMS) | Restaurant owners & staff | `EMenu.Api.Restaurant` |
-| 2 | [02-customer-menu-portal.md](02-customer-menu-portal.md) | Public menu website (QR landing) | Restaurant guests (anonymous) | `EMenu.Api.Restaurant` → `api/portal` |
-| 3 | [03-superadmin-console.md](03-superadmin-console.md) | Platform operator console | Lambdor staff (SuperAdmins) | `EMenu.Api.SuperAdmin` |
-| 4 | [04-integration-api.md](04-integration-api.md) | *No UI* — machine-to-machine; read for context & for the SuperAdmin key screens | B2B partners' backends | `EMenu.Api.Integration` |
+| 1 | [01-restaurant-admin-portal.md](01-restaurant-admin-portal.md) | Restaurant Admin dashboard (CMS) | Restaurant owners & staff | `Shoof.Api.Restaurant` |
+| 2 | [02-customer-menu-portal.md](02-customer-menu-portal.md) | Public menu website (QR landing) | Restaurant guests (anonymous) | `Shoof.Api.Restaurant` → `api/portal` |
+| 3 | [03-superadmin-console.md](03-superadmin-console.md) | Platform operator console | Lambdor staff (SuperAdmins) | `Shoof.Api.SuperAdmin` |
+| 4 | [04-integration-api.md](04-integration-api.md) | *No UI* — machine-to-machine; read for context & for the SuperAdmin key screens | B2B partners' backends | `Shoof.Api.Integration` |
 
 ### Where each app is hosted
 
-`{BaseDomain}` = `emenu.lambdor.com` (staging) / `shawefni.com` (production).
+`{BaseDomain}` = `shoof.lambdor.com` (e.g. `https://pizzahut.shoof.lambdor.com`).
 
 | App | URL | Calls the API at |
 |---|---|---|
@@ -24,13 +24,13 @@ which errors the user can hit*. For exact request/response field lists, follow t
 
 The API is on the same origin under `/backend` — use a relative base URL, not a hard-coded domain. The restaurant
 `slug` is the first label of the host name. Build settings, SignalR URL and the required `web.config` files:
-[FE guide §1 "Deployed URLs"](../FE-API-INTEGRATION-GUIDE.md#deployed-urls-staging--production--how-the-frontends-are-hosted).
+[FE guide §1 "Deployed URLs"](../FE-API-INTEGRATION-GUIDE.md#deployed-urls--how-the-frontends-are-hosted).
 
 ---
 
 ## 1. What the product is
 
-EMenu is a multi-tenant **digital menu SaaS**. A **Tenant** (a customer account) owns one or more
+Shoof is a multi-tenant **digital menu SaaS**. A **Tenant** (a customer account) owns one or more
 **Restaurants**. Each restaurant manages a menu (categories → sub-categories → items), item photos,
 ingredients, tables and QR codes, and the look of its public menu (themes). Menu items can get
 **AI-generated photos** and **AI-generated 3D models** (viewable in 3D/AR by guests). Generation is
@@ -101,14 +101,11 @@ handle `403` gracefully (empty body → "You don't have permission to do this").
   contains the role **names** only (`roles[]`).
 - SuperAdmin: permissions are assigned **directly per user**. The login response has no permissions.
 
-> **How the console resolves them.** After sign-in it reads the user's permissions from, in order: the login reply, claims in the
-> JWT, `GET api/account/me`, then the user's own list `GET api/admin-users/{id}/permissions` (the same contract as the SuperAdmin
-> console's `super-admin-users/{id}/permissions`; silent, so an older server that lacks it simply falls through), and last the
-> roles (`GET api/roles/{id}`, which needs `Roles.View`; the Owner role means everything). The result lives in memory only and
-> is resolved again on every load. The menu, the routes and the action buttons are filtered by it; a `403` is still handled
-> wherever it happens.
-> ⚠️ **To confirm with the backend:** the path and shape of `admin-users/{id}/permissions` (a flat list, `{ permissions: [...] }`
-> or groups with actions are all accepted).
+> ⚠️ **Open item (backend):** there is no "my permissions" endpoint. Today the role/permission lookups
+> (`GET api/roles/{id}`, `GET api/super-admin-users/{id}/permissions`) themselves require `Roles.View` /
+> `SuperAdminUsers.View`, so a limited user can't read their own permissions. Until a
+> `GET api/auth/me`-style endpoint exists, show navigation optimistically and rely on `403` handling.
+> Agree the approach with the backend team before building permission-gated navigation.
 
 Each spec lists the permission needed per action.
 
@@ -180,7 +177,7 @@ All APIs send/receive enums as **numbers** (`0, 1, 2…`). Keep a label map per 
 |---|---|---|---|---|
 | Login / tokens | ✔ | — | ✔ | key only |
 | Tenants (create, activate, slug) | — | — | ✔ | — |
-| Restaurants | view + edit branding | view | view + create | create + edit |
+| Restaurants | view + edit branding | view | view + onboard (new tenant + owner) | create + edit |
 | Menu categories / items | full CRUD | view | — | full CRUD |
 | Item photos (upload) | ✔ | view | — | — |
 | AI photos & variants | ✔ | view | — | — |

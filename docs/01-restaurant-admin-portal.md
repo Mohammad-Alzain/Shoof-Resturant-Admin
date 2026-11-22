@@ -1,11 +1,11 @@
 # 01 — Restaurant Admin Portal (CMS)
 
-**Users:** a restaurant's owner and staff. **Backend:** `EMenu.Api.Restaurant`.
+**Users:** a restaurant's owner and staff. **Backend:** `Shoof.Api.Restaurant`.
 **Purpose:** build and maintain the restaurant's digital menu, its look, tables/QR codes, AI photos and 3D
 models, and the team's access.
 
 Read [README.md](README.md) §2 first (login, headers, permissions, errors, paging, language, time zones,
-uploads, notifications). API details: [guide §4](../FE-API-INTEGRATION-GUIDE.md#4-emenuapirestaurant--endpoint-reference).
+uploads, notifications). API details: [guide §4](../FE-API-INTEGRATION-GUIDE.md#4-shoofapirestaurant--endpoint-reference).
 
 Every request sends `Authorization: Bearer`, `X-Api-Key`, `X-Tenant-Id`, `X-Language`.
 Everything is automatically limited to the user's own tenant.
@@ -43,12 +43,12 @@ The tenant may own **several restaurants**. Most create forms need a `restaurant
 
 | Function | Endpoint | Notes |
 |---|---|---|
-| Log in | `POST api/auth/login` | Body: `tenantSlug` + `email` + `password`. The slug comes from the subdomain (`pepsi.shawefni.com` → `pepsi`), or the user types it as "Restaurant code". It's required because the same email can be a separate account in another restaurant. Error `400` "Incorrect email or password." (also returned for a wrong or missing slug) / "Account is inactive." |
+| Log in | `POST api/auth/login` | Body: `tenantSlug` + `email` + `password`. The slug comes from the subdomain (`pepsi.shoof.lambdor.com` → `pepsi`), or the user types it as "Restaurant code". It's required because the same email can be a separate account in another restaurant. Error `400` "Incorrect email or password." (also returned for a wrong or missing slug) / "Account is inactive." |
 | Refresh | `POST api/auth/refresh` | Rotating refresh token |
 | Log out | `POST api/auth/revoke` | |
 | Change my password | `POST api/account/change-password` | `currentPassword`, `newPassword` → new tokens (replace both). Forced when login returned `mustChangePassword: true` (everything else returns `403` "Password change required." until then). |
 | My profile | `GET` / `PUT api/account/me` | Edit name + phone. Email is read-only. |
-| Forgot password | `POST api/account/forgot-password` | `tenantSlug` (from the subdomain) + `email` → always `204`; emails a link to `https://{slug}.shawefni.com/admin/reset-password?email=…&token=…&slug=…` (expires after 2 hours) |
+| Forgot password | `POST api/account/forgot-password` | `tenantSlug` (from the subdomain) + `email` → always `204`; emails a link to `https://{slug}.shoof.lambdor.com/admin/reset-password?email=…&token=…&slug=…` (expires after 2 hours) |
 | Reset password page | `POST api/account/reset-password` | `/admin/reset-password` reads `email`, `token`, `slug` from the query string and posts them with `newPassword` → `204`, or `400` "This password reset link is invalid or has expired." |
 
 Store `tenant_id` from the JWT and send it as `X-Tenant-Id`. Show `fullName` in the header.
@@ -284,11 +284,15 @@ Credits are bought offline through Lambdor (no purchase screen here). A "credits
 |---|---|---|
 | List restaurants (for the switcher) | View | `GET api/restaurants` |
 | View | View | `GET api/restaurants/{id}` |
-| Edit name / currency / country | Edit | `PUT api/restaurants/{id}` |
+| Edit name / contact / currency / country | Edit | `PUT api/restaurants/{id}` |
 | Upload logo | Edit | `POST api/restaurants/{id}/logo` |
 
-- Fields: name EN* (≤ 200), name AR, currency* (picker from `GET api/currencies`), country* (picker from
-  `GET api/countries`; the country sets the restaurant's **time zone**, shown read-only).
+- Fields: name EN* (≤ 200), name AR, contact email, contact phone (≤ 50), currency* (picker from
+  `GET api/currencies`), country* (picker from `GET api/countries`; the country sets the restaurant's
+  **time zone**, shown read-only).
+- **Contact email** gets the subscription-expiry reminders (30, 7 and 1 days before the end date); when empty,
+  they go to the Owner admins. Errors: "The contact email address is not valid.", "The contact phone number is
+  too long (50 characters at most).". The save replaces every field, so always send the current values.
 - **Restaurants can't be created or deleted here** — Lambdor creates them in the SuperAdmin console.
 
 ---
@@ -353,8 +357,8 @@ To change a platform, delete and re-add.
 - QR has `targetUrl` (where it points) and `imageUrl` (PNG) → **Download** and **Print** actions
   (suggest a printable sheet: table label + QR).
 - QR codes can't be edited or deleted.
-- ⛔ Open item: today's QR PNG encodes only a relative path, so it won't open as a link when scanned. See
-  [02 §4](02-customer-menu-portal.md#4-open-items-need-a-backend-decision-before-building). Build the screen; the fix is backend-only.
+- The QR PNG and `targetUrl` hold the full absolute menu URL (`https://{slug}.shoof.lambdor.com/menu/{restaurantId}[/table/{tableId}]`),
+  so a scanned QR opens the menu directly. Show `targetUrl` as a clickable link next to the QR.
 - Tables list: label, active, "has QR" indicator, "Generate QR" action.
 
 ---
@@ -374,6 +378,9 @@ To change a platform, delete and re-add.
   password is reset by the user through "Forgot password?", or by the platform (SuperAdmin).
 - Roles = multi-select of role **names** from `GET api/roles`.
 - Deactivating a user blocks them immediately (`403` on their next call).
+- **Last Owner:** the restaurant must always keep one active user with the Owner role. Deactivating, deleting or
+  removing the Owner role from the last one fails: "This is the restaurant's last active Owner. Assign the Owner
+  role to another active admin first."
 
 ## 15. Team: roles & permissions — group `Roles`
 
@@ -387,7 +394,11 @@ To change a platform, delete and re-add.
 
 - **Suggested UI:** a matrix — rows = permission groups (Menu items, Tables…), columns = View / Add / Edit / Delete
   (+ special ones like *Activate* for themes). Build it from `GET api/roles/permissions`; don't hard-code.
-- The **Owner** role is created automatically with every permission. Warn before editing/deleting it.
+- The **Owner** role (`isOwner: true` in the list and detail) is created automatically with every permission and
+  is **locked**: its name and description can't change, it can't be deleted, and its permissions can only be
+  added, never removed. Show an "Owner" badge, disable the name/description fields, lock the already-checked
+  boxes, and hide Delete. The server answers `400` "The Owner role can't be renamed, deleted or lose permissions.
+  You can only add new permissions to it." otherwise.
 - Unknown permission strings are silently ignored by the server.
 
 Restaurant-side permission groups: AdminUsers, Roles, Restaurants (View/Edit), MenuCategories, MenuItems,

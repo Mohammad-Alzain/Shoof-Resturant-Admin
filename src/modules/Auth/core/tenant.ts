@@ -1,5 +1,5 @@
 /**
- * The restaurant code (slug) is the first label of the host name (`pizzahut.emenu.lambdor.com` -> `pizzahut`, a leading
+ * The restaurant code (slug) is the first label of the host name (`pizzahut.shoof.lambdor.com` -> `pizzahut`, a leading
  * `www` skipped). On localhost, an IP or a preview host there is none, so the login screen asks for it.
  */
 export const hostSlug = (): string => {
