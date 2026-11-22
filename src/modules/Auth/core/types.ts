@@ -1,5 +1,5 @@
 /**
- * SuperAdmin auth contract (docs/00-common-spec.md §2.1, docs/03-superadmin-console.md §1).
+ * SuperAdmin auth contract (docs/functional-specs/README.md §2.1, docs/functional-specs/03-superadmin-console.md §1).
  * Field names follow the ASP.NET API (camelCase). The login/refresh reply is read tolerantly
  * (see `normalizeSession`) because the exact property names are not in the local docs.
  */

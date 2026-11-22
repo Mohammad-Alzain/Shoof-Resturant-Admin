@@ -1,4 +1,4 @@
-/** Paged list reply of every GET list endpoint (docs/00-common-spec.md §2.4). */
+/** Paged list reply of every GET list endpoint (docs/functional-specs/README.md §2.4). */
 export interface IPagedResponse<T> {
   data: T[];
   page: number;

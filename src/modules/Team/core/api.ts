@@ -40,7 +40,7 @@ export const getRole = (id: string): Promise<IRole> => http.get(`roles/${id}`);
 export const ALL_PERMISSIONS = "*";
 
 /**
- * The API has no "my permissions" endpoint (docs/README.md §2.2), so they are derived from the role names the login
+ * The API has no "my permissions" endpoint (docs/functional-specs/README.md §2.2), so they are derived from the role names the login
  * returns (spec 01 §15): `GET roles` finds the user's roles, `GET roles/{id}` gives each one's permission list, and the
  * union is what the user may do. This runs for the Owner too, so the menu always matches what the server actually
  * grants. Only when the roles can't be read (no `Roles.View`, or an error) does the Owner role still mean everything;

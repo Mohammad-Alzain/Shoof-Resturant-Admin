@@ -27,7 +27,7 @@ Restaurant back office, bilingual (Arabic / English, full RTL), light and dark t
 ## Capabilities and Constraints
 
 - Stack: Vite, React 19, TypeScript, Tailwind 4, shadcn/Radix components, react-hook-form + zod, i18next (ar/en), TanStack Router/Query.
-- API contract: docs/README.md and docs/01-restaurant-admin-portal.md.
+- API contract: docs/functional-specs/README.md and docs/functional-specs/01-restaurant-admin-portal.md.
 - No customers, testimonials, metrics or claims may be invented.
 - Sign-in is static and light: no 3D scene, no heavy libraries.
 

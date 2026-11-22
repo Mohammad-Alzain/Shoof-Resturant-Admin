@@ -68,7 +68,7 @@ const lazyRetry = <T extends React.ComponentType<any>>(loader: () => Promise<{ d
 
 /**
  * One entry per page. `titleOfGroup` prints a section label above the item in the sidebar.
- * `permission` = the permission string that unlocks the page (docs/01-restaurant-admin-portal.md); a page without one is open to everyone.
+ * `permission` = the permission string that unlocks the page (docs/functional-specs/01-restaurant-admin-portal.md); a page without one is open to everyone.
  */
 export const routes: RouteI[] = [
   item({ href: "/", permission: "RestaurantDashboard.View", path: "/", title: "dashboard", icon: LayoutDashboard, Component: lazyRetry(() => import("@/modules/Dashboard/ui/pages/DashboardPage")) }),

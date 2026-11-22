@@ -28,7 +28,7 @@ export const httpClient = axios.create({
   paramsSerializer: { indexes: null },
 });
 
-/** Normalised view of the API's two kinds of 400 (docs/00-common-spec.md §2.3). */
+/** Normalised view of the API's two kinds of 400 (docs/functional-specs/README.md §2.3). */
 export interface ApiError {
   status?: number;
   /** Text to show for a business-rule error (already localised by the server). */

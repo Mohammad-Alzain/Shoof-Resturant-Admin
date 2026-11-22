@@ -15,7 +15,7 @@ import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
 /**
- * `/reset-password` has two modes (docs/00-common-spec.md §2.1):
+ * `/reset-password` has two modes (docs/functional-specs/README.md §2.1):
  *  - no query string: ask for the email (forgot password);
  *  - `?email=…&token=…` (the link in the email): choose a new password.
  */
