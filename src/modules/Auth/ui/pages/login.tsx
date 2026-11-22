@@ -1,5 +1,7 @@
 "use client";
 
+import { AccountDisabledNotice } from "../components/AccountDisabledNotice";
+import { useAccountState } from "@/Api/accountState";
 import { createRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +57,7 @@ function LoginComponent() {
       const reply = await signIn.mutateAsync({ ...values, tenantSlug: values.tenantSlug.trim().toLowerCase() });
       saveSlug(values.tenantSlug.trim().toLowerCase());
       applySession(reply);
+      useAccountState.getState().setDisabled(null);
       if (reply.mustChangePassword) {
         navigate({ to: "/change-password" });
         return;
@@ -84,6 +87,7 @@ function LoginComponent() {
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        <AccountDisabledNotice />
         {errors.root?.message && (
           <div
             role="alert"

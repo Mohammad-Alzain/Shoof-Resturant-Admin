@@ -1,4 +1,4 @@
-import { AccountDisabledScreen, StaleDataSync } from "./components/Layout/AccountDisabledScreen";
+import { StaleDataSync } from "./components/Layout/AccountDisabledScreen";
 import { lazy, Suspense, useState, useEffect } from "react";
 import {
   Navigate,
@@ -160,7 +160,6 @@ function App() {
               <AuthInit>
                 <Toaster />
                 <StaleDataSync />
-                <AccountDisabledScreen />
                 {/* <Toaster reverseOrder={false} /> */}
                 {notFound ? <NotFoundPage /> : <InnerApp key={routerVersion} router={router} />}
               </AuthInit>
