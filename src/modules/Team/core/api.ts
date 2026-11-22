@@ -41,16 +41,25 @@ export const ALL_PERMISSIONS = "*";
 
 /**
  * The API has no "my permissions" endpoint (docs/README.md §2.2), so they are derived from the role names the login
- * returns: read each role's permission list. Owner has every permission. `silent` keeps a refused lookup quiet
- * (a user without `Roles.View` cannot read roles; the caller then falls back to showing everything).
+ * returns (spec 01 §15): `GET roles` finds the user's roles, `GET roles/{id}` gives each one's permission list, and the
+ * union is what the user may do. This runs for the Owner too, so the menu always matches what the server actually
+ * grants. Only when the roles can't be read (no `Roles.View`, or an error) does the Owner role still mean everything;
+ * any other user then falls to the caller, which shows everything and lets the server's 403 decide.
+ * `silent` keeps a refused lookup quiet.
  */
 export const resolvePermissions = async (roleNames: string[]): Promise<string[]> => {
   if (!roleNames.length) return [];
-  if (roleNames.some((n) => n.toLowerCase() === "owner")) return [ALL_PERMISSIONS];
-  const wanted = new Set(roleNames.map((n) => n.toLowerCase()));
-  const list = await http.get<IPagedResponse<IRole>>("roles", { params: { page: 1, pageSize: 100 }, silent: true });
-  const mine = (list.data ?? []).filter((r) => wanted.has(r.name.toLowerCase()));
-  if (mine.some((r) => r.isOwner)) return [ALL_PERMISSIONS];
-  const full = await Promise.all(mine.map((r) => (r.permissions ? r : http.get<IRole>(`roles/${r.id}`, { silent: true }))));
-  return [...new Set(full.flatMap((r) => r.permissions ?? []))];
+  const isOwner = roleNames.some((n) => n.toLowerCase() === "owner");
+  try {
+    const wanted = new Set(roleNames.map((n) => n.toLowerCase()));
+    const list = await http.get<IPagedResponse<IRole>>("roles", { params: { page: 1, pageSize: 100 }, silent: true });
+    const mine = (list.data ?? []).filter((r) => wanted.has(r.name.toLowerCase()));
+    // the roles named in the session are not in the list (renamed or deleted since sign-in): nothing reliable to filter by
+    if (!mine.length) return isOwner ? [ALL_PERMISSIONS] : [];
+    const full = await Promise.all(mine.map((r) => (r.permissions?.length ? r : http.get<IRole>(`roles/${r.id}`, { silent: true }))));
+    return [...new Set(full.flatMap((r) => r.permissions ?? []))];
+  } catch (error) {
+    if (isOwner) return [ALL_PERMISSIONS];
+    throw error;
+  }
 };
