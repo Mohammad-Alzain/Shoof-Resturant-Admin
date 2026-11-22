@@ -1,3 +1,7 @@
+import { Megaphone } from "lucide-react";
+import { getDirection } from "@/Translation/i18n";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -8,6 +12,23 @@ import { useMarkRead, useNotificationsInfinite, type NotificationFilter } from "
 import { NOTIFICATION_TYPE_KEYS, notificationTarget, type INotification } from "../../core/api";
 
 /** Notifications with infinite scroll: a sentinel at the end loads the next page when it scrolls into view. */
+/** Announcements from Shoof (type 4) are plain text: read in full here (spec 01 §17). */
+const AnnouncementDialog = NiceModal.create(({ n }: { n: INotification }) => {
+  const modal = useModal();
+  const { t } = useTranslation();
+  return (
+    <Dialog open={modal.visible} onOpenChange={(o) => !o && modal.hide()}>
+      <DialogContent dir={getDirection()} className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><Megaphone className="size-4 text-terracotta" />{n.title}</DialogTitle>
+          <DialogDescription>{t("notif_announcement")} · {new Date(n.creationDateTime).toLocaleString()}</DialogDescription>
+        </DialogHeader>
+        <p className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-foreground">{n.body}</p>
+      </DialogContent>
+    </Dialog>
+  );
+});
+
 export function NotificationList({ filter, onOpen, className }: { filter: NotificationFilter; onOpen?: () => void; className?: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -34,8 +55,13 @@ export function NotificationList({ filter, onOpen, className }: { filter: Notifi
 
   const open = async (n: INotification) => {
     if (!n.isRead) await read.mutateAsync(n.id).catch(() => undefined);
+    if (n.type === 4) {
+      onOpen?.();
+      NiceModal.show(AnnouncementDialog, { n });
+      return;
+    }
     const target = notificationTarget(n);
-    if (target) navigate({ to: target });
+    if (target) navigate({ to: target as never });
     onOpen?.();
   };
 

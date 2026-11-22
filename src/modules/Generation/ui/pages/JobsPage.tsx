@@ -7,7 +7,7 @@ import { ResourcePage, RowAction } from "@/components/common/ResourcePage";
 import { Badge } from "@/components/ui/badge";
 import { createdFilters } from "@/modules/shared/core/filters";
 import { relativeTime, shortDate } from "@/modules/shared/core/format";
-import { itemPicker } from "@/modules/shared/core/pickers";
+import { categoryPicker, itemPicker, restaurantPicker } from "@/modules/shared/core/pickers";
 import { JobBadge, KindLabel, QuotaStrip } from "@/modules/shared/ui/parts";
 import { JobStatus, jobsApi, useCancelJob, type IJob } from "../../core/api";
 
@@ -68,6 +68,18 @@ export default function JobsPage() {
           ),
         },
         {
+          header: "batch",
+          access: "batchId",
+          Cell: (_c, _v, j: IJob) =>
+            j.batchId ? (
+              <button type="button" onClick={() => navigate({ to: `/dashboard/generation/jobs?batchId=${j.batchId}` as never })} title={j.batchId} className="font-mono text-[11px] text-primary hover:underline">
+                {j.batchId.slice(0, 8)}…
+              </button>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            ),
+        },
+        {
           header: "error",
           access: "errorMessage",
           Cell: (_c, _v, j: IJob) =>
@@ -96,6 +108,9 @@ export default function JobsPage() {
           ],
         },
         { name: "kind", control: FieldTypes.select, label: t("job_kind"), options: [{ value: 0, label: t("job_kind_model") }, { value: 1, label: t("job_kind_image") }] },
+        { name: "search", control: FieldTypes.text, label: t("item_name_search") },
+        { ...restaurantPicker({ label: t("restaurant") }) },
+        { ...categoryPicker({ name: "menuCategoryId", label: t("category") }) },
         { name: "batchId", control: FieldTypes.text, label: t("batch") },
         { name: "fromDate", control: FieldTypes.date, label: t("from_date") },
         { name: "toDate", control: FieldTypes.date, label: t("to_date") },

@@ -37,8 +37,15 @@ export const getUnreadCount = async (): Promise<number> => {
 export const markRead = (id: string | string) => http.post<void>(`notifications/${id}/read`);
 export const markAllRead = () => http.post<void>("notifications/read-all");
 
-/** Where a notification leads: type 5 opens the 3D approval queue (spec §11, §18). */
+/**
+ * Where a notification leads (spec 01 §17): a batch opens the jobs grid filtered by it, a job or an item opens the
+ * item editor, credits open the dashboard. Announcements (type 4) have no page: they open in a dialog instead.
+ */
 export const notificationTarget = (n: INotification): string | null => {
-  if (n.type === 5 || n.model3DAssetId) return "/dashboard/model3d-approvals";
+  if (n.type === 4) return null;
+  if (n.batchId) return `/dashboard/generation/jobs?batchId=${encodeURIComponent(n.batchId)}`;
+  if (n.menuItemId) return `/dashboard/menu/items/${encodeURIComponent(n.menuItemId)}`;
+  if (n.jobId) return `/dashboard/generation/jobs`;
+  if (n.type === 8) return "/dashboard";
   return null;
 };

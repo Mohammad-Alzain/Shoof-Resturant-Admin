@@ -1,3 +1,4 @@
+import { isSafeUrl } from "@/helpers/url";
 import { can } from "@/modules/Auth/core/can";
 import { Can } from "@/components/common/Can";
 import { useEffect, useMemo, useState } from "react";
@@ -351,7 +352,9 @@ function ModelTab({ item }: { item: IItem }) {
   const jobs = useItemJobs(item.id, JobKind.Model);
   const quota = useQuota();
   const generate = useGenerate();
-  const active = (models.data ?? []).find((m) => m.isActive && m.glbUrl) ?? (models.data ?? []).find((m) => m.glbUrl);
+  const [viewId, setViewId] = useState<string | null>(null);
+  const all = (models.data ?? []).filter((m) => m.glbUrl);
+  const active = all.find((m) => m.id === viewId) ?? all.find((m) => m.isActive) ?? all[0];
   const lastJob = jobs.all[0];
   const busy = jobs.active.length > 0;
   const noQuota = remainingCap(quota.data) === 0;
@@ -360,6 +363,15 @@ function ModelTab({ item }: { item: IItem }) {
   const run = (forceNew: boolean) =>
     generate.mutate({ menuItemId: item.id, forceNew }, { onError: () => undefined });
 
+  const [byUrl, setByUrl] = useState({ glbUrl: "", usdzUrl: "", thumbnailUrl: "" });
+  const addByUrl = useMutation({
+    mutationFn: () => model3dApi.create({ menuItemId: item.id, glbUrl: byUrl.glbUrl.trim(), usdzUrl: byUrl.usdzUrl.trim() || null, thumbnailUrl: byUrl.thumbnailUrl.trim() || null } as never),
+    onSuccess: () => {
+      setByUrl({ glbUrl: "", usdzUrl: "", thumbnailUrl: "" });
+      refresh();
+      toast.success(t("success_add"));
+    },
+  });
   const [glb, setGlb] = useState<File | null>(null);
   const [usdz, setUsdz] = useState<File | null>(null);
   const [thumb, setThumb] = useState<File | null>(null);
@@ -399,6 +411,29 @@ function ModelTab({ item }: { item: IItem }) {
             </span>
           </div>
         )}
+        {all.length > 1 && (
+          <div className="mt-3 border-t border-border px-1 pt-3">
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">{t("all_models", { n: all.length })}</p>
+            <ul className="flex flex-wrap gap-2">
+              {all.map((m) => (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    onClick={() => setViewId(m.id)}
+                    aria-pressed={m.id === active?.id}
+                    className={cn("flex items-center gap-2 rounded-xl border p-1.5 pe-3 text-xs transition-colors", m.id === active?.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40")}
+                  >
+                    {m.thumbnailUrl && isSafeUrl(m.thumbnailUrl) ? <img src={m.thumbnailUrl} alt="" className="size-9 rounded-lg object-cover" /> : <span className="grid size-9 place-items-center rounded-lg bg-muted"><Box className="size-4 text-muted-foreground" /></span>}
+                    <span className="flex flex-col items-start">
+                      <span className="font-medium text-foreground">{m.sourceType === 1 ? t("model_manual") : t("model_ai")}</span>
+                      <span className={m.isActive ? "text-success" : "text-muted-foreground"}>{m.isActive ? t("shown_on_menu") : t("hidden")}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -426,8 +461,10 @@ function ModelTab({ item }: { item: IItem }) {
           {active && <p className="text-xs text-muted-foreground">{t("regen_locked_hint")}</p>}
         </div>
 
+        <Can permission="MenuItem3DModels.Add">
         <div className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-card">
           <h3 className="text-sm font-semibold">{t("upload_model")}</h3>
+          <p className="text-xs text-muted-foreground">{t("upload_model_hint")}</p>
           <div className="flex flex-wrap gap-2">
             <FilePickButton accept=".glb" label={glb ? glb.name : "GLB *"} onPick={setGlb} size="sm" />
             <FilePickButton accept=".usdz" label={usdz ? usdz.name : "USDZ"} onPick={setUsdz} size="sm" />
@@ -437,7 +474,23 @@ function ModelTab({ item }: { item: IItem }) {
             {up.isPending && <Loader2 className="animate-spin" />}
             {t("upload")}
           </Button>
+          <details className="group border-t border-border pt-3">
+            <summary className="cursor-pointer text-xs font-medium text-primary">{t("add_model_by_url")}</summary>
+            <div className="mt-3 space-y-2">
+              {(["glbUrl", "usdzUrl", "thumbnailUrl"] as const).map((k) => (
+                <label key={k} className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">
+                  {t(`model_${k}`)}{k === "glbUrl" && " *"}
+                  <Input dir="ltr" value={byUrl[k]} onChange={(e) => setByUrl((v) => ({ ...v, [k]: e.target.value }))} placeholder="https://" className="h-9 font-mono text-xs" />
+                </label>
+              ))}
+              <Button type="button" variant="outline" size="sm" disabled={!/^https:\/\//i.test(byUrl.glbUrl.trim()) || addByUrl.isPending} onClick={() => addByUrl.mutate()}>
+                {addByUrl.isPending && <Loader2 className="animate-spin" />}
+                {t("add")}
+              </Button>
+            </div>
+          </details>
         </div>
+        </Can>
       </div>
     </div>
   );
