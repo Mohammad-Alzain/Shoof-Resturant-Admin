@@ -32,7 +32,12 @@ export default function AccessBanner() {
               </p>
             )}
             <ul className="list-disc space-y-0.5 ps-5 text-muted-foreground">
-              <li>{t("access_hint_role")} <Link to="/dashboard/team/roles" className="font-medium text-primary underline-offset-2 hover:underline">{t("team_roles")}</Link></li>
+              {/* The Owner holds every permission, so a blanket refusal points at the app key, not at a role. */}
+              {roles.some((r) => r.toLowerCase() === "owner") ? (
+                <li>{t("access_hint_key")}</li>
+              ) : (
+                <li>{t("access_hint_role")} <Link to="/dashboard/team/roles" className="font-medium text-primary underline-offset-2 hover:underline">{t("team_roles")}</Link></li>
+              )}
             </ul>
           </>
         )}
