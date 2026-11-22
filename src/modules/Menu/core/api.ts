@@ -51,6 +51,8 @@ export interface IItem {
   isActive: boolean;
   displayOrder: number;
   images: IItemImage[];
+  /** The item's active 3D model. Filled on GET only: create / edit replies return null (guide §4). */
+  activeModel?: { id: string; glbUrl: string; usdzUrl?: string | null; thumbnailUrl?: string | null; sourceType: number; creationDateTime?: string } | null;
 }
 export interface IItemBody {
   menuCategoryId?: string;

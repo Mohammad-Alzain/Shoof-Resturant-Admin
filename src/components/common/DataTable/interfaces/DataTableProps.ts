@@ -83,6 +83,8 @@ export interface DataTableProps<T extends object> {
   createModal?: any;
   textDeleteAccessor?: string;
   deleteModalTitle?: string;
+  /** Text under the delete question (what deleting means for this resource). */
+  deleteModalDescription?: string;
   allowView?: (row: any) => boolean;
   viewModal?: any;
   viewActionText?: string;

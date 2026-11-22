@@ -27,6 +27,7 @@ export const NOTIFICATION_TYPE_KEYS: Record<number, string> = {
   6: "notif_model_approved",
   7: "notif_model_not_approved",
   8: "notif_credits_added",
+  9: "notif_subscription_expiring",
 };
 
 export const listNotifications = (params?: DataParams) => http.get<IPagedResponse<INotification>>("notifications", { params });
@@ -46,6 +47,6 @@ export const notificationTarget = (n: INotification): string | null => {
   if (n.batchId) return `/dashboard/generation/jobs?batchId=${encodeURIComponent(n.batchId)}`;
   if (n.menuItemId) return `/dashboard/menu/items/${encodeURIComponent(n.menuItemId)}`;
   if (n.jobId) return `/dashboard/generation/jobs`;
-  if (n.type === 8) return "/dashboard";
+  if (n.type === 8 || n.type === 9) return "/dashboard"; // 9: subscription expiring -> the subscription card
   return null;
 };

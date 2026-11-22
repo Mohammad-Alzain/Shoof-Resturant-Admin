@@ -74,6 +74,10 @@ export function rolesFromToken(token?: string): string[] {
   return [...new Set(found.flatMap(([, v]) => (Array.isArray(v) ? v : [v]).filter((x): x is string => typeof x === "string")))];
 }
 
+/** The signed-in user's role names: the login/refresh reply's, else the token's (never local storage). */
+export const myRoles = (auth?: { roles?: string[]; token?: string }): string[] =>
+  auth?.roles?.length ? auth.roles : rolesFromToken(auth?.token);
+
 /** True when `have` satisfies `need`; `need` may list alternatives (any one is enough). */
 export const allows = (have: string[], need?: string | string[]): boolean => {
   if (!need || have.includes("*")) return true; // nothing required, or everything granted

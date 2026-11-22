@@ -88,6 +88,7 @@ function ActionsRow<T extends object>(props: Props & DataTableProps<T>) {
     modalDelete.show({
       id: row?.id,
       deleteModalTitle: props.deleteModalTitle,
+      deleteModalDescription: props.deleteModalDescription,
       deleteQuery: props.deleteQuery,
       row,
       textAccess: props.textDeleteAccessor,

@@ -42,6 +42,10 @@ Lambdor in the SuperAdmin console), manage ingredients, photos, themes, tables o
 - Generation rules (queue, statuses, library reuse, regeneration lock, quota, bulk ≤ 500, skip reasons) are identical
   to the Restaurant Admin ([01 §7](01-restaurant-admin-portal.md#7-ai-3d-models--generation-jobs--group-modelgenerationjobs)).
 - Everything a partner does is logged → SuperAdmin "Integration request logs" (03 §10).
+- **Subscription expiry** switches the tenant or the key off. Before Release 1.1 it does so even if already renewed
+  with a second subscription
+  ([known issue](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22)). Until that release, renew with Upgrade.
+- **Ids:** another tenant's id gets the same answer as an unknown one (`404`, with two `GET` exceptions in that list).
 
 ## 3. Webhook events (for reference)
 

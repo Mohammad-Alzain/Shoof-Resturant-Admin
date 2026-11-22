@@ -1380,5 +1380,17 @@
   "model_glbUrl": "GLB URL",
   "model_usdzUrl": "USDZ URL",
   "model_thumbnailUrl": "Thumbnail URL",
-  "edit_model_urls": "Edit model URLs"
+  "edit_model_urls": "Edit model URLs",
+  "tenant_disabled_title": "This account is switched off",
+  "tenant_disabled_body": "The restaurant's account isn't active right now, often because its subscription ended. Contact Shoof to renew it or switch it back on.",
+  "user_disabled_title": "Your user is switched off",
+  "user_disabled_body": "An administrator has deactivated your user. Ask them, or Shoof, to switch it back on.",
+  "back_to_sign_in": "Back to sign in",
+  "primary_admin": "Primary",
+  "primary_admin_locked": "The restaurant's primary admin stays active and keeps the Owner role.",
+  "primary_keeps_owner": "The primary admin must keep the Owner role.",
+  "roles_you_can_grant": "You can give only roles whose permissions you all have; only an Owner can give the Owner role.",
+  "delete_role_revokes": "Everyone with this role loses its permissions within 30 seconds. This can't be undone; a new role with the same name starts with no members.",
+  "cannot_grant_permission": "You can only grant permissions you have yourself",
+  "notif_subscription_expiring": "Subscription expiring"
 }

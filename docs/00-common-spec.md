@@ -5,6 +5,11 @@ application (UI) that should expose it. They tell you *what each screen must do,
 which errors the user can hit*. For exact request/response field lists, follow the links into
 [`../FE-API-INTEGRATION-GUIDE.md`](../FE-API-INTEGRATION-GUIDE.md) (the API reference, verified against source).
 
+> **Updated 2026-11-22.** Start with
+> [what changed and what to do](../FE-API-INTEGRATION-GUIDE.md#update-of-2026-11-22-start-here), then check
+> [known backend issues](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22).
+> Rules marked **(Release 2)** work only once the backend team confirms that release is live.
+
 | # | Document | Frontend app | Users | Backend |
 |---|---|---|---|---|
 | 1 | [01-restaurant-admin-portal.md](01-restaurant-admin-portal.md) | Restaurant Admin dashboard (CMS) | Restaurant owners & staff | `Shoof.Api.Restaurant` |
@@ -86,6 +91,7 @@ announcements, and watch reports/logs.
 - Login, forgot and reset are rate-limited (10/min per IP) → show "too many attempts, try again shortly" on `429`.
 - A user or tenant can be **deactivated mid-session**: any call may return `403` with text
   `"Tenant is inactive."` / `"User is inactive."` → show a blocking "account disabled" screen and log out.
+  An expired subscription causes `"Tenant is inactive."` too, so word the screen "contact Shoof", not "you were banned".
 - A token from one app is rejected by the other (`403`, empty body).
 - Restaurant Admin calls also need headers `X-Api-Key` (app key) and `X-Tenant-Id` (= `tenant_id` claim of the JWT).
 
@@ -97,8 +103,9 @@ Both admin apps are permission-driven. Every action needs a permission string `"
 (e.g. `MenuItems.Add`). The UI should **hide or disable** buttons/menu entries the user lacks, and still
 handle `403` gracefully (empty body → "You don't have permission to do this").
 
-- Restaurant Admin: permissions come from the user's **roles** (tenant-defined). The login response
-  contains the role **names** only (`roles[]`).
+- Restaurant Admin: permissions come from the user's **roles** (tenant-defined). The login
+  and refresh responses contain the role **names** only (`roles[]`, filled from Release 1). The user is an Owner
+  when the list contains `Owner`.
 - SuperAdmin: permissions are assigned **directly per user**. The login response has no permissions.
 
 > ⚠️ **Open item (backend):** there is no "my permissions" endpoint. Today the role/permission lookups
@@ -106,6 +113,7 @@ handle `403` gracefully (empty body → "You don't have permission to do this").
 > `SuperAdminUsers.View`, so a limited user can't read their own permissions. Until a
 > `GET api/auth/me`-style endpoint exists, show navigation optimistically and rely on `403` handling.
 > Agree the approach with the backend team before building permission-gated navigation.
+> The same applies wherever a spec says to disable what the user lacks: if you can't read it, show the server's `400`.
 
 Each spec lists the permission needed per action.
 
@@ -114,10 +122,10 @@ Each spec lists the permission needed per action.
 | Response | How to recognise | What to show |
 |---|---|---|
 | Business rule error | `400`, `Content-Type: text/plain` | The body text as-is (already localized) in a toast/inline error |
-| Field validation error | `400`, `application/problem+json` | Map `errors.{Field}[]` to form fields |
-| Not found | `404` | "This item no longer exists" + refresh the list |
+| Field validation error | `400`, JSON body with `errors` (`application/json` **or** `application/problem+json`) | Map `errors.{Field}[]` to form fields |
+| Not found | `404` (text, JSON or empty body) | "This item no longer exists" + refresh the list |
 | Forbidden | `403` | Permission message, or the inactive-account flow (2.1) |
-| Server error | `500`, body `"An unexpected error occurred."` | Generic error + retry |
+| Server error | `500`, body `"An unexpected error occurred."` | Generic error + retry. On a by-id call it can mean "not found" ([list](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22)): refresh the list |
 | Rate limited | `429` | "Too many requests, please wait" |
 
 ### 2.4 Lists, paging, search
@@ -162,7 +170,7 @@ Both admin apps have a **bell / inbox**:
 
 Notification types (numbers): `0` Generation ready · `1` Generation failed · `2` Generation cancelled ·
 `3` Bulk batch completed · `4` Announcement · `5` 3D model awaiting approval (SuperAdmin only) ·
-`6` 3D model approved for sharing · `7` 3D model not approved · `8` Extra credits added. Render unknown types generically.
+`6` 3D model approved for sharing · `7` 3D model not approved · `8` Extra credits added · `9` Subscription expiring. Render unknown types generically.
 
 ### 2.9 Enums are numbers
 

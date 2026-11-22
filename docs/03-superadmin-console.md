@@ -100,10 +100,13 @@ Errors: "Slug is required.", "Slug may only contain lowercase letters, digits, a
 Show a live preview: `https://{slug}.<menu-domain>` and warn that **changing the slug changes the menu URL** (printed QR codes stop working).
 
 **Deactivate** = the tenant's admins, public menu and API keys stop working (up to ~5 min cache lag). Prefer it over delete.
+An expired subscription does this automatically, and only `isActive: true` here undoes it (§5).
+A deleted tenant's slug can never be used again.
 
 ### Onboarding wizard (suggested)
 1. **Onboard the restaurant** in one form (§4): restaurant details + tenant name/slug + first admin. One call
-   creates the tenant, restaurant, Owner role and admin together.
+   creates the tenant, restaurant, Owner role and admin together. That admin is the restaurant's **primary admin**
+   and can't be deleted, deactivated or removed from the Owner role (Release 2), so confirm the email before submitting.
 2. Create a subscription (§5) for the new tenant — without an active subscription, generation quotas fall back to
    defaults and API keys of the tenant are refused.
 3. Optionally issue an API key (§9).
@@ -170,6 +173,21 @@ discount type (Percentage / Fixed amount) + discount · support price · from da
 - A rotated (replaced) API key can't get a new registration: "This API key has been rotated. Register the replacement key instead."
 - **Dates in the request body are UTC** (convert from the picker); dates in responses are local.
 - Show **effective price** = price minus discount.
+
+### Expiry and renewal
+
+- An hourly job switches off whoever's subscription has ended without a renewal: the **tenant** (admins, menu and keys stop working) or,
+  for a key's own subscription, the **key**.
+- **Before Release 1.1 it does so even if a newer subscription exists** ([known issue](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22)). So until that release is live, make the "Renew" button call
+  **Upgrade** (same plan allowed, leave `fromDate` empty) rather than Create. Upgrade takes the list price and drops
+  the discount: offer an edit right after it.
+- From Release 1.1 Create works for renewing too, if done before the old subscription ends and for the same
+  subscriber: a tenant subscription doesn't renew a key's own one, or the other way round. The start may be later.
+- Creating or upgrading doesn't reactivate. After a lapse, show "Reactivate" → `PUT` the tenant or key with
+  `isActive: true`.
+- Extending `toDate` by Edit keeps the customer on, but reminders already sent don't repeat for the new date.
+- When editing, convert the local dates you loaded back to **UTC** before saving.
+- (Release 2) A deleted or unknown currency → `400` "The selected currency doesn't exist or was deleted."
 
 ---
 
@@ -340,10 +358,13 @@ separate `.Export` permission; the response is an `.xlsx` file download). The Ex
 ## 16. Settings
 
 ### Currencies — `Currencies`
+(Release 2) A currency can't be deleted while a restaurant, menu item, subscription or credit pack uses it, and its code must be
+unique (`400`, show the message).
 `GET/POST/PUT/DELETE api/currencies`. Fields: ISO code* (3 letters, create only), symbol* (≤ 10), display name* (≤ 100),
 decimal places (default 2).
 
 ### Countries — `Countries`
+(Release 2) A country can't be deleted while a restaurant uses it, and its code must be unique (`400`, show the message).
 `GET/POST/PUT/DELETE api/countries`. Fields: ISO code* (≤ 3), name EN* (≤ 200), name AR, **time zone*** (valid IANA id,
 e.g. `Asia/Damascus`; "'…' is not a valid IANA time zone id."). Use a searchable time-zone dropdown.
 
@@ -358,13 +379,18 @@ e.g. `Asia/Damascus`; "'…' is not a valid IANA time zone id."). Use a searchab
 
 Permission editor: group rows × action checkboxes, built from the catalogue (it includes custom actions such as
 `Rotate`, `Approve`, `Cancel`, `Export`). Add "select all in group" and "grant all".
+(Release 2) Except for the primary, a SuperAdmin can only add permissions they hold themselves: disable the other boxes
+(already-ticked ones may stay), and make "select all" / "grant all" skip them. Reactivating someone follows the same
+rule for all of that person's permissions (`400` "You can only grant permissions you have yourself. ...").
 Unknown strings are silently dropped. Warn before removing your own permissions. The catalogue contains only
 SuperAdmin permissions (restaurant-only ones such as MenuItems or Tables are not listed and are dropped if sent).
 
 - A created user must change the password you set at their first login.
+- (Release 2) A deleted SuperAdmin's email can be used again: that is a new account, with none of the old permissions.
 - **The primary SuperAdmin** (`isPrimary` on its profile) can't be edited, deactivated, deleted, have its
   permissions changed or be reset from here (`400` "The primary SuperAdmin account can only be changed by its owner.").
-  Show it read-only in the list.
+  The list doesn't identify it ([backend gap](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22)): `isPrimary` is only on your own profile. So show that
+  `400` when it comes back, and don't guess the account from its email (it can change).
 
 ### Reset a password
 
@@ -374,12 +400,14 @@ SuperAdmin permissions (restaurant-only ones such as MenuItems or Tables are not
 | Set a temporary password for another SuperAdmin | `SuperAdminUsers.Edit` | `POST api/super-admin-users/{id}/reset-password` `{ temporaryPassword }` → `204` |
 
 `PasswordResets.Add` alone (for example a helpdesk role) can't reset a SuperAdmin. Choosing their
-password would mean becoming them.
+password would mean becoming them. For the same reason (Release 2), the caller must hold every permission the target holds (the
+primary is exempt), else `400` "You can't set the password of someone with permissions you don't have: ...".
 
 - **Effect:** the user's sessions end, and they must change the password at their next login.
 - **Not allowed:** the primary SuperAdmin, or yourself (use "change my password"), both `400`. An
   admin not in that tenant gives `404`.
-- **Where:** put the action on the tenant's admin list and on the SuperAdmin user list. Ask for the
+- **Where:** on the SuperAdmin user list. For restaurant admins it waits for a backend endpoint: this API can't list
+  a tenant's admins yet ([gap](../FE-API-INTEGRATION-GUIDE.md#35-known-backend-issues-as-of-2026-11-22)). Ask for the
   temporary password twice, and never display it again.
 
 ---

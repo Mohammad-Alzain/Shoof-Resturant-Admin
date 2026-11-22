@@ -7,6 +7,7 @@ import { ConfirmShell } from "@/components/common/Modal/ConfirmShell";
 interface Props {
   id?: string | number;
   deleteModalTitle?: string;
+  deleteModalDescription?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteQuery?: (id: any) => Promise<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,8 +30,9 @@ const DeleteTablePopover = NiceModal.create((props: Props) => {
       await props.deleteQuery?.(props.id);
       modal.resolve(true);
       modal.hide();
-    } catch {
-      toast.error(t("something_went_wrong"));
+    } catch (e) {
+      // The HTTP client already showed the server's reason (e.g. "in use"); only say something when it couldn't.
+      if (!(e as { response?: unknown })?.response) toast.error(t("something_went_wrong"));
     } finally {
       setIsDeleting(false);
     }
@@ -43,6 +45,7 @@ const DeleteTablePopover = NiceModal.create((props: Props) => {
       busy={isDeleting}
       title={props.deleteModalTitle ?? t("delete_confirm_title")}
       subject={subject}
+      description={props.deleteModalDescription}
       confirmText={t("delete")}
       onCancel={() => modal.hide()}
       onConfirm={onConfirm}

@@ -10,6 +10,8 @@ export interface IAdminUser {
   phoneNumber?: string | null;
   isActive: boolean;
   roles: string[];
+  /** The admin created with the restaurant (Release 2): can't be deleted, deactivated or lose the Owner role. */
+  isPrimary?: boolean;
 }
 export const usersApi = createCrudApi<
   IAdminUser,

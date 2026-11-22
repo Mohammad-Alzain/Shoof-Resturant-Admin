@@ -1,7 +1,7 @@
 import { can } from "@/modules/Auth/core/can";
 import { useMemo, useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Box, ImageOff } from "lucide-react";
 import { z } from "zod";
@@ -11,11 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { strOrNull } from "@/helpers/body";
 import { activeFilter } from "@/modules/shared/core/filters";
-import { fetchAll, formatPrice, getBilingual, useCurrencies } from "@/modules/shared/core/lookups";
+import { formatPrice, getBilingual, useCurrencies } from "@/modules/shared/core/lookups";
 import { categoryPicker } from "@/modules/shared/core/pickers";
 import { useCurrentRestaurant } from "@/modules/shared/core/restaurant";
-import { itemsApi, primaryImage, type IItem, type IModel3D } from "../../core/api";
-
+import { itemsApi, primaryImage, type IItem } from "../../core/api";
 /** Items as cards of data: photo, name, category, price, active switch and the 3D state. */
 export default function ItemsPage() {
   const { t, i18n } = useTranslation();
@@ -28,14 +27,6 @@ export default function ItemsPage() {
   // opened from a plate on the dashboard: start filtered to that category
   const fromPlate = useRouterState({ select: (s) => (s.location.search as { menuCategoryId?: string }).menuCategoryId });
 
-  const models = useQuery({
-    queryKey: ["menu-item-3d-models", "all"],
-    queryFn: async () => {
-      const ready = new Set<string>();
-      for (const m of await fetchAll<IModel3D>("menu-item-3d-models")) if (m.isActive && m.generationStatus === 2) ready.add(m.menuItemId);
-      return ready;
-    },
-  });
   const curOf = useMemo(() => new Map((currencies.data ?? []).map((c) => [c.id, c])), [currencies.data]);
 
   const toggle = async (item: IItem, on: boolean) => {
@@ -89,8 +80,9 @@ export default function ItemsPage() {
           header: "model_3d",
           access: "id",
           Cell: (_c, _v, i: IItem) =>
-            models.data?.has(i.id) ? (
-              <Badge variant="success" appearance="light" size="md" className="gap-1"><Box className="size-3.5" />{t("val_ready")}</Badge>
+            // `activeModel` comes with the item (guide §4): no separate list of every model to load.
+            i.activeModel?.glbUrl ? (
+              <Badge variant="success" appearance="light" size="md" className="gap-1"><Box className="size-3.5" />{i.activeModel.sourceType === 1 ? t("model_manual") : t("val_ready")}</Badge>
             ) : (
               <Badge variant="secondary" appearance="light" size="md">{t("no_model")}</Badge>
             ),

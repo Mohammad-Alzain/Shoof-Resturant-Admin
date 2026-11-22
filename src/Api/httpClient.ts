@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useAccountState } from "./accountState";
 import { useAccessStore } from "./access";
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
@@ -122,8 +123,9 @@ httpClient.interceptors.response.use(
       return Promise.reject(error);
     }
     if (status === 403 && /(tenant|user) is inactive/i.test(body)) {
+      // A blocking screen, not a toast: nothing works until someone switches the account back on.
+      useAccountState.getState().setDisabled(body);
       useAuthStore.getState().logout();
-      toast.error(body);
       return Promise.reject(error);
     }
 
@@ -137,12 +139,24 @@ httpClient.interceptors.response.use(
         if (Date.now() - lastDenied > 5000) toast.error(code ? i18n.t(`access_${code}`, { defaultValue: body || i18n.t("no_permission") }) : i18n.t("no_permission"));
         lastDenied = Date.now();
       }
-      else if (status === 404) toast.error(i18n.t("item_not_found"));
-      else if (status && status >= 500) toast.error(i18n.t("unexpected_error"));
-      else if (status === 400 && message && !/^application\/problem\+json/.test(
-        String(error.response?.headers?.["content-type"] ?? ""),
-      )) {
-        toast.error(message); // business-rule text; field errors are shown inline by the form
+      else if (status === 404) {
+        // 404 bodies may be text, JSON or empty (guide §3.2): branch on the status only.
+        toast.error(i18n.t("item_not_found"));
+      }
+      else if (status && status >= 500) {
+        toast.error(i18n.t("unexpected_error"));
+        // Some by-id endpoints answer 500 for a row someone else deleted (guide §3.5). After a failed change to such a
+        // row, refresh the lists on screen. (Never after a GET: the refetch would fail again and loop.)
+        const method = (config?.method ?? "get").toLowerCase();
+        if (method !== "get" && /\/[0-9a-f]{8}-[0-9a-f]{4}-/i.test(config?.url ?? "")) useAccountState.getState().markStale();
+      }
+      else if (status === 400) {
+        // Validation errors are recognised by their `errors` object, whatever the Content-Type (application/json or
+        // problem+json): the form shows them per field. Anything else is a business rule: show its text as-is.
+        const validation = !!error.response?.data && typeof error.response.data === "object" && "errors" in error.response.data;
+        if (!validation && message) toast.error(message);
+        // A deleted or unknown country/currency: reload the pickers (spec README, Release 2).
+        if (/(country|currency|البلد|الدولة|العملة)/i.test(message ?? "") && /(deleted|doesn.t exist|محذوف|غير موجود)/i.test(message ?? "")) useAccountState.getState().markLookupsStale();
       }
     }
     return Promise.reject(error);

@@ -84,7 +84,7 @@ to English when the restaurant didn't enter it.
 
 | Case | Response | UI |
 |---|---|---|
-| Unknown subdomain / tenant deactivated / tenant has no restaurant | `404` | "This menu isn't available" page |
+| Unknown subdomain / tenant deactivated (including an expired subscription) / tenant has no restaurant | `404` | "This menu isn't available" page |
 | No active theme | `404` on theme | default Shoof styling |
 | Category with no items | — | hide it, or show "Coming soon" |
 | Too many requests | `429` | short retry message |

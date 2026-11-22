@@ -51,6 +51,7 @@ The tenant may own **several restaurants**. Most create forms need a `restaurant
 | Forgot password | `POST api/account/forgot-password` | `tenantSlug` (from the subdomain) + `email` → always `204`; emails a link to `https://{slug}.shoof.lambdor.com/admin/reset-password?email=…&token=…&slug=…` (expires after 2 hours) |
 | Reset password page | `POST api/account/reset-password` | `/admin/reset-password` reads `email`, `token`, `slug` from the query string and posts them with `newPassword` → `204`, or `400` "This password reset link is invalid or has expired." |
 
+Login and refresh return `roles[]` (Release 1). Replace the stored list on every refresh.
 Store `tenant_id` from the JWT and send it as `X-Tenant-Id`. Show `fullName` in the header.
 No sign-up screen (not supported).
 
@@ -72,6 +73,8 @@ One overview page with an optional **restaurant** filter and **date range**, plu
 - `GET api/dashboard/export` (same filters) → downloads `restaurant-dashboard.xlsx`.
 - Usage counts only the restaurant's own pool (partner keys with their own plan are not included).
   Monthly "used" counts plan allowance only; credit-paid generations show in the credits figure.
+- When the subscription ends without a renewal the whole tenant is switched off (`403` "Tenant is inactive." on every call), so make the
+  days-remaining warning prominent. Notification 9 announces it 30, 7 and 1 days before.
 
 ---
 
@@ -116,11 +119,14 @@ chosen), name EN* (≤ 200), name AR (≤ 200), description EN / AR, display ord
 currency (defaults to the restaurant's currency; required on edit), display order, active (edit only).
 
 **List columns:** primary photo thumbnail (image with the lowest `displayOrder`), name, category, price + currency
-code, active toggle, 3D status badge, actions.
+code, active toggle, 3D status badge (from `activeModel`), actions.
 
 **Rules**
 - Price is shown with the currency's `decimalPlaces` and `symbol` (load currencies once).
 - Inactive items are hidden from the public menu.
+- `activeModel` (GLB, USDZ, thumbnail, source) is filled on `GET` only. Create and edit responses return it as `null`,
+  so re-fetch or keep the value you have.
+- (Release 2) A deleted or unknown currency → `400` "The selected currency doesn't exist or was deleted." Reload the picker.
 - Changing name/description/ingredients affects whether a 3D model can be **regenerated** (see §7).
 
 ### 4.1 Item editor — suggested tabs
@@ -182,6 +188,8 @@ Attach library ingredients to an item.
 | Detach | Delete | `DELETE api/menu-item-ingredients/{id}` |
 
 - **Removable** = the guest may ask to leave it out (shown on the public menu). **Note** = free text, e.g. "spicy".
+- (Release 2) The same ingredient twice → `400` "This ingredient is already on the menu item." Offer only unattached
+  ones. A detached ingredient can be attached again (as a new row with a new id).
 - Suggested UI: searchable multi-select of library ingredients + inline "create new ingredient".
 - Adding/removing an ingredient always counts as a "meaningful change" (unlocks 3D regeneration).
 
@@ -294,6 +302,8 @@ Credits are bought offline through Lambdor (no purchase screen here). A "credits
   they go to the Owner admins. Errors: "The contact email address is not valid.", "The contact phone number is
   too long (50 characters at most).". The save replaces every field, so always send the current values.
 - **Restaurants can't be created or deleted here** — Lambdor creates them in the SuperAdmin console.
+- (Release 2) A deleted country or currency → `400` "The selected country doesn't exist or was deleted." / "The
+  selected currency doesn't exist or was deleted." Reload the picker. An unchanged old value can still be saved.
 
 ---
 
@@ -340,6 +350,8 @@ Platforms: Facebook, Instagram, Twitter, TikTok, WhatsApp, YouTube, Snapchat. **
 restaurant** ("A social link for this platform already exists for this restaurant.") → only offer unused platforms.
 To change a platform, delete and re-add.
 
+(Release 2) After a delete the same platform can be added again. Before that release it is refused as a duplicate.
+
 ---
 
 ## 13. Tables & QR codes — groups `Tables`, `QrCodes`
@@ -365,6 +377,9 @@ To change a platform, delete and re-add.
 
 ## 14. Team: users — group `AdminUsers`
 
+> **Release 2:** the Primary admin, granting, removing-an-Owner, unknown-role and email-reuse rules below, and a
+> working active filter (before it, the filter returns wrong rows).
+
 | Function | Permission | Endpoint |
 |---|---|---|
 | List (active filter) + search | View | `GET api/admin-users` |
@@ -373,16 +388,28 @@ To change a platform, delete and re-add.
 | Edit (name, phone, active, roles) | Edit | `PUT api/admin-users/{id}` |
 | Delete | Delete | `DELETE api/admin-users/{id}` |
 
-- Full name ≤ 200. Email is unique within this restaurant ("Email '…' is already taken."). Email can't be changed after creation.
+- Full name ≤ 200. Email is unique within this restaurant ("Email '…' is already taken."). Email can't be changed after creation. A deleted user's
+  email can be used again: that is a new user, with a new id and only the roles given now.
 - The password set here is temporary: the new user must change it at first login. A forgotten
   password is reset by the user through "Forgot password?", or by the platform (SuperAdmin).
 - Roles = multi-select of role **names** from `GET api/roles`.
 - Deactivating a user blocks them immediately (`403` on their next call).
-- **Last Owner:** the restaurant must always keep one active user with the Owner role. Deactivating, deleting or
+- **Primary admin** (`isPrimary: true`): the admin created with the restaurant. Show a "Primary" badge, hide Delete,
+  and lock the Active switch and the Owner role. Otherwise the server answers `400` "The restaurant's primary admin
+  can't be deleted, deactivated or removed from the Owner role."
+- **Granting Owner:** only an Owner can give someone the Owner role ("Only an Owner can give someone the Owner role.").
+  Hide that option for non-Owners, but keep it in `roles[]` when editing someone who already has it.
+- **Granting other roles:** a non-Owner can only give a role whose every permission they hold, and can only
+  reactivate a user whose roles they could give. Disable the others.
+- **Removing an Owner:** only an Owner can delete, deactivate or demote an Owner. Hide those controls for non-Owners.
+- An unknown role name rejects the whole save ("These roles don't exist: ...").
+- **Last Owner** (restaurants without a primary admin): the restaurant must always keep one active user with the Owner role. Deactivating, deleting or
   removing the Owner role from the last one fails: "This is the restaurant's last active Owner. Assign the Owner
   role to another active admin first."
 
 ## 15. Team: roles & permissions — group `Roles`
+
+> **Release 2:** the granting limit, role deletion revoking access, and reusing a deleted role's name.
 
 | Function | Permission | Endpoint |
 |---|---|---|
@@ -399,6 +426,10 @@ To change a platform, delete and re-add.
   added, never removed. Show an "Owner" badge, disable the name/description fields, lock the already-checked
   boxes, and hide Delete. The server answers `400` "The Owner role can't be renamed, deleted or lose permissions.
   You can only add new permissions to it." otherwise.
+- **Granting permissions:** a non-Owner can only tick permissions they hold (already-ticked boxes may stay). The
+  server answers `400` "You can only grant permissions you have yourself. You don't have: ..." otherwise.
+- **Deleting a role** takes its permissions away from everyone who had it (within 30 seconds) and can't be undone.
+  Say so in the confirmation dialog. The name can be used again: a new role with that name starts with no members.
 - Unknown permission strings are silently ignored by the server.
 
 Restaurant-side permission groups: AdminUsers, Roles, Restaurants (View/Edit), MenuCategories, MenuItems,
@@ -429,4 +460,5 @@ Bell icon + drawer + full inbox page. See README §2.8.
 | Realtime | SignalR `/hubs/notifications`, event `notificationReceived` |
 
 Deep links: `jobId` → job detail · `menuItemId` → item editor · `batchId` → jobs grid filtered by batch ·
-Announcement (type 4) → show full text in a dialog (plain text).
+Announcement (type 4) → show full text in a dialog (plain text) ·
+Subscription expiring (type 9) → the dashboard's subscription card.

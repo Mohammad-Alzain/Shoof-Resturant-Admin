@@ -1,3 +1,5 @@
+import useAuthStore from "@/modules/Auth/core/store/AuthStore";
+import { myRoles } from "@/modules/Auth/core/permissions";
 import { Can } from "@/components/common/Can";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -54,6 +56,11 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
   const isOwner = !!role && (role.isOwner ?? role.name === "Owner");
   /** The Owner role can only gain permissions: the ones it already has are locked on. */
   const locked = isOwner ? initial : new Set<string>();
+  // A non-Owner can only tick permissions they hold themselves; ones already on the role may stay (Release 2).
+  const auth = useAuthStore((st) => st.auth);
+  const myPermissions = useAuthStore((st) => st.permissions);
+  const iAmOwner = myRoles(auth).some((r) => r.toLowerCase() === "owner") || myPermissions.includes("*");
+  const cannotGrant = (key: string) => !iAmOwner && !myPermissions.includes(key) && !initial.has(key);
 
   const groups = useMemo(() => parse(catalogue.data ?? []), [catalogue.data]);
   const total = useMemo(() => groups.reduce((n, g) => n + g.actions.length, 0), [groups]);
@@ -73,19 +80,19 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
       if (a === "View") for (const x of actions) n.delete(`${g}.${x}`);
     } else {
       n.add(key);
-      if (a !== "View" && actions.includes("View")) n.add(`${g}.View`);
+      if (a !== "View" && actions.includes("View") && !cannotGrant(`${g}.View`)) n.add(`${g}.View`);
     }
   });
   const toggleGroup = (g: string, actions: string[]) => mutate((n) => {
     const all = actions.every((a) => n.has(`${g}.${a}`));
     for (const a of actions) {
       if (all) n.delete(`${g}.${a}`);
-      else n.add(`${g}.${a}`);
+      else if (!cannotGrant(`${g}.${a}`)) n.add(`${g}.${a}`);
     }
   });
   const preset = (kind: "read" | "all" | "none") => mutate((n) => {
     n.clear();
-    for (const { group, actions } of groups) for (const a of actions) if (kind === "all" || (kind === "read" && a === "View")) n.add(`${group}.${a}`);
+    for (const { group, actions } of groups) for (const a of actions) if ((kind === "all" || (kind === "read" && a === "View")) && !cannotGrant(`${group}.${a}`)) n.add(`${group}.${a}`);
   });
 
   const save = useMutation({
@@ -102,7 +109,7 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
 
   const remove = async () => {
     if (!role) return;
-    const ok = await confirmAction({ title: t("delete_confirm_title"), subject: role.name, description: isOwner ? t("owner_role_warning") : t("delete_irreversible"), confirmText: t("delete"), danger: true });
+    const ok = await confirmAction({ title: t("delete_confirm_title"), subject: role.name, description: t("delete_role_revokes"), confirmText: t("delete"), danger: true });
     if (!ok) return;
     await rolesApi.remove(role.id);
     qc.invalidateQueries({ queryKey: ["roles"] });
@@ -172,8 +179,8 @@ function RoleEditor({ role, onSaved, onDeleted, onDirty }: { role: IRole | null;
                           type="button"
                           role="switch"
                           aria-checked={on}
-                          disabled={locked.has(`${group}.${a}`)}
-                          title={locked.has(`${group}.${a}`) ? t("owner_permission_locked") : undefined}
+                          disabled={locked.has(`${group}.${a}`) || (!on && cannotGrant(`${group}.${a}`))}
+                          title={locked.has(`${group}.${a}`) ? t("owner_permission_locked") : !on && cannotGrant(`${group}.${a}`) ? t("cannot_grant_permission") : undefined}
                           onClick={() => toggle(group, a, actions)}
                           className={cn(
                             "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-80",

@@ -32,6 +32,8 @@ export interface ResourcePageProps<T extends { id: string | number }> {
   canDelete?: (row: T) => boolean;
   /** Row field shown in the delete confirmation. */
   deleteLabel?: string;
+  /** Explains what deleting this kind of record means (shown in the delete dialog). */
+  deleteDescription?: string;
   formWidth?: string;
   /** Extra row actions: rendered after the standard view / edit / delete. Use `RowAction` for icon buttons. */
   rowActions?: (row: T) => React.ReactNode;
@@ -110,6 +112,7 @@ export function ResourcePage<T extends { id: string | number }>(props: ResourceP
           allowDelete={(row) => can("Delete") && (props.canDelete ? props.canDelete(row) : true)}
           deleteQuery={remove}
           textDeleteAccessor={props.deleteLabel}
+          deleteModalDescription={props.deleteDescription}
           filters={props.filters}
           secondaryActions={props.rowActions}
           primaryTopActions={props.topActions}
