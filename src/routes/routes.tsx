@@ -15,6 +15,7 @@ import {
   UtensilsCrossed,
   Wheat,
   Layers,
+  Smartphone,
 } from "lucide-react";
 
 export interface RouteI {
@@ -76,6 +77,7 @@ export const routes: RouteI[] = [
   item({ href: "/menu/items", permission: "MenuItems.View", path: "menu/items", title: "items", icon: UtensilsCrossed, Component: lazyRetry(() => import("@/modules/Menu/ui/pages/ItemsPage")) }),
   item({ href: "/menu/items/$id", permission: "MenuItems.View", path: "menu/items/$id", title: "items", icon: UtensilsCrossed, hideInSide: true, Component: lazyRetry(() => import("@/modules/Menu/ui/pages/ItemEditorPage")) }),
   item({ href: "/menu/ingredients", permission: "Ingredients.View", path: "menu/ingredients", title: "ingredients", icon: Wheat, Component: lazyRetry(() => import("@/modules/Menu/ui/pages/IngredientsPage")) }),
+  item({ href: "/menu/preview", permission: "MenuItems.View", path: "menu/preview", title: "menu_preview", icon: Smartphone, Component: lazyRetry(() => import("@/modules/Menu/ui/pages/MenuPreviewPage")) }),
   item({ href: "/generation/jobs", permission: "ModelGenerationJobs.View", path: "generation/jobs", title: "generation_jobs", titleOfGroup: "nav_generation", icon: Sparkles, Component: lazyRetry(() => import("@/modules/Generation/ui/pages/JobsPage")) }),
   item({ href: "/generation/bulk", permission: "ModelGenerationJobs.Add", path: "generation/bulk", title: "bulk_generation", icon: Layers, Component: lazyRetry(() => import("@/modules/Generation/ui/pages/BulkPage")) }),
   item({ href: "/restaurant/profile", permission: "Restaurants.View", path: "restaurant/profile", title: "restaurant_profile", titleOfGroup: "nav_restaurant", icon: Store, Component: lazyRetry(() => import("@/modules/Restaurant/ui/pages/RestaurantProfilePage")) }),

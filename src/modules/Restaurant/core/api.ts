@@ -35,6 +35,29 @@ export interface ITheme {
   /** 0 None, 1 SlideHorizontal, 2 SlideVertical, 3 Fade, 4 PageCurl */
   pageTransitionEffect: number;
 }
+/** A new theme's starting colours (Shoof's own), and what the menu preview uses when no theme is active. */
+export const DEFAULT_THEME: Partial<ITheme> = {
+  name: "",
+  themeMode: 0,
+  menuBackgroundColor: "#FBF5E9",
+  headerBackgroundColor: "#541F2D",
+  headerTextColor: "#FBF5E9",
+  headerLogoPosition: 1,
+  footerBackgroundColor: "#261C1A",
+  footerTextColor: "#FBF5E9",
+  categoryBackgroundColor: "#E9DDCF",
+  categoryTextColor: "#261C1A",
+  subCategoryBackgroundColor: "#F3E7D6",
+  subCategoryTextColor: "#261C1A",
+  itemBackgroundColor: "#FFFFFF",
+  itemTextColor: "#261C1A",
+  headerFooterFontFamily: "IBM Plex Sans",
+  categoryFontFamily: "IBM Plex Sans",
+  subCategoryFontFamily: "IBM Plex Sans",
+  itemFontFamily: "IBM Plex Sans",
+  pageTransitionEffect: 3,
+};
+
 export const themesApi = createCrudApi<ITheme, Partial<ITheme>, Partial<ITheme>>("menu-themes", "menu-themes");
 export const activateTheme = (id: string) => http.post<ITheme>(`menu-themes/${id}/activate`);
 export const uploadThemeImage = (id: string, kind: "background-image" | "header-logo", file: File): Promise<ITheme> => {

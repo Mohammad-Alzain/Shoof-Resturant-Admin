@@ -16,32 +16,12 @@ import { cn } from "@/lib/utils";
 import { fetchAll } from "@/modules/shared/core/lookups";
 import { useRestaurantId } from "@/modules/shared/core/restaurant";
 import { EmptyState, FilePickButton } from "@/modules/shared/ui/parts";
-import { activateTheme, LOGO_POSITIONS, themesApi, THEME_MODES, TRANSITIONS, uploadThemeImage, type ITheme } from "../../core/api";
+import { activateTheme, DEFAULT_THEME, LOGO_POSITIONS, themesApi, THEME_MODES, TRANSITIONS, uploadThemeImage, type ITheme } from "../../core/api";
 import { CardShell } from "@/components/common/ResourceCards";
 
 const FONTS = ["Inter", "IBM Plex Sans", "IBM Plex Sans Arabic", "Cairo", "Tajawal", "Poppins", "Playfair Display", "Montserrat", "Lora", "Roboto"];
 
-const DEFAULT: Partial<ITheme> = {
-  name: "",
-  themeMode: 0,
-  menuBackgroundColor: "#FBF5E9",
-  headerBackgroundColor: "#541F2D",
-  headerTextColor: "#FBF5E9",
-  headerLogoPosition: 1,
-  footerBackgroundColor: "#261C1A",
-  footerTextColor: "#FBF5E9",
-  categoryBackgroundColor: "#E9DDCF",
-  categoryTextColor: "#261C1A",
-  subCategoryBackgroundColor: "#F3E7D6",
-  subCategoryTextColor: "#261C1A",
-  itemBackgroundColor: "#FFFFFF",
-  itemTextColor: "#261C1A",
-  headerFooterFontFamily: "IBM Plex Sans",
-  categoryFontFamily: "IBM Plex Sans",
-  subCategoryFontFamily: "IBM Plex Sans",
-  itemFontFamily: "IBM Plex Sans",
-  pageTransitionEffect: 3,
-};
+const DEFAULT = DEFAULT_THEME;
 
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
