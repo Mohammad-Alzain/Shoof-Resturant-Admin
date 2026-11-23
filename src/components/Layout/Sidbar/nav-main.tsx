@@ -72,8 +72,8 @@ const toGroups = (links: RouteI[]): NavGroup[] => {
 };
 
 /**
- * Expanded: icon + label rows on a soft pill, with a marker in the section's spice hue at the start edge of the active row.
- * Collapsed (icon rail): a centred 40px square per item; the active one is filled with the action colour.
+ * Expanded: icon + label rows; the active row sits on an ivory pill in burgundy ink, the souk's lit stall.
+ * Collapsed (icon rail): a centred 40px square per item; the active one is the same ivory square.
  * One shared pill (`layoutId`) slides between rows so the sidebar always shows where you are.
  */
 export function NavMain() {
@@ -176,7 +176,7 @@ export function NavMain() {
                             tooltip={t(route.title || "")}
                             className={cn(
                               "group/nav relative h-10 gap-3 rounded-lg px-3 text-[0.875rem] font-medium text-sidebar-foreground",
-                              "hover:bg-transparent hover:text-sidebar-strong data-[active=true]:bg-transparent data-[active=true]:font-semibold data-[active=true]:text-sidebar-strong",
+                              "hover:bg-transparent hover:text-sidebar-strong data-[active=true]:bg-transparent data-[active=true]:font-semibold data-[active=true]:text-sidebar-primary-foreground data-[active=true]:hover:text-sidebar-primary-foreground",
                               "transition-colors duration-300 group-data-[collapsible=icon]:data-[active=true]:text-sidebar",
                             )}
                           >
@@ -185,14 +185,13 @@ export function NavMain() {
                                 <motion.span
                                   layoutId="nav-pill"
                                   aria-hidden
-                                  className="absolute inset-0 rounded-lg bg-sidebar-accent transition-colors duration-300 group-data-[collapsible=icon]:bg-sidebar-strong group-data-[collapsible=icon]:shadow-[0_6px_16px_-6px_rgb(0_0_0/0.5)]"
+                                  className="absolute inset-0 rounded-lg bg-sidebar-strong shadow-[0_6px_16px_-8px_rgb(0_0_0/0.45)]"
                                   transition={{
                                     type: "spring",
                                     stiffness: 500,
                                     damping: 40,
                                   }}
                                 >
-                                  <span className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-(--hue) group-data-[collapsible=icon]:hidden" />
                                 </motion.span>
                               ) : (
                                 <span
@@ -205,7 +204,7 @@ export function NavMain() {
                                   strokeWidth={active ? 2.2 : 1.9}
                                   className={cn(
                                     "relative size-[19px]! shrink-0 transition-[transform,color] duration-200 group-hover/nav:scale-110",
-                                    active && "text-(--hue) group-data-[collapsible=icon]:text-sidebar",
+                                    active && "text-sidebar-primary-foreground",
                                   )}
                                 />
                               )}
