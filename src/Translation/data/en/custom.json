@@ -1396,5 +1396,7 @@
   "access_no_roles": "Your sign-in carries no role, so the server refuses every page. The account was created without being linked to the Owner role: the backend must link it (login returns roles from its Release 1).",
   "of_n": "of {{n}}",
   "qr_coverage": "Tables with a QR code",
-  "plan_period": "How much of the plan period has passed"
+  "plan_period": "How much of the plan period has passed",
+  "content_language": "Content language",
+  "content_language_hint": "switches every field at once"
 }

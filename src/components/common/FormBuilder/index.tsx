@@ -14,6 +14,10 @@ import clsx from "clsx";
 import { getDirection } from "@/Translation/i18n";
 import { toast } from "sonner";
 import { parseApiError } from "@/Api/httpClient";
+import { Languages } from "lucide-react";
+import { LangSwitch, type Lang } from "@/components/common/LangSwitch";
+import { FieldTypes } from "../Fields/Enums/Field";
+import { FormLangContext } from "../Fields/FormLang";
 
 function Form(props: IFormBuilder<any>) {
   const form = useForm({
@@ -40,8 +44,24 @@ function Form(props: IFormBuilder<any>) {
   const needsValues = props.fields?.some((f) => f.showWhen) ?? false;
   const liveValues = useWatch({ control: form.control, disabled: !needsValues }) as Record<string, any>;
   const [isDisabled, setIsDisabled] = useState(false);
+
+  // One content language for every bilingual field of the form (English in `name`, Arabic in `pairName`).
+  const pairs = (props.fields ?? [])
+    .filter((f) => f.control === FieldTypes.bilingual && f.show !== false)
+    .map((f) => [f.name as string, ((f as { pairName?: string }).pairName ?? `${String(f.name).replace(/En$/, "")}Ar`) as string] as const);
+  const [lang, setLang] = useState<Lang>("en");
+  const pairValues = useWatch({ control: form.control, name: pairs.flat(), disabled: !pairs.length }) as unknown[] | undefined;
+  const filledIn = (side: 0 | 1) => pairs.some((_, i) => !!String(pairValues?.[i * 2 + side] ?? "").trim());
   const { t } = useTranslation();
   const [apiErrors, setApiErrors] = useState({});
+  const hasError = (key: string) => !!errors[key] || !!apiErrors[key];
+  const invalidEn = pairs.some(([en]) => hasError(en));
+  const invalidAr = pairs.some(([, ar]) => hasError(ar));
+  // After a failed save, show the language that holds the error (English first: it is the required one).
+  useEffect(() => {
+    if (invalidEn) setLang("en");
+    else if (invalidAr) setLang("ar");
+  }, [invalidEn, invalidAr]);
   // RBC-009: after a 429 (too many attempts) lock the submit button for the
   // server-provided Retry-After (default 60s) and show a countdown.
   const [cooldown, setCooldown] = useState(0);
@@ -127,6 +147,7 @@ function Form(props: IFormBuilder<any>) {
 
   return (
     <FormProvider {...form}>
+      <FormLangContext.Provider value={pairs.length ? { lang } : null}>
       <form
         className={clsx(props?.ContainerClassName, "flex flex-col w-full")}
         style={{ ...props?.ContainerStyle }}
@@ -135,6 +156,22 @@ function Form(props: IFormBuilder<any>) {
           handleSubmit(onSubmit)(e); // Ensure React Hook Form handles validation
         }}
       >
+        {pairs.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5">
+            <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Languages className="size-4 text-terracotta" aria-hidden />
+              {t("content_language")}
+              <span className="hidden text-xs font-normal text-muted-foreground sm:inline">· {t("content_language_hint")}</span>
+            </span>
+            <LangSwitch
+              value={lang}
+              onChange={setLang}
+              label={t("content_language")}
+              invalid={{ en: invalidEn, ar: invalidAr }}
+              filled={{ en: filledIn(0), ar: filledIn(1) }}
+            />
+          </div>
+        )}
         {props.fields?.map(({ setValue, ...item }, key) => {
           return (
             item?.show !== false && (!item?.showWhen || item.showWhen(liveValues ?? {})) && (
@@ -225,6 +262,7 @@ function Form(props: IFormBuilder<any>) {
           </div>
         )}
       </form>
+      </FormLangContext.Provider>
     </FormProvider>
   );
 }
