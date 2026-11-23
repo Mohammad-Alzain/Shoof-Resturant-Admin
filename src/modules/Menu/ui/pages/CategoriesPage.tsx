@@ -1,3 +1,5 @@
+import { useSufra } from "@/modules/Dashboard/ui/components/SufraMap";
+import { Meter } from "@/modules/shared/ui/parts";
 import { can } from "@/modules/Auth/core/can";
 import { Can } from "@/components/common/Can";
 import { useMemo } from "react";
@@ -42,6 +44,9 @@ export default function CategoriesPage() {
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["menu-categories"] });
 
+  // the dashboard's per-category 3D coverage (items and items with a live model, sub-categories included)
+  const sufra = useSufra(restaurantId);
+  const coverage = useMemo(() => new Map((sufra.data ?? []).map((p) => [p.id, p])), [sufra.data]);
   const rows = useMemo(() => (cats.data ?? []).filter((c) => !multi || !restaurantId || c.restaurantId === restaurantId), [cats.data, multi, restaurantId]);
   const parents = useMemo(() => rows.filter((c) => !c.parentCategoryId).sort((a, b) => a.displayOrder - b.displayOrder), [rows]);
   const kids = (id: string) => rows.filter((c) => c.parentCategoryId === id).sort((a, b) => a.displayOrder - b.displayOrder);
@@ -148,6 +153,13 @@ export default function CategoriesPage() {
         {c.description && <span className="block truncate text-xs text-muted-foreground">{c.description}</span>}
       </span>
       <span className="hidden shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground sm:inline">{t("n_items", { n: counts.data?.get(c.id) ?? 0 })}</span>
+      {/* top-level rows: how much of the category (with its sub-categories) guests can already turn in 3D */}
+      {!sub && coverage.get(c.id) && coverage.get(c.id)!.items > 0 && (
+        <span className="hidden w-32 shrink-0 flex-col gap-1.5 md:flex" title={t("cat_3d_coverage", { n: coverage.get(c.id)!.models, total: coverage.get(c.id)!.items })}>
+          <span className="text-[0.6875rem] text-muted-foreground">{t("cat_3d_share", { n: Math.round((coverage.get(c.id)!.models / coverage.get(c.id)!.items) * 100) })}</span>
+          <Meter thin value={coverage.get(c.id)!.models / coverage.get(c.id)!.items} tone={coverage.get(c.id)!.models === coverage.get(c.id)!.items ? "good" : "accent"} label={t("cat_3d_coverage", { n: coverage.get(c.id)!.models, total: coverage.get(c.id)!.items })} />
+        </span>
+      )}
       <Switch checked={c.isActive} disabled={!can("MenuCategories.Edit")} aria-label={t("active")} onCheckedChange={(on) => patch.mutate({ c, changes: { isActive: on } })} />
       <span className="flex shrink-0 items-center gap-0.5">
         {!sub && (

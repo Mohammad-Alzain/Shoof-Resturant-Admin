@@ -15,41 +15,9 @@ import { useCurrentRestaurant } from "@/modules/shared/core/restaurant";
 import { downloadDashboard, useOverview } from "../../core/api";
 import { SufraMap } from "../components/SufraMap";
 import { DateButton } from "@/components/common/DateButton";
+import { Meter, usageTone, type Tone } from "@/modules/shared/ui/parts";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-
-type Tone = "accent" | "warning" | "danger" | "good";
-const TONE_VAR: Record<Tone, string> = { accent: "var(--primary)", warning: "var(--warning)", danger: "var(--destructive)", good: "var(--success)" };
-/** Severity of a share that is "used up": calm below 80%, warning to 100%, danger at or past it. */
-const usageTone = (ratio: number): Tone => (ratio >= 1 ? "danger" : ratio >= 0.8 ? "warning" : "accent");
-
-/**
- * One share of a whole (dataviz "meter"): the fill carries the tone and anchors to the reading start (right in Arabic),
- * the track is a lighter step of the same colour so the state reads across the whole bar.
- */
-function Meter({ value, tone = "accent", label, thin }: { value: number; tone?: Tone; label: string; thin?: boolean }) {
-  const pct = Math.max(0, Math.min(1, value));
-  const color = TONE_VAR[tone];
-  return (
-    <div
-      role="meter"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(pct * 100)}
-      className={cn("relative w-full overflow-hidden rounded-full", thin ? "h-1" : "h-2")}
-      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)` }}
-    >
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: `${pct > 0 ? Math.max(pct * 100, 2) : 0}%` }}
-        transition={{ duration: 0.8, ease: EASE }}
-        className="absolute inset-y-0 start-0 rounded-full"
-        style={{ backgroundColor: color }}
-      />
-    </div>
-  );
-}
 
 /** A quota line: what is used of the limit, what is left, and the meter; `null` limit = unlimited (no meter). */
 function Quota({ label, used, limit, remaining }: { label: string; used: number; limit?: number | null; remaining?: number | null }) {

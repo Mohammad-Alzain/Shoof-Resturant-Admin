@@ -7,7 +7,8 @@ import { Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Box, Image as ImageIcon, Loader2, Plus, RefreshCw, Sparkles, Trash2, Wheat, WandSparkles } from "lucide-react";
+import { ArrowLeft, Box, EyeOff, Image as ImageIcon, Loader2, Plus, RefreshCw, Rotate3d, Sparkles, Trash2, Wheat, WandSparkles } from "lucide-react";
+import { LangSwitch, type Lang } from "@/components/common/LangSwitch";
 import { toast } from "sonner";
 import { z } from "zod";
 import FormBuilder from "@/components/common/FormBuilder";
@@ -35,6 +36,7 @@ import {
   itemIngredientsApi,
   itemsApi,
   model3dApi,
+  primaryImage,
   uploadItemImage,
   uploadModel,
   useItem,
@@ -126,20 +128,81 @@ export default function ItemEditorPage() {
   );
 }
 
+/* ------------------------------ guest preview ------------------------------ */
+type LiveItem = { nameEn?: string; nameAr?: string | null; descriptionEn?: string | null; descriptionAr?: string | null; price?: number | string; currencyId?: string; isActive?: boolean };
+
+/**
+ * The dish as a guest meets it on the menu, rebuilt as the form is typed: primary photo, the 3D badge when a model is
+ * live, name and description in the language the guest picked, and the price in the item's currency. A hidden dish says
+ * so. It is the product's promise ("your restaurant, as your guests see it") at the size of one card.
+ */
+function GuestPreview({ item, live }: { item: IItem; live: LiveItem }) {
+  const { t, i18n } = useTranslation();
+  const currencies = useCurrencies();
+  const [lang, setLang] = useState<Lang>(i18n.language.startsWith("ar") ? "ar" : "en");
+  const img = primaryImage(item);
+  const name = (lang === "ar" ? live.nameAr || live.nameEn : live.nameEn) || "";
+  const description = lang === "ar" ? live.descriptionAr || live.descriptionEn : live.descriptionEn;
+  const currency = currencies.data?.find((c) => c.id === live.currencyId);
+  const missingAr = lang === "ar" && !live.nameAr;
+  return (
+    <aside className="lg:sticky lg:top-6">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-foreground">{t("guest_preview")}</h3>
+        <LangSwitch value={lang} onChange={setLang} label={t("guest_preview")} />
+      </div>
+      <article dir={lang === "ar" ? "rtl" : "ltr"} className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <div className="relative aspect-[4/3] bg-muted">
+          {img && isSafeUrl(img.url) ? (
+            <img src={img.url} alt="" className="size-full object-cover" />
+          ) : (
+            <span className="grid size-full place-items-center text-muted-foreground"><ImageIcon className="size-8" /></span>
+          )}
+          {item.activeModel?.glbUrl && (
+            <span className="absolute end-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#FBF5E9]/90 px-2.5 py-1 text-xs font-semibold text-[#541F2D] shadow-sm backdrop-blur-sm">
+              <Rotate3d className="size-3.5" aria-hidden />
+              3D
+            </span>
+          )}
+          {live.isActive === false && (
+            <span className="absolute inset-0 grid place-items-center bg-[#261C1A]/55 text-sm font-medium text-[#FBF5E9]">
+              <span className="inline-flex items-center gap-2"><EyeOff className="size-4" aria-hidden />{t("hidden_from_guests")}</span>
+            </span>
+          )}
+        </div>
+        <div className="space-y-1.5 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <p className={cn("min-w-0 font-display text-lg font-semibold leading-snug text-foreground", !name && "text-muted-foreground")}>{name || t("name")}</p>
+            <p dir="ltr" className="shrink-0 font-display text-base font-semibold text-foreground">
+              {live.price !== undefined && live.price !== "" ? formatPrice(Number(live.price), currency, lang) : "—"}
+            </p>
+          </div>
+          {description ? <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{description}</p> : null}
+        </div>
+      </article>
+      {missingAr && <p className="mt-2 text-xs text-muted-foreground">{t("preview_ar_fallback")}</p>}
+    </aside>
+  );
+}
+
 /* ------------------------------ details ------------------------------ */
 function DetailsTab({ item }: { item: IItem }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const currencies = useCurrencies();
   const bi = useQuery({ queryKey: ["menu-items", "bilingual", item.id, item.name], queryFn: () => getBilingual<IItem>("menu-items", item.id, ["name", "description"]) });
+  const [live, setLive] = useState<LiveItem | null>(null);
   if (bi.isLoading || !currencies.data) return <Skeleton className="h-64 max-w-2xl rounded-2xl" />;
   const b = bi.data!;
+  const initial = { nameEn: b.en.name, nameAr: b.ar.name, descriptionEn: b.en.description, descriptionAr: b.ar.description, price: item.price, currencyId: item.currencyId, displayOrder: item.displayOrder, isActive: item.isActive };
   return (
-    <div className="max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-card">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
       <fieldset disabled={!can("MenuItems.Edit")} className="m-0 min-w-0 border-0 p-0">
       <FormBuilder
         query={() => itemsApi.useUpdate(item.id)}
-        initialState={{ nameEn: b.en.name, nameAr: b.ar.name, descriptionEn: b.en.description, descriptionAr: b.ar.description, price: item.price, currencyId: item.currencyId, displayOrder: item.displayOrder, isActive: item.isActive }}
+        initialState={initial}
+        onChange={(v: LiveItem) => setLive(v)}
         validationSchema={z.object({
           nameEn: z.string().min(1, t("field_required")).max(200),
           nameAr: z.string().max(200).optional().nullable(),
@@ -167,6 +230,8 @@ function DetailsTab({ item }: { item: IItem }) {
         ]}
       />
       </fieldset>
+    </div>
+    <GuestPreview item={item} live={live ?? initial} />
     </div>
   );
 }

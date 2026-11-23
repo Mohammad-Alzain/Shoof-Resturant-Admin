@@ -1437,5 +1437,10 @@
   "qr_coverage": "طاولات لها رمز QR",
   "plan_period": "ما مضى من مدة الاشتراك",
   "content_language": "لغة المحتوى",
-  "content_language_hint": "تتبدّل كل الحقول معاً"
+  "content_language_hint": "تتبدّل كل الحقول معاً",
+  "guest_preview": "كما يراه ضيوفك",
+  "hidden_from_guests": "مخفي عن الضيوف",
+  "preview_ar_fallback": "لا اسم عربي بعد: يرى الضيف الاسم الإنجليزي.",
+  "cat_3d_share": "{{n}}% بمجسّم 3D",
+  "cat_3d_coverage": "{{n}} من {{total}} طبقاً بمجسّم ثلاثي الأبعاد"
 }

@@ -23,7 +23,7 @@ interface Plate {
 }
 
 /** One plate per top-level category: its own items plus its sub-categories' items, with 3D-model and photo coverage. */
-const useSufra = (restaurantId?: string) =>
+export const useSufra = (restaurantId?: string) =>
   useQuery({
     queryKey: ["dashboard", "sufra", restaurantId],
     enabled: !!restaurantId,

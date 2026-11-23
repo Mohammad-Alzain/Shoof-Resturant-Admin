@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Infinity as InfinityIcon, Loader2, Upload } from "lucide-react";
@@ -131,3 +132,37 @@ export function EmptyState({ icon: Icon, title, hint, action }: { icon: React.Co
     </div>
   );
 }
+
+export type Tone = "accent" | "warning" | "danger" | "good";
+const TONE_VAR: Record<Tone, string> = { accent: "var(--primary)", warning: "var(--warning)", danger: "var(--destructive)", good: "var(--success)" };
+/** Severity of a share that is "used up": calm below 80%, warning to 100%, danger at or past it. */
+export const usageTone = (ratio: number): Tone => (ratio >= 1 ? "danger" : ratio >= 0.8 ? "warning" : "accent");
+
+/**
+ * One share of a whole (dataviz "meter"): the fill carries the tone and anchors to the reading start (right in Arabic),
+ * the track is a lighter step of the same colour so the state reads across the whole bar.
+ */
+export function Meter({ value, tone = "accent", label, thin }: { value: number; tone?: Tone; label: string; thin?: boolean }) {
+  const pct = Math.max(0, Math.min(1, value));
+  const color = TONE_VAR[tone];
+  return (
+    <div
+      role="meter"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(pct * 100)}
+      className={cn("relative w-full overflow-hidden rounded-full", thin ? "h-1" : "h-2")}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)` }}
+    >
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: `${pct > 0 ? Math.max(pct * 100, 2) : 0}%` }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-y-0 start-0 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+    </div>
+  );
+}
+

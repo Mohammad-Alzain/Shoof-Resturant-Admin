@@ -1398,5 +1398,10 @@
   "qr_coverage": "Tables with a QR code",
   "plan_period": "How much of the plan period has passed",
   "content_language": "Content language",
-  "content_language_hint": "switches every field at once"
+  "content_language_hint": "switches every field at once",
+  "guest_preview": "As your guests see it",
+  "hidden_from_guests": "Hidden from guests",
+  "preview_ar_fallback": "No Arabic name yet: guests see the English one.",
+  "cat_3d_share": "{{n}}% in 3D",
+  "cat_3d_coverage": "{{n}} of {{total}} dishes have a 3D model"
 }
