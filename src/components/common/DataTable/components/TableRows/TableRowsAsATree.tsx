@@ -6,7 +6,7 @@ import { ListPagination } from "../pagination/ListPagination";
 import { TableFilterContext } from "../../Context/TableFilterProvider";
 
 import TableBulkAction from "../Actions/BulkAction";
-import { EmojiSad } from "iconsax-react";
+import { EmptyPlate } from "@/components/common/EmptyPlate";
 import { useTranslated } from "@/Translation/helper/getTranslation";
 
 import TreeNode from "../row/treeNode/TreeNode";
@@ -31,16 +31,7 @@ function TableRowsAsATreeRows<T extends object>(props: DataTableProps<T>) {
           })
         ) : Rows?.length === 0 ? (
           <div>
-            <div className="py-4 flex-col w-full flex items-center">
-              <EmojiSad
-                size={90}
-                color="currentColor"
-                className="text-gray-300 dark:text-gray-800 my-3 "
-              />
-              <span className=" font-medium text-gray-300 dark:text-gray-800">
-                {nodata}
-              </span>
-            </div>
+            <EmptyPlate title={nodata} />
           </div>
         ) : (
           <></>

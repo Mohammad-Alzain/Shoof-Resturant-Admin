@@ -3,6 +3,12 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronRight, Home } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getDirection } from "@/Translation/i18n";
+import { flatRoutes } from "@/routes/routes";
+
+/** "/dashboard/menu/items" -> the route's title key, so a crumb reads exactly like its sidebar entry. */
+const TITLES = new Map(flatRoutes.map((r) => [`/dashboard${r.href.startsWith("/") ? r.href : `/${r.href}`}`.replace(/\/$/, ""), r.title ?? ""]));
+/** Section segments that are not pages of their own. */
+const SECTIONS: Record<string, string> = { menu: "nav_menu", generation: "nav_generation", restaurant: "nav_restaurant", team: "nav_team" };
 
 const humanize = (segment: string) =>
   decodeURIComponent(segment)
@@ -24,10 +30,15 @@ export function Breadcrumbs() {
 
   const crumbs = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean);
-    return segments.map((segment, i) => ({
-      href: "/" + segments.slice(0, i + 1).join("/"),
-      label: /^\d+$|^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(segment) ? t("record_details") : translateSegment(segment),
-    }));
+    return segments.map((segment, i) => {
+      const href = "/" + segments.slice(0, i + 1).join("/");
+      const title = TITLES.get(href);
+      const isRecord = i > 1 && !title && !SECTIONS[segment] && !i18n.exists(segment);
+      return {
+        href,
+        label: title ? t(title) : SECTIONS[segment] && i === 1 ? t(SECTIONS[segment]) : isRecord || /^\d+$|^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(segment) ? t("record_details") : translateSegment(segment),
+      };
+    });
   }, [pathname, t, i18n]);
 
   return (

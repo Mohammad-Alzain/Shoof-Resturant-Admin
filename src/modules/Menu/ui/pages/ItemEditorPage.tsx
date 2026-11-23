@@ -7,7 +7,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Box, EyeOff, Image as ImageIcon, Loader2, Plus, RefreshCw, Rotate3d, Sparkles, Trash2, Wheat, WandSparkles } from "lucide-react";
+import { ArrowLeft, Box, EyeOff, Image as ImageIcon, Loader2, Plus, RefreshCw, Rotate3d, Smartphone, Sparkles, Trash2, Wheat, WandSparkles } from "lucide-react";
 import { LangSwitch, type Lang } from "@/components/common/LangSwitch";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -90,22 +90,52 @@ export default function ItemEditorPage() {
         {t("items")}
       </Link>
 
-      <header className="flex flex-wrap items-center gap-4">
-        {item.isLoading ? (
-          <Skeleton className="h-16 w-72 rounded-xl" />
-        ) : (
-          <>
-            {it?.images?.length ? <img src={[...it.images].sort((a, b) => a.displayOrder - b.displayOrder)[0].url} alt="" className="size-16 rounded-2xl border border-border object-cover" /> : <span className="grid size-16 place-items-center rounded-2xl border border-dashed border-border text-muted-foreground"><ImageIcon className="size-6" /></span>}
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display truncate text-xl font-semibold tracking-tight text-foreground">{it?.name}</h1>
-              <p className="text-sm text-muted-foreground">
-                {it?.menuCategoryName} · <span dir="ltr" className="tabular-nums">{formatPrice(it?.price, cur, i18n.language)}</span>
-              </p>
-            </div>
-            {it && <Badge variant={it.isActive ? "success" : "secondary"} appearance="light" size="md">{it.isActive ? t("active") : t("inactive")}</Badge>}
-          </>
-        )}
-      </header>
+      {/* the dish leads its own page: its photo as the backdrop, then name, category, price and its state for guests */}
+      {item.isLoading ? (
+        <Skeleton className="h-40 rounded-3xl" />
+      ) : it ? (
+        (() => {
+          const photo = [...(it.images ?? [])].sort((x, y) => x.displayOrder - y.displayOrder)[0]?.url;
+          const has3d = !!it.activeModel?.glbUrl;
+          return (
+            <header className="relative isolate overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+              {photo && isSafeUrl(photo) && (
+                <>
+                  <img src={photo} alt="" aria-hidden className="absolute inset-0 -z-10 size-full scale-110 object-cover opacity-30 blur-2xl" />
+                  <span aria-hidden className="absolute inset-0 -z-10 bg-linear-to-l from-card via-card/85 to-card/40 rtl:bg-linear-to-r" />
+                </>
+              )}
+              <div className="flex flex-wrap items-center gap-5 p-5 sm:p-6">
+                {photo && isSafeUrl(photo) ? (
+                  <img src={photo} alt="" className="size-24 shrink-0 rounded-2xl object-cover shadow-[0_14px_28px_-14px_rgb(38_28_26/0.6)] ring-4 ring-card sm:size-28" />
+                ) : (
+                  <span className="souk-bin-fill--bare grid size-24 shrink-0 place-items-center rounded-2xl text-muted-foreground sm:size-28"><ImageIcon className="size-7" /></span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-muted-foreground">{it.menuCategoryName}</p>
+                  <h1 className="mt-0.5 truncate font-display text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">{it.name}</h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[#fbf5e9] px-3 py-1 text-sm font-semibold tabular-nums text-[#261c1a] shadow-sm ring-1 ring-border"><bdi>{formatPrice(it.price, cur, i18n.language)}</bdi></span>
+                    <Badge variant={it.isActive ? "success" : "secondary"} appearance="light" size="md">{it.isActive ? t("visible_to_guests") : t("hidden_from_guests")}</Badge>
+                    <Badge variant={has3d ? "success" : "warning"} appearance="light" size="md" className="gap-1">
+                      <Box className="size-3.5" />
+                      {has3d ? t("val_ready") : t("no_model")}
+                    </Badge>
+                    <Badge variant="secondary" appearance="light" size="md" className="gap-1 tabular-nums">
+                      <ImageIcon className="size-3.5" />
+                      {(it.images?.length ?? 0).toLocaleString(i18n.language)} / 5
+                    </Badge>
+                  </div>
+                </div>
+                <Link to={"/dashboard/menu/preview" as never} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/80 px-3.5 py-2 text-sm font-medium text-foreground backdrop-blur-sm transition-colors hover:bg-accent">
+                  <Smartphone className="size-4" />
+                  {t("menu_preview")}
+                </Link>
+              </div>
+            </header>
+          );
+        })()
+      ) : null}
 
       <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-border">
         {TABS.map((x) => {

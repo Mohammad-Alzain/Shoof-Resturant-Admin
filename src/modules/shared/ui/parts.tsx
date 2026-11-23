@@ -85,36 +85,36 @@ export const KindLabel = ({ kind }: { kind: JobKind }) => {
   return <span className="whitespace-nowrap text-sm">{kind === JobKind.Image ? t("job_kind_image") : t("job_kind_model")}</span>;
 };
 
-/** "Today: 12 left · This month: 340 left · Extra credits: 50 (expire 30 Dec)", as meters. */
+/**
+ * "Today: 12 left · This month: 340 left · Extra credits: 50 (expire 30 Dec)", as one hairline-ruled strip: the same
+ * ledger the dashboard uses, so a quota reads the same wherever generation can be started.
+ */
 export function QuotaStrip({ className, compact }: { className?: string; compact?: boolean }) {
   const { t, i18n } = useTranslation();
   const q = useQuota();
-  if (q.isLoading) return <div className={cn("h-12 animate-pulse rounded-xl bg-muted", className)} />;
+  if (q.isLoading) return <div className={cn("h-16 animate-pulse rounded-2xl bg-muted", className)} />;
   if (!q.data) return null;
   const d = q.data;
-  const cell = (label: string, v?: number | null) => (
-    <div className="min-w-0">
-      <p className="text-[0.6875rem] font-medium text-muted-foreground">{label}</p>
-      <p className="mt-0.5 flex items-center gap-1 font-display text-lg font-semibold leading-none tabular-nums text-foreground">
-        {v === null || v === undefined ? <InfinityIcon className="size-5 text-terracotta" aria-label={t("unlimited")} /> : v.toLocaleString(i18n.language)}
-      </p>
+  const n = (v: number) => v.toLocaleString(i18n.language);
+  const cell = (label: string, value: React.ReactNode, note?: React.ReactNode, low?: boolean) => (
+    <div className={cn("flex min-w-0 flex-col gap-1 border-s border-border px-4 first:border-s-0", compact ? "py-2" : "py-3")}>
+      <span className="text-[0.6875rem] font-medium text-muted-foreground">{label}</span>
+      <span className={cn("flex items-baseline gap-1.5 font-display text-xl font-semibold leading-none tabular-nums", low ? "text-terracotta" : "text-foreground")}>
+        {value}
+        {note && <span className="truncate font-sans text-[0.6875rem] font-normal text-muted-foreground">{note}</span>}
+      </span>
     </div>
   );
+  const left = (v?: number | null) => (v === null || v === undefined ? <InfinityIcon className="size-5 text-terracotta" aria-label={t("unlimited")} /> : n(v));
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-7 gap-y-2 rounded-xl border border-border bg-card px-4 py-2.5", compact && "py-2", className)}>
-      {cell(t("quota_today"), d.dailyRemaining)}
-      {cell(t("quota_month"), d.monthlyRemaining)}
-      <div className="min-w-0">
-        <p className="text-[0.6875rem] font-medium text-muted-foreground">{t("quota_credits")}</p>
-        <p className="mt-0.5 font-display text-lg font-semibold leading-none tabular-nums text-foreground">
-          {d.extraCreditsRemaining.toLocaleString(i18n.language)}
-          {d.extraCreditsRemaining > 0 && d.extraCreditsNearestExpiryUtc && (
-            <span className="ms-1.5 font-sans text-[0.6875rem] font-normal text-muted-foreground">
-              {t("expires")} {shortDate(d.extraCreditsNearestExpiryUtc, i18n.language)}
-            </span>
-          )}
-        </p>
-      </div>
+    <div className={cn("grid grid-cols-3 overflow-hidden rounded-2xl border border-border bg-card shadow-card", className)}>
+      {cell(t("quota_today"), left(d.dailyRemaining), d.dailyRemaining != null ? t("souk_left") : undefined, d.dailyRemaining === 0)}
+      {cell(t("quota_month"), left(d.monthlyRemaining), d.monthlyRemaining != null ? t("souk_left") : undefined, d.monthlyRemaining === 0)}
+      {cell(
+        t("quota_credits"),
+        n(d.extraCreditsRemaining),
+        d.extraCreditsRemaining > 0 && d.extraCreditsNearestExpiryUtc ? `${t("expires")} ${shortDate(d.extraCreditsNearestExpiryUtc, i18n.language)}` : undefined,
+      )}
     </div>
   );
 }
@@ -122,8 +122,9 @@ export function QuotaStrip({ className, compact }: { className?: string; compact
 /** Empty state with an icon, a sentence and (optionally) the next action. */
 export function EmptyState({ icon: Icon, title, hint, action }: { icon: React.ComponentType<{ className?: string }>; title: string; hint?: string; action?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-      <span className="grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+      <span className="relative grid size-16 place-items-center rounded-full border border-border bg-card text-primary shadow-card">
+        <span aria-hidden className="absolute inset-1.5 rounded-full border border-terracotta/40" />
         <Icon className="size-6" />
       </span>
       <p className="font-medium text-foreground">{title}</p>

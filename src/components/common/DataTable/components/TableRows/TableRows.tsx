@@ -12,7 +12,7 @@ import { ListPagination } from "../pagination/ListPagination";
 import { TableFilterContext } from "../../Context/TableFilterProvider";
 import { Checkbox } from "@/components/ui/checkbox";
 import TableBulkAction from "../Actions/BulkAction";
-import { EmojiSad } from "iconsax-react";
+import { EmptyPlate } from "@/components/common/EmptyPlate";
 import { useTranslated } from "@/Translation/helper/getTranslation";
 import clsx from "clsx";
 
@@ -194,12 +194,7 @@ function TableRows<T extends object>(props: DataTableProps<T>) {
                     align="center"
                     className="py-4"
                   >
-                    <EmojiSad
-                      size={90}
-                      color="currentColor"
-                      className="text-muted-foreground my-3 "
-                    />
-                    <span className=" font-medium text-muted-foreground">{nodata}</span>
+                    <EmptyPlate title={nodata} />
                   </td>
                 </tr>
               ) : (

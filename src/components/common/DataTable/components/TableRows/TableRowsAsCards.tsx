@@ -8,7 +8,7 @@ import { TableFilterContext } from "../../Context/TableFilterProvider";
 
 import TableBulkAction from "../Actions/BulkAction";
 import ActionsRow from "../Actions/ActionsRow";
-import { EmojiSad } from "iconsax-react";
+import { EmptyPlate } from "@/components/common/EmptyPlate";
 import { useTranslated } from "@/Translation/helper/getTranslation";
 import { CustomCardRow } from "../row/cardRow/CardRow";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,9 +41,8 @@ function TableRowsAsCard<T extends object>(props: DataTableProps<T>) {
             ))}
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-14 text-muted-foreground">
-            <EmojiSad size={56} color="currentColor" className="opacity-60" />
-            <span className="text-sm font-medium">{nodata}</span>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-dashed border-border">
+            <EmptyPlate title={nodata} />
           </motion.div>
         )}
         <div className="flex justify-end">
@@ -69,10 +68,7 @@ function TableRowsAsCard<T extends object>(props: DataTableProps<T>) {
           })
         ) : Rows?.length === 0 ? (
           <div>
-            <div className="py-4">
-              <EmojiSad size={90} color="currentColor" height={90} className="text-muted my-3 " />
-              <span className=" font-medium text-muted-foreground">{nodata}</span>
-            </div>
+            <EmptyPlate title={nodata} />
           </div>
         ) : (
           <></>
