@@ -1,6 +1,6 @@
 import { normalizePermissions, permissionsFromToken } from "../permissions";
 import { httpClient } from "@/Api/httpClient";
-import { tenantIdFromToken } from "../tenant";
+import { apiBaseUrl, tenantIdFromToken } from "../tenant";
 import type {
   ChangePasswordPayload,
   ForgotPasswordPayload,
@@ -39,8 +39,9 @@ export const normalizeSession = (reply: ITokenReply, previous?: IProfile): IProf
   };
 };
 
+/** Signing in talks to the restaurant whose code was typed (not yet saved): its host is the API from then on. */
 export const SignInApi = (body: LoginPayload): Promise<ITokenReply> =>
-  httpClient.post(URLs.login, body);
+  httpClient.post(URLs.login, body, { baseURL: apiBaseUrl(body.tenantSlug) });
 
 export const RefreshApi = (refreshToken: string): Promise<ITokenReply> =>
   httpClient.post(URLs.refresh, { refreshToken }, { skipAuthRefresh: true });
@@ -57,7 +58,7 @@ export const ChangePasswordApi = (body: ChangePasswordPayload): Promise<ITokenRe
 
 /** Always answers 204: never reveal whether the account exists. */
 export const ForgotPasswordApi = (body: ForgotPasswordPayload): Promise<void> =>
-  httpClient.post(URLs.forgotPassword, body);
+  httpClient.post(URLs.forgotPassword, body, { baseURL: apiBaseUrl(body.tenantSlug) });
 
 export const ResetPasswordApi = (body: ResetPasswordPayload): Promise<void> =>
-  httpClient.post(URLs.resetPassword, body);
+  httpClient.post(URLs.resetPassword, body, { baseURL: apiBaseUrl(body.tenantSlug) });

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAccountState } from "./accountState";
+import { apiBaseUrl } from "@/modules/Auth/core/tenant";
 import { useAccessStore } from "./access";
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
@@ -16,13 +17,14 @@ declare module "axios" {
   }
 }
 
-export const getBaseUrl = () => import.meta.env.VITE_BASE_URL || "/backend/api/";
+/** The Restaurant API for the signed-in restaurant: same origin when deployed, else the host of the code typed at login. */
+export const getBaseUrl = () => apiBaseUrl();
 const appKey = () => (import.meta.env.VITE_APP_API_KEY as string | undefined) ?? "";
 export const getBaseUrlNoAdmin = () => import.meta.env.VITE_BASE_URL_PUBLIC || "http://localhost:3000";
 export const getBaseUrlDomain = () => import.meta.env.VITE_BASE_URL_DOMAIN_PUBLIC || "http://localhost:3000";
 
 export const httpClient = axios.create({
-  baseURL: getBaseUrl(),
+  // no fixed baseURL: it is resolved per request (below), because the restaurant code chosen at login decides it
   headers: { Accept: "application/json" },
   // Arrays go out as repeated keys (countryIds=1&countryIds=2), which is what ASP.NET model binding reads.
   paramsSerializer: { indexes: null },
@@ -60,6 +62,8 @@ export const parseApiError = (error: unknown): ApiError => {
 httpClient.interceptors.request.use((config) => {
   // The bearer token must only ever reach our API: refuse absolute URLs and path-traversal in request paths.
   if (config.url && isUnsafeApiPath(config.url)) throw new axios.CanceledError("Blocked unsafe request path");
+  // Login / forgot / reset pass the base of the restaurant being signed in to; everything else follows the saved code.
+  if (!config.baseURL) config.baseURL = getBaseUrl();
   const token = useAuthStore.getState().auth?.token;
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
   // Read per request so a language switch applies without rebuilding the client.

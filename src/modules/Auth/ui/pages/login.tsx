@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 import { useSignInPost } from "../../core/api";
-import { hostSlug, saveSlug, savedSlug } from "../../core/tenant";
+import { defaultSlug, hostSlug, saveSlug } from "../../core/tenant";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -50,7 +50,7 @@ function LoginComponent() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: fromHost || savedSlug(), email: "", password: "" } });
+  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: defaultSlug(), email: "", password: "" } });
 
   const onSubmit = async (values: Values) => {
     try {

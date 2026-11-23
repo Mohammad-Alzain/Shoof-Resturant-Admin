@@ -32,7 +32,10 @@ const originsOf = (...urls: (string | undefined)[]) =>
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   // The shared 3D library (GLB/USDZ fetched by model-viewer) lives on its own host.
-  const csp = buildCsp(originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL, env.VITE_SHARED_ASSETS_ORIGIN || "https://shared.shoof.lambdor.com"));
+  // With VITE_API_BASE_DOMAIN the API host follows the restaurant code typed at login: allow that domain's restaurant hosts.
+  const apiDomain = (env.VITE_API_BASE_DOMAIN || "").trim().replace(/^\.+|\/+$/g, "");
+  const restaurantHosts = apiDomain ? [`https://*.${apiDomain}`, `wss://*.${apiDomain}`] : [];
+  const csp = buildCsp([...originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL, env.VITE_SHARED_ASSETS_ORIGIN || "https://shared.shoof.lambdor.com"), ...restaurantHosts]);
   const devApiOrigin = (env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221").replace(/\/+$/, "");
   // localhost or a bare IP: the backend runs on a developer machine with its Development settings (and dev API key)
   const isLocalApi = /^(localhost|127\.\d+\.\d+\.\d+|\[::1\]|(\d+\.){3}\d+)$/.test(new URL(devApiOrigin).hostname);
@@ -73,6 +76,8 @@ export default defineConfig(({ mode }) => {
   build: { sourcemap: false, outDir: "dist/admin", emptyOutDir: true },
   server: {
     port: 3001,
+    // The API's CORS allows http://localhost:3001 only: fail loudly rather than move to 3002, where every call is blocked.
+    strictPort: true,
     host: true,
     // The API shares the site's origin when deployed; in dev /backend is forwarded to a restaurant host.
     proxy: {

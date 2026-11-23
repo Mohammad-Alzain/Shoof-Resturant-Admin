@@ -10,7 +10,7 @@ import { RootRoute } from "../../../../App";
 import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import { useForgotPassword, useResetPassword } from "../../core/api";
-import { hostSlug, savedSlug } from "../../core/tenant";
+import { defaultSlug, hostSlug } from "../../core/tenant";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -43,11 +43,11 @@ function ResetPasswordPage() {
   const search = ResetPasswordRoute.useSearch();
   // Keep the one-time token in memory and take it out of the URL (history, screenshots, Referer headers).
   const [creds, setCreds] = useState<{ email: string; token: string; slug: string } | null>(
-    search.email && search.token ? { email: search.email, token: search.token, slug: search.slug ?? hostSlug() } : null,
+    search.email && search.token ? { email: search.email, token: search.token, slug: search.slug ?? defaultSlug() } : null,
   );
   useEffect(() => {
     if (search.email && search.token) {
-      setCreds({ email: search.email, token: search.token, slug: search.slug ?? hostSlug() });
+      setCreds({ email: search.email, token: search.token, slug: search.slug ?? defaultSlug() });
       window.history.replaceState(window.history.state, "", "/reset-password");
     }
   }, [search.email, search.token]);
@@ -67,7 +67,7 @@ function RequestLink() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: fromHost || savedSlug(), email: "" } });
+  } = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: defaultSlug(), email: "" } });
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
