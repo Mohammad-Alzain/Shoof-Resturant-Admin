@@ -104,8 +104,15 @@ const refreshSession = (): Promise<string | null> => {
 let lastDenied = 0;
 const text = (value: unknown) => (typeof value === "string" ? value : "");
 
+/** Sign-in and the profile answer even with a wrong app key, so they never prove that the account works. */
+const PROVES_NOTHING = /^\/?(auth|account)\//i;
+
 httpClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    const access = useAccessStore.getState();
+    if (access.ok === 0 && !PROVES_NOTHING.test(response.config?.url ?? "")) access.succeed();
+    return response.data;
+  },
   async (error: AxiosError<any>) => {
     const config = error.config as (InternalAxiosRequestConfig & { _retried?: boolean }) | undefined;
     const status = error.response?.status;

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useAccessStore } from "@/Api/access";
 import { getAuth, removeAuth, setAuth } from "@/modules/Auth/core/utils/AuthHelpers";
 import { GetMeApi, LogoutApi, normalizeSession } from "@/modules/Auth/core/api/api-auth";
 import type { IProfile, ITokenReply } from "@/modules/Auth/core/types";
@@ -43,6 +44,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: () => {
+    useAccessStore.getState().reset();
     set({ permissions: [] });
     get().saveAuth(undefined);
   },

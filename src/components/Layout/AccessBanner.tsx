@@ -1,18 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { LockKeyhole, X } from "lucide-react";
-import { useAccessStore } from "@/Api/access";
+import { accessBlocked, useAccessStore } from "@/Api/access";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 import { myRoles } from "@/modules/Auth/core/permissions";
 
-/** Shown once the API refuses calls with 403, and says which of the known causes applies. */
+/** Shown when the account is refused across the board (or the plan / IP blocks it), and says which cause applies. */
 export default function AccessBanner() {
   const { t } = useTranslation();
-  const { code, text, count, dismissed, dismiss } = useAccessStore();
+  const { code, text, count, ok, dismissed, dismiss } = useAccessStore();
   const auth = useAuthStore((s) => s.auth);
   // From the login reply or the signed token (the server checks the token's role claims).
   const roles = myRoles(auth);
-  if (!count || dismissed) return null;
+  if (dismissed || !accessBlocked({ code, count, ok })) return null;
 
   const known = ["SubscriptionExpired", "IpNotAllowed"].includes(code);
   const title = known ? t(`access_${code}`) : text || t("access_denied_title");
