@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowUpRight, Box, CalendarClock, CheckCircle2, CircleSlash, Download, Layers, ListChecks, Loader2, QrCode, Sparkles, Utensils, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Box, CalendarClock, CheckCircle2, CircleSlash, Clock3, Download, Layers, ListChecks, Loader2, QrCode, Sparkles, Utensils, Wallet, XCircle } from "lucide-react";
 import { asset } from "@/helpers/asset";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -18,23 +18,55 @@ import { DateButton } from "@/components/common/DateButton";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-function Bar({ label, used, limit, remaining }: { label: string; used: number; limit?: number | null; remaining?: number | null }) {
+type Tone = "accent" | "warning" | "danger" | "good";
+const TONE_VAR: Record<Tone, string> = { accent: "var(--primary)", warning: "var(--warning)", danger: "var(--destructive)", good: "var(--success)" };
+/** Severity of a share that is "used up": calm below 80%, warning to 100%, danger at or past it. */
+const usageTone = (ratio: number): Tone => (ratio >= 1 ? "danger" : ratio >= 0.8 ? "warning" : "accent");
+
+/**
+ * One share of a whole (dataviz "meter"): the fill carries the tone and anchors to the reading start (right in Arabic),
+ * the track is a lighter step of the same colour so the state reads across the whole bar.
+ */
+function Meter({ value, tone = "accent", label, thin }: { value: number; tone?: Tone; label: string; thin?: boolean }) {
+  const pct = Math.max(0, Math.min(1, value));
+  const color = TONE_VAR[tone];
+  return (
+    <div
+      role="meter"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(pct * 100)}
+      className={cn("relative w-full overflow-hidden rounded-full", thin ? "h-1" : "h-2")}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)` }}
+    >
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: `${pct > 0 ? Math.max(pct * 100, 2) : 0}%` }}
+        transition={{ duration: 0.8, ease: EASE }}
+        className="absolute inset-y-0 start-0 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+    </div>
+  );
+}
+
+/** A quota line: what is used of the limit, what is left, and the meter; `null` limit = unlimited (no meter). */
+function Quota({ label, used, limit, remaining }: { label: string; used: number; limit?: number | null; remaining?: number | null }) {
   const { t, i18n } = useTranslation();
+  const n = (v: number) => v.toLocaleString(i18n.language);
   const unlimited = limit === null || limit === undefined;
   const ratio = unlimited || !limit ? 0 : used / limit;
-  const tone = ratio >= 1 ? "bg-destructive" : ratio >= 0.9 ? "bg-warning" : "bg-primary";
   return (
     <div>
-      <div className="mb-1.5 flex items-baseline justify-between gap-3">
+      <div className="mb-2 flex items-baseline justify-between gap-3">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <span dir="ltr" className="text-xs tabular-nums text-muted-foreground">
-          <b className="text-sm font-semibold text-foreground">{used.toLocaleString(i18n.language)}</b> / {unlimited ? t("unlimited") : limit!.toLocaleString(i18n.language)}
-          {remaining != null && <span className="ms-2">· {t("remaining_n", { n: remaining.toLocaleString(i18n.language) })}</span>}
+        <span className="text-xs text-muted-foreground">
+          <b className="text-sm font-semibold text-foreground">{n(used)}</b> / {unlimited ? t("unlimited") : n(limit!)}
+          {remaining != null && <span className="ms-2">· {t("remaining_n", { n: n(remaining) })}</span>}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={used} aria-valuemin={0} aria-valuemax={limit ?? undefined}>
-        <motion.div initial={{ width: 0 }} animate={{ width: unlimited ? "100%" : `${Math.min(100, Math.max(used > 0 ? 3 : 0, ratio * 100))}%` }} transition={{ duration: 0.8, ease: EASE }} className={cn("h-full rounded-full", unlimited ? "bg-oil/40" : tone)} />
-      </div>
+      {!unlimited && <Meter value={ratio} tone={usageTone(ratio)} label={`${label}: ${n(used)} / ${n(limit!)}`} />}
     </div>
   );
 }
@@ -66,7 +98,7 @@ function ReadyRing({ value }: { value: number }) {
   const r = 52;
   const c = 2 * Math.PI * r;
   return (
-    <div className="relative grid size-32 shrink-0 place-items-center sm:size-36">
+    <div className="relative grid size-36 shrink-0 place-items-center sm:size-40">
       <svg viewBox="0 0 120 120" className="absolute inset-0 size-full -rotate-90" aria-hidden>
         <circle cx="60" cy="60" r={r} fill="none" className="stroke-[#541f2d]/12 dark:stroke-[#fbf5e9]/12" strokeWidth="11" />
         <motion.circle
@@ -83,7 +115,7 @@ function ReadyRing({ value }: { value: number }) {
           transition={{ duration: 1.2, ease: EASE }}
         />
       </svg>
-      <span className="font-display text-[2rem] font-semibold tabular-nums text-foreground sm:text-[2.25rem]">
+      <span className="font-display text-[2.5rem] font-semibold leading-none text-foreground sm:text-[3rem]">
         {Math.round(value * 100).toLocaleString(i18n.language)}%
       </span>
     </div>
@@ -249,6 +281,9 @@ export default function DashboardPage() {
   const n = (v: number) => v.toLocaleString(i18n.language);
   const today = new Date().toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" });
   const total = d ? d.menuContent.activeItemCount + d.menuContent.inactiveItemCount : 0;
+  // how much of the subscription period has passed (from -> to), for its meter
+  const span = sub?.fromDate && sub?.toDate ? new Date(sub.toDate).getTime() - new Date(sub.fromDate).getTime() : 0;
+  const periodShare = span > 0 ? (Date.now() - new Date(sub!.fromDate!).getTime()) / span : null;
   const monthShare = d?.generationUsage.monthlyLimit ? d.generationUsage.monthlyUsed / d.generationUsage.monthlyLimit : 0;
   const todos: Todo[] = d
     ? ([
@@ -292,24 +327,29 @@ export default function DashboardPage() {
       {q.isError && <p className="text-sm text-destructive">{t("stats_unavailable")}</p>}
       {d && <ReadinessBand total={total} missing={d.menuContent.itemsMissingModelCount} />}
 
-          {/* the menu in numbers: one hairline-divided row of linked figures */}
-          {d && (
-            <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card shadow-card sm:grid-cols-3 xl:grid-cols-6">
-              {([
-                [t("categories"), d.menuContent.categoryCount, "/dashboard/menu/categories", false],
-                [t("items_active"), d.menuContent.activeItemCount, "/dashboard/menu/items", false],
-                [t("items_inactive"), d.menuContent.inactiveItemCount, "/dashboard/menu/items", false],
-                [t("items_no_ingredients"), d.menuContent.itemsMissingIngredientsCount, "/dashboard/menu/items", d.menuContent.itemsMissingIngredientsCount > 0],
-                [t("items_no_model"), d.menuContent.itemsMissingModelCount, "/dashboard/generation/bulk", d.menuContent.itemsMissingModelCount > 0],
-                [t("tables_total"), d.tablesAndQr.totalTables, "/dashboard/restaurant/tables", false],
-              ] as const).map(([label, value, href, warn]) => (
-                <Link key={label} to={href as never} className="group/fig -ms-px -mt-px border-s border-t border-border px-4 py-3.5 transition-colors hover:bg-accent/60">
-                  <span className={cn("block font-display text-[1.75rem] font-semibold leading-none tabular-nums", warn ? "text-warning" : "text-foreground")}>{n(value)}</span>
-                  <span className="mt-1.5 block text-xs text-muted-foreground group-hover/fig:text-foreground">{label}</span>
-                </Link>
-              ))}
-            </div>
-          )}
+      {/* the menu in numbers: each figure with its share of the whole, so "20" reads as "20 of 51" */}
+      {d && (
+        <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card shadow-card sm:grid-cols-3 xl:grid-cols-5 [&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child:nth-child(odd)]:col-span-1">
+          {(
+            [
+              { label: t("categories"), value: d.menuContent.categoryCount, href: "/dashboard/menu/categories" },
+              { label: t("items_active"), value: d.menuContent.activeItemCount, of: total, href: "/dashboard/menu/items", tone: "accent" },
+              { label: t("items_no_model"), value: d.menuContent.itemsMissingModelCount, of: total, href: "/dashboard/generation/bulk", tone: "warning" },
+              { label: t("items_no_ingredients"), value: d.menuContent.itemsMissingIngredientsCount, of: total, href: "/dashboard/menu/items", tone: "warning" },
+              { label: t("tables_with_qr"), value: d.tablesAndQr.tablesWithQrCode, of: d.tablesAndQr.totalTables, href: "/dashboard/restaurant/tables", tone: "accent" },
+            ] as { label: string; value: number; of?: number; href: string; tone?: Tone }[]
+          ).map((f) => (
+            <Link key={f.label} to={f.href as never} className="group/fig -ms-px -mt-px flex flex-col border-s border-t border-border px-4 py-4 transition-colors hover:bg-accent/60">
+              <span className="text-xs text-muted-foreground group-hover/fig:text-foreground">{f.label}</span>
+              <span className="mt-1.5 flex items-baseline gap-1.5">
+                <span className="font-display text-[1.75rem] font-semibold leading-none text-foreground">{n(f.value)}</span>
+                {f.of !== undefined && <span className="text-xs text-muted-foreground">{t("of_n", { n: n(f.of) })}</span>}
+              </span>
+              {f.of ? <span className="mt-3"><Meter thin value={f.value / f.of} tone={f.tone === "warning" && f.value === 0 ? "good" : f.tone} label={`${f.label}: ${n(f.value)} / ${n(f.of)}`} /></span> : <span className="mt-3 h-1" />}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <SufraMap restaurantId={restaurant?.id} />
@@ -319,18 +359,25 @@ export default function DashboardPage() {
       <div className="grid items-start gap-5 md:grid-cols-2 2xl:grid-cols-4">
           {d && (
             <Card title={t("ai_queue")} icon={Box} action={<Link to={"/dashboard/generation/jobs" as never} className="text-xs font-medium text-primary hover:underline">{t("view_all")}</Link>}>
-              <dl className="grid grid-cols-4 gap-2">
+              {/* text wears ink, not the status colour: the icon and the label carry the state; only a failure turns red */}
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
                 {([
-                  ["pending", m?.pending, "text-warning"],
-                  ["processing", m?.processing, "text-info"],
-                  ["ready", m?.ready, "text-success"],
-                  ["failed", m?.failed, "text-destructive"],
-                ] as const).map(([k, v, c]) => (
-                  <div key={k} className="flex flex-col-reverse">
-                    <dt className="mt-1.5 text-xs text-muted-foreground">{t(`val_${k}`)}</dt>
-                    <dd className={cn("font-display text-[1.75rem] font-semibold leading-none tabular-nums", (v ?? 0) > 0 ? c : "text-muted-foreground")}>{n(v ?? 0)}</dd>
-                  </div>
-                ))}
+                  ["pending", m?.pending ?? 0, Clock3],
+                  ["processing", m?.processing ?? 0, Loader2],
+                  ["ready", m?.ready ?? 0, CheckCircle2],
+                  ["failed", m?.failed ?? 0, XCircle],
+                ] as const).map(([k, v, Ico]) => {
+                  const alarm = k === "failed" && v > 0;
+                  return (
+                    <div key={k} className="flex flex-col gap-1.5">
+                      <dt className={cn("flex items-center gap-1.5 text-xs", alarm ? "text-destructive" : "text-muted-foreground")}>
+                        <Ico className={cn("size-3.5", k === "processing" && v > 0 && "animate-spin motion-reduce:animate-none")} />
+                        {t(`val_${k}`)}
+                      </dt>
+                      <dd className={cn("font-display text-[1.75rem] font-semibold leading-none", alarm ? "text-destructive" : v > 0 ? "text-foreground" : "text-muted-foreground")}>{n(v)}</dd>
+                    </div>
+                  );
+                })}
               </dl>
               {d.models.recentFailedJobs.length > 0 && (
                 <div className="mt-5">
@@ -354,8 +401,8 @@ export default function DashboardPage() {
           {d && (
             <Card title={t("generation_usage")} icon={Sparkles}>
               <div className="space-y-5">
-                <Bar label={t("quota_today")} used={d.generationUsage.dailyUsed} limit={d.generationUsage.dailyLimit} remaining={d.generationUsage.dailyRemaining} />
-                <Bar label={t("quota_month")} used={d.generationUsage.monthlyUsed} limit={d.generationUsage.monthlyLimit} remaining={d.generationUsage.monthlyRemaining} />
+                <Quota label={t("quota_today")} used={d.generationUsage.dailyUsed} limit={d.generationUsage.dailyLimit} remaining={d.generationUsage.dailyRemaining} />
+                <Quota label={t("quota_month")} used={d.generationUsage.monthlyUsed} limit={d.generationUsage.monthlyLimit} remaining={d.generationUsage.monthlyRemaining} />
                 <dl>
                   <Row
                     label={t("quota_credits")}
@@ -392,11 +439,16 @@ export default function DashboardPage() {
                       )}
                     </p>
                   </div>
-                  <div className="text-end">
-                    <p className={cn("text-sm font-semibold", left !== null && left <= 14 ? "text-warning" : "text-foreground", left !== null && left < 0 && "text-destructive")}>
-                      {left === null ? "—" : left < 0 ? t("sub_expired") : t("days_left", { n: left })}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">{shortDate(sub.fromDate, i18n.language)} – {shortDate(sub.toDate, i18n.language)}</p>
+                  <div className="w-full">
+                    <div className="mb-2 flex items-baseline justify-between gap-3">
+                      <span className="text-xs text-muted-foreground">{shortDate(sub.fromDate, i18n.language)} – {shortDate(sub.toDate, i18n.language)}</span>
+                      <span className={cn("text-sm font-semibold", left !== null && left <= 14 ? "text-warning" : "text-foreground", left !== null && left < 0 && "text-destructive")}>
+                        {left === null ? "—" : left < 0 ? t("sub_expired") : t("days_left", { n: left })}
+                      </span>
+                    </div>
+                    {periodShare !== null && (
+                      <Meter value={periodShare} tone={left !== null && left < 0 ? "danger" : left !== null && left <= 14 ? "warning" : "accent"} label={t("plan_period")} />
+                    )}
                   </div>
                 </div>
               )}
@@ -405,12 +457,26 @@ export default function DashboardPage() {
 
           {d && (
             <Card title={t("tables_qr")} icon={QrCode} action={<Link to={"/dashboard/restaurant/tables" as never} className="text-xs font-medium text-primary hover:underline">{t("open_page")}</Link>}>
-              <dl>
-                <Row label={t("tables_active")} value={<span dir="ltr">{n(d.tablesAndQr.activeTables)} / {n(d.tablesAndQr.totalTables)}</span>} />
-                <Row label={t("tables_with_qr")} value={n(d.tablesAndQr.tablesWithQrCode)} />
-                <Row label={t("tables_without_qr")} value={n(d.tablesAndQr.tablesWithoutQrCode)} tone={d.tablesAndQr.tablesWithoutQrCode > 0 ? "warn" : undefined} />
-                <Row label={t("general_qr")} value={n(d.tablesAndQr.restaurantsWithGeneralQrCodeCount)} />
-              </dl>
+              <div className="space-y-4">
+                {(
+                  [
+                    [t("qr_coverage"), d.tablesAndQr.tablesWithQrCode, d.tablesAndQr.tablesWithoutQrCode > 0 ? "warning" : "good"],
+                    [t("tables_active"), d.tablesAndQr.activeTables, "accent"],
+                  ] as [string, number, Tone][]
+                ).map(([label, v, tone]) => (
+                  <div key={label}>
+                    <div className="mb-2 flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-medium text-foreground">{label}</span>
+                      <span className="text-xs text-muted-foreground"><b className="text-sm font-semibold text-foreground">{n(v)}</b> / {n(d.tablesAndQr.totalTables)}</span>
+                    </div>
+                    <Meter value={d.tablesAndQr.totalTables ? v / d.tablesAndQr.totalTables : 0} tone={tone} label={`${label}: ${n(v)} / ${n(d.tablesAndQr.totalTables)}`} />
+                  </div>
+                ))}
+                <dl>
+                  <Row label={t("tables_without_qr")} value={n(d.tablesAndQr.tablesWithoutQrCode)} tone={d.tablesAndQr.tablesWithoutQrCode > 0 ? "warn" : undefined} />
+                  <Row label={t("general_qr")} value={d.tablesAndQr.restaurantsWithGeneralQrCodeCount > 0 ? t("yes") : t("no")} />
+                </dl>
+              </div>
             </Card>
           )}
       </div>
