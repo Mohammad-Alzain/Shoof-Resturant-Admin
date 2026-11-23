@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ImageOff, Plus, Rotate3d } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { can } from "@/modules/Auth/core/can";
-import { fetchAll } from "@/modules/shared/core/lookups";
+import { fetchAll, formatPrice, useCurrencies } from "@/modules/shared/core/lookups";
 import { isSafeUrl } from "@/helpers/url";
 import { primaryImage, type ICategory, type IItem, type IModel3D } from "@/modules/Menu/core/api";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ export interface Dish {
   category: string;
   photo: string;
   has3d: boolean;
+  price: number;
+  currencyId: string;
 }
 
 interface Plate {
@@ -64,7 +66,7 @@ export const useSufra = (restaurantId?: string) =>
         const img = primaryImage(item);
         if (img) {
           plate.photos++;
-          if (isSafeUrl(img.url)) plate.dishes.push({ id: item.id, name: item.name, category: plate.name, photo: img.url, has3d: has });
+          if (isSafeUrl(img.url)) plate.dishes.push({ id: item.id, name: item.name, category: plate.name, photo: img.url, has3d: has, price: item.price, currencyId: item.currencyId });
         }
         const w = work.get(item.menuCategoryId) ?? [0, 0];
         work.set(item.menuCategoryId, [w[0] + 1, w[1] + (has ? 0 : 1)]);
@@ -175,7 +177,8 @@ export function SoukBins({ restaurantId, className }: { restaurantId?: string; c
  * stay as slivers. Dishes guests can turn in 3D come first and carry the badge.
  */
 export function DishShelf({ restaurantId, className }: { restaurantId?: string; className?: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currencies = useCurrencies();
   const allowed = can("MenuCategories.View") && can("MenuItems.View");
   const q = useSufra(allowed ? restaurantId : undefined);
   const dishes = useMemo(() => {
@@ -213,7 +216,11 @@ export function DishShelf({ restaurantId, className }: { restaurantId?: string; 
               )}
               <span className="souk-dish-label">
                 <span className="block truncate text-sm font-semibold">{d.name}</span>
-                <span className="block truncate text-xs opacity-85">{d.category}</span>
+                <span className="block truncate text-xs opacity-85">
+                  {d.category}
+                  <span className="mx-1.5">·</span>
+                  <bdi className="tabular-nums">{formatPrice(d.price, currencies.data?.find((c) => c.id === d.currencyId), i18n.language)}</bdi>
+                </span>
               </span>
             </li>
           ))}

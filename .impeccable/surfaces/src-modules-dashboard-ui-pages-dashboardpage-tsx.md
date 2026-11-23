@@ -19,7 +19,7 @@ OWN-WORLD: Burgundy rail (#541F2D, slight vertical depth) with an ivory pill for
 
 STORY: The owner sees how ready the menu is for guests, which category bin is emptiest, and which ticket to clear first; one tap from a bin or ticket lands on the fix.
 
-FIRST VIEWPORT: Greeting row with period filter and export; then the ledger slab: readiness figure + meter + actions at the start, an 8-cell hairline ledger beside it; then the row of category bins (photo fill = 3D share, % chip); then the dish shelf (focused dish grows) beside the ticket rail. Phones: ledger 2 columns, bins 2-3 columns, shelf scrolls, tickets scroll on the rail.
+FIRST VIEWPORT: Greeting row with period filter and export; then the ledger slab: readiness figure + meter + the next-threshold line + actions at the start, an 8-cell hairline ledger beside it (today's and the month's generation, tables, plan, jobs, categories, active, ingredients; no figure repeats the readiness line); then the row of category bins (photo fill = 3D share, % chip); then the ticket rail full width (5-7 ticket kinds must read without scrolling at laptop width, beside the shelf only two showed); then the dish shelf full width. No band of equal cards below. Phones: ledger 2 columns, bins 3 square columns, tickets scroll on the rail, shelf scrolls.
 
 FORM: Spice souk display, position 4 of the grounded list, seed key 494d73f8, with the kitchen ticket rail (position 1) for the attention list, chosen by the user from rendered examples. Signature moves: bins filling with photos, rolling readiness digits, tickets swinging onto the rail and stamped منجز when clear.
 

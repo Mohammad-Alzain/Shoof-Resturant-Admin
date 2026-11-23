@@ -133,8 +133,9 @@ export function EmptyState({ icon: Icon, title, hint, action }: { icon: React.Co
   );
 }
 
-export type Tone = "accent" | "warning" | "danger" | "good";
-const TONE_VAR: Record<Tone, string> = { accent: "var(--primary)", warning: "var(--warning)", danger: "var(--destructive)", good: "var(--success)" };
+/** `usage` is a quota being spent (terracotta, the brand's mark for consumption); `accent` is plain progress. */
+export type Tone = "accent" | "usage" | "warning" | "danger" | "good";
+const TONE_VAR: Record<Tone, string> = { accent: "var(--meter)", usage: "var(--terracotta)", warning: "var(--warning)", danger: "var(--destructive)", good: "var(--success)" };
 /** Severity of a share that is "used up": calm below 80%, warning to 100%, danger at or past it. */
 export const usageTone = (ratio: number): Tone => (ratio >= 1 ? "danger" : ratio >= 0.8 ? "warning" : "accent");
 

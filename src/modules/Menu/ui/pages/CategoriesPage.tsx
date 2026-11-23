@@ -7,7 +7,8 @@ import NiceModal from "@ebay/nice-modal-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronUp, CornerDownRight, FolderTree, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronUp, CornerDownRight, EyeOff, FolderTree, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { FieldTypes } from "@/components/common/Fields/Enums/Field";
@@ -138,7 +139,7 @@ export default function CategoriesPage() {
   };
 
   const Row = ({ c, list, i, sub }: { c: ICategory; list: ICategory[]; i: number; sub?: boolean }) => (
-    <div className={cn("group/row flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/40", sub && "ps-10")}>
+    <div className={cn("group/row flex items-center gap-2 px-4 py-2 transition-colors hover:bg-accent/40", sub && "ps-3")}>
       <span className="flex flex-col opacity-40 transition-opacity group-hover/row:opacity-100">
         <button type="button" aria-label={t("move_up")} disabled={i === 0 || !can("MenuCategories.Edit")} onClick={() => move(list, i, -1)} className="rounded p-0.5 hover:bg-accent disabled:opacity-30">
           <ChevronUp className="size-3.5" />
@@ -153,13 +154,6 @@ export default function CategoriesPage() {
         {c.description && <span className="block truncate text-xs text-muted-foreground">{c.description}</span>}
       </span>
       <span className="hidden shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground sm:inline">{t("n_items", { n: counts.data?.get(c.id) ?? 0 })}</span>
-      {/* top-level rows: how much of the category (with its sub-categories) guests can already turn in 3D */}
-      {!sub && coverage.get(c.id) && coverage.get(c.id)!.items > 0 && (
-        <span className="hidden w-32 shrink-0 flex-col gap-1.5 md:flex" title={t("cat_3d_coverage", { n: coverage.get(c.id)!.models, total: coverage.get(c.id)!.items })}>
-          <span className="text-[0.6875rem] text-muted-foreground">{t("cat_3d_share", { n: Math.round((coverage.get(c.id)!.models / coverage.get(c.id)!.items) * 100) })}</span>
-          <Meter thin value={coverage.get(c.id)!.models / coverage.get(c.id)!.items} tone={coverage.get(c.id)!.models === coverage.get(c.id)!.items ? "good" : "accent"} label={t("cat_3d_coverage", { n: coverage.get(c.id)!.models, total: coverage.get(c.id)!.items })} />
-        </span>
-      )}
       <Switch checked={c.isActive} disabled={!can("MenuCategories.Edit")} aria-label={t("active")} onCheckedChange={(on) => patch.mutate({ c, changes: { isActive: on } })} />
       <span className="flex shrink-0 items-center gap-0.5">
         {!sub && (
@@ -180,6 +174,110 @@ export default function CategoriesPage() {
     </div>
   );
 
+  /**
+   * A top-level category as a stall on the souk: its own dishes' photos across the awning, the name and how many dishes
+   * it holds, how much of it guests can turn in 3D, and its sub-categories as the stall's shelves.
+   */
+  const Stall = ({ c, i }: { c: ICategory; i: number }) => {
+    const sub = kids(c.id);
+    const cov = coverage.get(c.id);
+    const photos = (cov?.dishes ?? []).slice(0, 3);
+    const total = cov?.items ?? counts.data?.get(c.id) ?? 0;
+    const share = cov && cov.items ? cov.models / cov.items : 0;
+    const label = cov ? t("cat_3d_coverage", { n: cov.models, total: cov.items }) : "";
+    return (
+      <motion.article
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: Math.min(i * 0.05, 0.35) }}
+        className={cn("group/stall flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card", !c.isActive && "opacity-75")}
+      >
+        <Link
+          to={"/dashboard/menu/items" as never}
+          search={{ menuCategoryId: c.id } as never}
+          className="relative block h-32 overflow-hidden bg-(--souk-bin) outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+          aria-label={t("sufra_open", { name: c.name })}
+        >
+          {photos.length > 0 ? (
+            <span className="flex h-full gap-0.5">
+              {photos.map((d) => (
+                <img key={d.id} src={d.photo} alt="" loading="lazy" decoding="async" className="h-full min-w-0 flex-1 object-cover transition-transform duration-700 ease-out group-hover/stall:scale-[1.04]" />
+              ))}
+            </span>
+          ) : (
+            <span className="souk-bin-fill--bare grid h-full place-items-center text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1"><ImageOff className="size-3.5" aria-hidden />{t("souk_no_photo")}</span>
+            </span>
+          )}
+          {!c.isActive && (
+            <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#261c1a]/75 px-2.5 py-0.5 text-[0.6875rem] font-medium text-[#fbf5e9]">
+              <EyeOff className="size-3" aria-hidden />
+              {t("hidden_from_guests")}
+            </span>
+          )}
+          <span className="absolute end-3 top-3 grid size-8 place-items-center rounded-full bg-[#fbf5e9]/90 text-[#541f2d] opacity-0 transition-opacity group-hover/stall:opacity-100">
+            <ArrowUpRight className="size-4 rtl:-scale-x-100" aria-hidden />
+          </span>
+        </Link>
+
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-display text-base font-semibold text-foreground">{c.name}</h2>
+              {c.description && <p className="truncate text-xs text-muted-foreground">{c.description}</p>}
+            </div>
+            <Switch checked={c.isActive} disabled={!can("MenuCategories.Edit")} aria-label={t("active")} onCheckedChange={(on) => patch.mutate({ c, changes: { isActive: on } })} />
+          </div>
+
+          {cov && cov.items > 0 ? (
+            <div className="flex flex-col gap-1.5" title={label}>
+              <span className="flex items-baseline justify-between text-xs">
+                <span className="text-muted-foreground">{t("n_items", { n: total })}</span>
+                <span className="font-semibold tabular-nums text-foreground">{t("cat_3d_share", { n: Math.round(share * 100) })}</span>
+              </span>
+              <Meter thin value={share} tone={cov.models === cov.items ? "good" : "accent"} label={label} />
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("n_items", { n: total })}</p>
+          )}
+
+          {sub.length > 0 && (
+            <ul className="-mx-4 divide-y divide-border border-y border-border bg-muted/25">
+              {sub.map((s, j) => (
+                <li key={s.id}><Row c={s} list={sub} i={j} sub /></li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-auto flex items-center gap-1 border-t border-dashed border-border pt-3">
+            <span className="flex">
+              <button type="button" aria-label={t("move_up")} disabled={i === 0 || !can("MenuCategories.Edit")} onClick={() => move(parents, i, -1)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30">
+                <ChevronUp className="size-4" />
+              </button>
+              <button type="button" aria-label={t("move_down")} disabled={i === parents.length - 1 || !can("MenuCategories.Edit")} onClick={() => move(parents, i, 1)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30">
+                <ChevronDown className="size-4" />
+              </button>
+            </span>
+            <span className="ms-auto flex items-center gap-0.5">
+              <Can permission="MenuCategories.Add">
+                <Button type="button" variant="ghost" size="sm" onClick={() => open(undefined, c)} className="gap-1 text-xs text-primary">
+                  <Plus className="size-3.5" />
+                  {t("add_subcategory")}
+                </Button>
+              </Can>
+              <Can permission="MenuCategories.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => open(c)}>
+                <Pencil className="size-4" />
+              </Button></Can>
+              <Can permission="MenuCategories.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(c)} className="hover:text-destructive">
+                <Trash2 className="size-4" />
+              </Button></Can>
+            </span>
+          </div>
+        </div>
+      </motion.article>
+    );
+  };
+
   return (
     <section className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
@@ -196,30 +294,16 @@ export default function CategoriesPage() {
       </header>
 
       {cats.isLoading ? (
-        <div className="space-y-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-24 rounded-2xl" />
+            <Skeleton key={i} className="h-64 rounded-2xl" />
           ))}
         </div>
       ) : parents.length === 0 ? (
         <EmptyState icon={FolderTree} title={t("no_categories")} hint={t("no_categories_hint")} action={<Can permission="MenuCategories.Add"><Button variant="primary" onClick={() => open()}>{t("add_category")}</Button></Can>} />
       ) : (
-        <div className="space-y-3">
-          {parents.map((p, i) => {
-            const sub = kids(p.id);
-            return (
-              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.3) }} className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-                <Row c={p} list={parents} i={i} />
-                {sub.length > 0 && (
-                  <div className="divide-y divide-border border-t border-border bg-muted/20">
-                    {sub.map((s, j) => (
-                      <Row key={s.id} c={s} list={sub} i={j} sub />
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
+        <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {parents.map((p, i) => <Stall key={p.id} c={p} i={i} />)}
         </div>
       )}
     </section>

@@ -45,6 +45,11 @@ export type Ticket = {
   n: number;
   label: string;
   href: string;
+  search?: Record<string, unknown>;
+  /** where the ticket leads, named ("Open Drinks", "Open the jobs") */
+  cta: string;
+  /** what exactly is waiting: the failed dishes and why, the emptiest categories */
+  lines?: { title: string; note?: string }[];
   icon: React.ComponentType<{ className?: string }>;
   tone: "warn" | "bad" | "info";
 };
@@ -77,7 +82,6 @@ export function TicketRail({ items }: { items: Ticket[] }) {
         <ul className="souk-tickets">
           {items.length === 0 ? (
             <motion.li className="souk-ticket" {...swing(0)}>
-              <span className="souk-ticket-no"><span>#000</span><span>{t("souk_today")}</span></span>
               <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <CheckCircle2 className="size-4 text-success" aria-hidden />
                 {t("attention_clear")}
@@ -94,20 +98,26 @@ export function TicketRail({ items }: { items: Ticket[] }) {
           ) : (
             items.map((it, i) => (
               <motion.li key={it.key} className={cn("souk-ticket", it.tone === "bad" && "souk-ticket--hot")} {...swing(i)}>
-                <Link to={it.href as never} className="group/tk flex h-full flex-col gap-1 outline-none">
-                  <span className="souk-ticket-no">
-                    <span className="tabular-nums">#{String(i + 1).padStart(3, "0")}</span>
-                    <span className={cn(it.tone === "bad" && "font-semibold text-destructive")}>{it.tone === "bad" ? t("souk_urgent") : t(`souk_tone_${it.tone}`)}</span>
-                  </span>
+                <Link to={it.href as never} search={it.search as never} className="group/tk flex h-full flex-col gap-1.5 outline-none">
                   <span className="flex items-start justify-between gap-3">
-                    <span className="min-w-0 text-sm font-medium leading-snug text-foreground">{it.label}</span>
+                    <span className="min-w-0 text-sm font-semibold leading-snug text-foreground">{it.label}</span>
                     <it.icon className={cn("mt-0.5 size-4 shrink-0", it.tone === "bad" ? "text-destructive" : "text-muted-foreground")} />
                   </span>
+                  {it.lines?.length ? (
+                    <span className="flex flex-col gap-1 border-t border-dashed border-border pt-1.5">
+                      {it.lines.map((l, j) => (
+                        <span key={j} className="min-w-0">
+                          <span className="block truncate text-xs font-medium text-foreground">{l.title}</span>
+                          {l.note && <span className="line-clamp-2 text-[0.6875rem] leading-snug text-muted-foreground">{l.note}</span>}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                   <span className="mt-auto flex items-end justify-between gap-3 pt-2">
-                    <span className="font-display text-[1.75rem] font-semibold leading-none tabular-nums text-foreground">{n(it.n)}</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover/tk:underline">
-                      {t("souk_open")}
-                      <ArrowUpRight className="size-3.5 rtl:-scale-x-100" aria-hidden />
+                    <span className={cn("font-display text-[1.75rem] font-semibold leading-none tabular-nums", it.tone === "bad" ? "text-destructive" : "text-foreground")}>{n(it.n)}</span>
+                    <span className="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-primary group-hover/tk:underline">
+                      <span className="truncate">{it.cta}</span>
+                      <ArrowUpRight className="size-3.5 shrink-0 rtl:-scale-x-100" aria-hidden />
                     </span>
                   </span>
                 </Link>
