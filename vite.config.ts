@@ -34,6 +34,8 @@ export default defineConfig(({ mode }) => {
   // The shared 3D library (GLB/USDZ fetched by model-viewer) lives on its own host.
   const csp = buildCsp(originsOf(env.VITE_BASE_URL, env.VITE_HUB_URL, env.VITE_UPLOAD_URL, env.VITE_SHARED_ASSETS_ORIGIN || "https://shared.shoof.lambdor.com"));
   const devApiOrigin = (env.VITE_DEV_API_ORIGIN || process.env.VITE_DEV_API_ORIGIN || "https://localhost:7221").replace(/\/+$/, "");
+  // localhost or a bare IP: the backend runs on a developer machine with its Development settings (and dev API key)
+  const isLocalApi = /^(localhost|127\.\d+\.\d+\.\d+|\[::1\]|(\d+\.){3}\d+)$/.test(new URL(devApiOrigin).hostname);
   return {
   plugins: [
     {
@@ -78,6 +80,9 @@ export default defineConfig(({ mode }) => {
         target: devApiOrigin,
         changeOrigin: true,
         secure: false,
+        // A backend run locally (`dotnet run`, https://localhost:7221 in the guide §1) serves `/api/...` and `/hubs/...` at its
+        // root; IIS adds `/backend` only on deployed hosts. Strip it for a local target so the same app paths work on both.
+        rewrite: (path) => (isLocalApi ? path.replace(/^\/backend(?=\/|$)/, "") : path),
         // changeOrigin only rewrites Host. The server also checks Origin/Referer against the restaurant's own domain,
         // so a browser request from http://localhost:3001 would be refused with 403: present the restaurant origin instead.
         configure: (proxy) => {
