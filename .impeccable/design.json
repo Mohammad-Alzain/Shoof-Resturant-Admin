@@ -1,721 +1,713 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-19T23:52:36.465Z",
+  "generatedAt": "2026-11-23T22:11:15.533Z",
   "title": "Design System: Shoof Restaurant Console",
   "extensions": {
     "colorMeta": {
-      "zaatar": {
+      "burgundy": {
         "role": "primary",
-        "displayName": "Za'atar",
-        "canonical": "#24553a",
-        "oklch": "oklch(40.7% 0.071 157.0)",
+        "displayName": "Shoof Burgundy",
+        "canonical": "#541f2d",
+        "oklch": "oklch(32.3% 0.080 6.3)",
         "tonalRamp": [
-          "#001005",
-          "#102a1c",
-          "#194b30",
-          "#396a4d",
-          "#5c8d6f",
-          "#80b293",
-          "#a5d9b8",
-          "#d8f8e3"
+          "#1e0007",
+          "#430f1f",
+          "#652e3b",
+          "#884d5a",
+          "#ac6e7b",
+          "#d1909d",
+          "#f7b4c1",
+          "#fee8ec"
         ]
       },
-      "zaatar-rail": {
+      "terracotta": {
         "role": "primary",
-        "displayName": "Za'atar Rail",
-        "canonical": "#1c3526",
-        "oklch": "oklch(30.3% 0.042 156.5)",
+        "displayName": "Roasted Terracotta",
+        "canonical": "#b95035",
+        "oklch": "oklch(56.2% 0.142 35.5)",
         "tonalRamp": [
-          "#030e07",
-          "#1a281f",
-          "#2d4637",
-          "#4a6554",
-          "#6c8876",
-          "#90ad9a",
-          "#b6d3c0",
-          "#e2f4e8"
+          "#1c0200",
+          "#470d01",
+          "#781c01",
+          "#a23b20",
+          "#c85e43",
+          "#f08165",
+          "#ffb4a0",
+          "#fee9e3"
         ]
       },
-      "zaatar-cloth": {
-        "role": "primary",
-        "displayName": "Za'atar Cloth",
-        "canonical": "#1f3a2a",
-        "oklch": "oklch(32.1% 0.044 156.8)",
+      "brand-ivory": {
+        "role": "identity",
+        "displayName": "Shoof Ivory",
+        "canonical": "#fbf5e9",
+        "oklch": "oklch(97.2% 0.017 84.6)",
         "tonalRamp": [
-          "#030e07",
-          "#19281f",
-          "#2c4736",
-          "#496554",
-          "#6b8976",
-          "#8fad9a",
-          "#b4d4bf",
-          "#e1f4e7"
+          "#0e0b04",
+          "#29241c",
+          "#464138",
+          "#666156",
+          "#878277",
+          "#aaa499",
+          "#cec8bd",
+          "#f4eee2"
         ]
       },
-      "olive-oil-gold": {
+      "brand-sand": {
         "role": "secondary",
-        "displayName": "Olive-Oil Gold",
-        "canonical": "#d9a62b",
-        "oklch": "oklch(75.3% 0.142 84.1)",
+        "displayName": "Brand Sand",
+        "canonical": "#e9ddcf",
+        "oklch": "oklch(90.3% 0.023 71.8)",
         "tonalRamp": [
-          "#1b0400",
-          "#371e00",
-          "#623400",
-          "#825300",
-          "#a87700",
-          "#ce9c19",
-          "#f6c24f",
-          "#ffebac"
+          "#110902",
+          "#2c2319",
+          "#4a4035",
+          "#6a5f53",
+          "#8b8074",
+          "#aea396",
+          "#d3c7b9",
+          "#f9ecde"
         ]
       },
-      "gold-mark": {
+      "espresso": {
+        "role": "neutral",
+        "displayName": "Espresso Ink",
+        "canonical": "#261c1a",
+        "oklch": "oklch(23.8% 0.016 31.3)",
+        "tonalRamp": [
+          "#110907",
+          "#2d2220",
+          "#4a3f3d",
+          "#6a5e5c",
+          "#8c7f7c",
+          "#afa29f",
+          "#d4c6c3",
+          "#f9ebe8"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#faf5ec",
+        "oklch": "oklch(97.2% 0.013 82.4)",
+        "tonalRamp": [
+          "#0e0b06",
+          "#28251e",
+          "#45413a",
+          "#656159",
+          "#86827a",
+          "#a9a49c",
+          "#cdc8c0",
+          "#f3eee5"
+        ]
+      },
+      "card-paper": {
+        "role": "neutral",
+        "displayName": "Card Paper / Ticket Paper",
+        "canonical": "#fffdf8",
+        "oklch": "oklch(99.4% 0.007 88.6)",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "page-sand": {
+        "role": "neutral",
+        "displayName": "Page Sand",
+        "canonical": "#f1e8da",
+        "oklch": "oklch(93.4% 0.021 79.1)",
+        "tonalRamp": [
+          "#100a03",
+          "#2b2419",
+          "#484136",
+          "#686054",
+          "#898174",
+          "#aca497",
+          "#d1c8ba",
+          "#f6eddf"
+        ]
+      },
+      "souk-bin": {
         "role": "secondary",
-        "displayName": "Gold Mark (--terracotta)",
-        "canonical": "#b8861a",
-        "oklch": "oklch(65.3% 0.128 80.5)",
+        "displayName": "Souk Bin",
+        "canonical": "#ece1d3",
+        "oklch": "oklch(91.5% 0.022 74.1)",
         "tonalRamp": [
-          "#1b0400",
-          "#371e00",
-          "#613400",
-          "#825300",
-          "#a77600",
-          "#ce9b37",
-          "#f6c162",
-          "#ffeab4"
+          "#110a03",
+          "#2c2419",
+          "#494035",
+          "#696053",
+          "#8b8174",
+          "#aea396",
+          "#d2c7ba",
+          "#f8eddf"
         ]
       },
-      "rail-gold": {
-        "role": "secondary",
-        "displayName": "Rail Gold",
-        "canonical": "#e0b23a",
-        "oklch": "oklch(78.5% 0.141 86.8)",
-        "tonalRamp": [
-          "#1a0500",
-          "#351f00",
-          "#5f3600",
-          "#805500",
-          "#a47800",
-          "#cb9d1a",
-          "#f2c44f",
-          "#ffecad"
-        ]
-      },
-      "herb-white": {
+      "wash": {
         "role": "neutral",
-        "displayName": "Herb White",
-        "canonical": "#f3f5ef",
-        "oklch": "oklch(96.7% 0.008 121.6)",
+        "displayName": "Wash",
+        "canonical": "#f3e8dc",
+        "oklch": "oklch(93.6% 0.020 70.0)",
         "tonalRamp": [
-          "#0b0b09",
-          "#242422",
-          "#3f403c",
-          "#5d5e59",
-          "#7f817c",
-          "#a4a5a0",
-          "#c9cbc6",
-          "#eeefeb"
+          "#110a03",
+          "#2b231a",
+          "#494037",
+          "#695f55",
+          "#8a8076",
+          "#ada398",
+          "#d2c7bc",
+          "#f8ece0"
         ]
       },
-      "sage-page": {
+      "muted-fill": {
         "role": "neutral",
-        "displayName": "Sage Page",
-        "canonical": "#e8eee3",
-        "oklch": "oklch(94.2% 0.016 130.4)",
+        "displayName": "Muted Fill",
+        "canonical": "#f1e9dd",
+        "oklch": "oklch(93.7% 0.018 78.2)",
         "tonalRamp": [
-          "#0a0c08",
-          "#222520",
-          "#3d4239",
-          "#5b6056",
-          "#7d8278",
-          "#a1a79c",
-          "#c7cdc2",
-          "#ecf0e9"
+          "#0f0a04",
+          "#2a241b",
+          "#474137",
+          "#676056",
+          "#888176",
+          "#aba499",
+          "#d0c8bc",
+          "#f5ede1"
         ]
       },
-      "card-white": {
+      "hairline": {
         "role": "neutral",
-        "displayName": "Card White",
-        "canonical": "#ffffff",
-        "oklch": "oklch(100.0% 0.000 89.9)",
+        "displayName": "Sand Hairline",
+        "canonical": "#e3d6c6",
+        "oklch": "oklch(88.2% 0.026 73.2)",
         "tonalRamp": [
-          "#0b0b0b",
-          "#242424",
-          "#404040",
-          "#5d5d5d",
-          "#808080",
-          "#a4a4a4",
-          "#cacaca",
-          "#eeeeee"
+          "#120902",
+          "#2d2317",
+          "#4b4033",
+          "#6a5f51",
+          "#8c8072",
+          "#afa394",
+          "#d4c7b7",
+          "#faecdc"
         ]
       },
-      "sage-hairline": {
+      "input-stroke": {
         "role": "neutral",
-        "displayName": "Sage Hairline",
-        "canonical": "#dce3d5",
-        "oklch": "oklch(90.7% 0.020 128.7)",
+        "displayName": "Input Stroke",
+        "canonical": "#d6c5b2",
+        "oklch": "oklch(83.2% 0.032 70.5)",
         "tonalRamp": [
-          "#0a0c07",
-          "#22251f",
-          "#3c4237",
-          "#5a6054",
-          "#7c8376",
-          "#a1a79a",
-          "#c6cdc0",
-          "#ecf0e8"
+          "#140800",
+          "#2f2213",
+          "#4d3f2f",
+          "#6d5e4d",
+          "#8f7f6e",
+          "#b2a290",
+          "#d7c6b3",
+          "#fdebd8"
         ]
       },
-      "sage-input": {
+      "muted-ink": {
         "role": "neutral",
-        "displayName": "Sage Input",
-        "canonical": "#c6d0bf",
-        "oklch": "oklch(84.5% 0.026 132.2)",
+        "displayName": "Muted Ink",
+        "canonical": "#6e5d58",
+        "oklch": "oklch(49.3% 0.024 37.0)",
         "tonalRamp": [
-          "#090d06",
-          "#21261e",
-          "#3b4335",
-          "#586152",
-          "#7b8474",
-          "#9fa898",
-          "#c4cebd",
-          "#ebf1e6"
-        ]
-      },
-      "pine-ink": {
-        "role": "neutral",
-        "displayName": "Pine Ink",
-        "canonical": "#17251b",
-        "oklch": "oklch(24.8% 0.027 153.1)",
-        "tonalRamp": [
-          "#060d08",
-          "#1e2620",
-          "#354439",
-          "#526256",
-          "#758579",
-          "#98aa9d",
-          "#bed0c2",
-          "#e7f2e9"
-        ]
-      },
-      "moss-muted": {
-        "role": "neutral",
-        "displayName": "Moss Muted",
-        "canonical": "#536253",
-        "oklch": "oklch(47.9% 0.030 145.1)",
-        "tonalRamp": [
-          "#070d07",
-          "#1f261f",
-          "#364436",
-          "#536253",
-          "#758575",
-          "#99aa99",
-          "#bfd0bf",
-          "#e7f2e7"
+          "#140805",
+          "#2f211d",
+          "#4e3e39",
+          "#6e5d58",
+          "#907e78",
+          "#b3a09b",
+          "#d8c4be",
+          "#fee9e4"
         ]
       },
       "rail-text": {
         "role": "neutral",
         "displayName": "Rail Text",
-        "canonical": "#c3d3c1",
-        "oklch": "oklch(85.0% 0.030 142.2)",
+        "canonical": "#e6d3c9",
+        "oklch": "oklch(88.0% 0.025 49.7)",
         "tonalRamp": [
-          "#070d06",
-          "#1f261e",
-          "#374435",
-          "#546253",
-          "#768575",
-          "#9aaa98",
-          "#c0d0be",
-          "#e8f2e7"
+          "#140803",
+          "#2f221a",
+          "#4d3e36",
+          "#6e5d55",
+          "#907e75",
+          "#b3a197",
+          "#d8c5bb",
+          "#fdeae0"
         ]
       },
-      "rail-strong": {
-        "role": "neutral",
-        "displayName": "Rail Strong",
-        "canonical": "#f4f7ee",
-        "oklch": "oklch(97.1% 0.012 121.7)",
+      "rail-steel": {
+        "role": "tertiary",
+        "displayName": "Rail Steel",
+        "canonical": "#9a8e85",
+        "oklch": "oklch(65.5% 0.020 59.3)",
         "tonalRamp": [
-          "#0b0c08",
-          "#232521",
-          "#3f413a",
-          "#5c5f57",
-          "#7f8179",
-          "#a3a69e",
-          "#c9ccc3",
-          "#edefea"
+          "#110904",
+          "#2c231c",
+          "#4a4038",
+          "#6a5f56",
+          "#8c8077",
+          "#afa299",
+          "#d3c6bd",
+          "#f9ece2"
+        ]
+      },
+      "rail-clip": {
+        "role": "tertiary",
+        "displayName": "Rail Clip",
+        "canonical": "#8e827a",
+        "oklch": "oklch(61.5% 0.019 56.0)",
+        "tonalRamp": [
+          "#110904",
+          "#2c231c",
+          "#4a4038",
+          "#6a5f57",
+          "#8c8078",
+          "#afa29a",
+          "#d3c6be",
+          "#f9ece3"
         ]
       },
       "spice-menu": {
         "role": "tertiary",
-        "displayName": "Za'atar Spice (Menu)",
-        "canonical": "#2f6b47",
-        "oklch": "oklch(47.7% 0.086 154.9)",
+        "displayName": "Terracotta (Menu)",
+        "canonical": "#b95035",
+        "oklch": "oklch(56.2% 0.142 35.5)",
         "tonalRamp": [
-          "#001103",
-          "#0b2b19",
-          "#0a4d2b",
-          "#306c48",
-          "#549069",
-          "#78b58d",
-          "#9ddcb2",
-          "#d4f9e0"
+          "#1c0200",
+          "#470d01",
+          "#781c01",
+          "#a23b20",
+          "#c85e43",
+          "#f08165",
+          "#ffb4a0",
+          "#fee9e3"
         ]
       },
       "spice-ai": {
         "role": "tertiary",
-        "displayName": "Turmeric (AI generation)",
-        "canonical": "#a86a06",
-        "oklch": "oklch(57.8% 0.124 69.3)",
+        "displayName": "Ochre (AI generation)",
+        "canonical": "#96600b",
+        "oklch": "oklch(53.6% 0.112 70.2)",
         "tonalRamp": [
-          "#1d0200",
-          "#3a1b00",
-          "#672e00",
-          "#894d00",
-          "#af7115",
-          "#d69544",
-          "#ffbb6c",
-          "#ffe6b9"
+          "#140800",
+          "#361f01",
+          "#5d3902",
+          "#875501",
+          "#ad752b",
+          "#d29851",
+          "#f8bc75",
+          "#ffebd5"
         ]
       },
       "spice-restaurant": {
         "role": "tertiary",
-        "displayName": "Sumac Spice (Restaurant)",
-        "canonical": "#a92e43",
-        "oklch": "oklch(49.6% 0.158 15.6)",
+        "displayName": "Rose (Restaurant)",
+        "canonical": "#8f2f4a",
+        "oklch": "oklch(45.4% 0.131 6.8)",
         "tonalRamp": [
-          "#270001",
-          "#470614",
-          "#7e0022",
-          "#a4283f",
-          "#cd5060",
-          "#f77683",
-          "#ff9ca8",
-          "#ffd5d9"
+          "#1e0007",
+          "#4a011c",
+          "#761636",
+          "#9c3b55",
+          "#c25d75",
+          "#e98097",
+          "#feb0bf",
+          "#ffe8eb"
         ]
       },
       "spice-team": {
         "role": "tertiary",
-        "displayName": "Nigella (Team)",
-        "canonical": "#2f4e7a",
-        "oklch": "oklch(42.2% 0.083 257.3)",
+        "displayName": "Slate (Team)",
+        "canonical": "#35567a",
+        "oklch": "oklch(44.4% 0.071 251.6)",
         "tonalRamp": [
-          "#010a1f",
-          "#14243c",
-          "#21406b",
-          "#3f5f8c",
-          "#6082b1",
-          "#84a7d8",
-          "#a9cdff",
-          "#daf0ff"
+          "#000b1d",
+          "#042646",
+          "#234467",
+          "#426489",
+          "#6385ac",
+          "#84a9d1",
+          "#a8cdf7",
+          "#e4f0fe"
         ]
       },
       "rail-menu": {
         "role": "tertiary",
-        "displayName": "Za'atar on Rail",
-        "canonical": "#8cc79a",
-        "oklch": "oklch(77.7% 0.088 151.3)",
+        "displayName": "Terracotta on Rail",
+        "canonical": "#f0a98a",
+        "oklch": "oklch(79.5% 0.094 44.5)",
         "tonalRamp": [
-          "#001102",
-          "#0d2b16",
-          "#104c26",
-          "#336c43",
-          "#568f65",
-          "#7ab589",
-          "#a0dcae",
-          "#d6f9dd"
+          "#1a0400",
+          "#421500",
+          "#6a2e10",
+          "#8d4e31",
+          "#b16f52",
+          "#d79274",
+          "#feb696",
+          "#ffe9e0"
         ]
       },
       "rail-ai": {
         "role": "tertiary",
-        "displayName": "Turmeric on Rail",
-        "canonical": "#e7a93a",
-        "oklch": "oklch(77.5% 0.142 77.8)",
+        "displayName": "Ochre on Rail",
+        "canonical": "#e9c46a",
+        "oklch": "oklch(83.4% 0.117 87.4)",
         "tonalRamp": [
-          "#1d0300",
-          "#3a1c00",
-          "#662f00",
-          "#884f00",
-          "#ae7300",
-          "#d59821",
-          "#fdbe53",
-          "#ffe8ae"
+          "#110a00",
+          "#302301",
+          "#533f01",
+          "#795d05",
+          "#a07d18",
+          "#c4a045",
+          "#eac46a",
+          "#ffedc4"
         ]
       },
       "rail-restaurant": {
         "role": "tertiary",
-        "displayName": "Sumac on Rail",
-        "canonical": "#ec8c98",
-        "oklch": "oklch(74.4% 0.117 12.3)",
+        "displayName": "Rose on Rail",
+        "canonical": "#f2a3b5",
+        "oklch": "oklch(79.7% 0.096 4.6)",
         "tonalRamp": [
-          "#210004",
-          "#3f121b",
-          "#701c2f",
-          "#933d4b",
-          "#bb606d",
-          "#e48491",
-          "#ffaab6",
-          "#ffdce2"
+          "#1e0008",
+          "#47061f",
+          "#6a283b",
+          "#8e485a",
+          "#b2697b",
+          "#d88b9d",
+          "#feb0c1",
+          "#ffe8ec"
         ]
       },
       "rail-team": {
         "role": "tertiary",
-        "displayName": "Nigella on Rail",
-        "canonical": "#a9bce2",
-        "oklch": "oklch(79.4% 0.058 264.2)",
+        "displayName": "Slate on Rail",
+        "canonical": "#a9c0e2",
+        "oklch": "oklch(80.2% 0.055 258.0)",
         "tonalRamp": [
-          "#050a1a",
-          "#1b2435",
-          "#303f5f",
-          "#4d5d7f",
-          "#6f80a4",
-          "#92a5ca",
-          "#b8cbf1",
-          "#e3efff"
+          "#000a21",
+          "#13253f",
+          "#30435f",
+          "#4e6280",
+          "#6e84a3",
+          "#90a7c8",
+          "#b4cbed",
+          "#e5effe"
         ]
       },
-      "sumac": {
+      "destructive": {
         "role": "status",
-        "displayName": "Sumac (destructive)",
-        "canonical": "#a92e43",
-        "oklch": "oklch(49.6% 0.158 15.6)",
+        "displayName": "Destructive",
+        "canonical": "#b42318",
+        "oklch": "oklch(50.0% 0.182 29.5)",
         "tonalRamp": [
-          "#270001",
-          "#470614",
-          "#7e0022",
-          "#a4283f",
-          "#cd5060",
-          "#f77683",
-          "#ff9ca8",
-          "#ffd5d9"
+          "#1f0000",
+          "#4d0000",
+          "#800200",
+          "#b12015",
+          "#da4a3b",
+          "#fe7462",
+          "#feb3a7",
+          "#fee9e5"
         ]
       },
       "success": {
         "role": "status",
         "displayName": "Success",
-        "canonical": "#2e7a49",
-        "oklch": "oklch(51.9% 0.108 152.3)",
+        "canonical": "#3b7a50",
+        "oklch": "oklch(52.6% 0.093 152.8)",
         "tonalRamp": [
-          "#001200",
-          "#032d14",
-          "#004f21",
-          "#206e3e",
-          "#489360",
-          "#6db883",
-          "#93dfa8",
-          "#cffcda"
+          "#001004",
+          "#012e14",
+          "#085028",
+          "#317047",
+          "#549367",
+          "#76b689",
+          "#9adbac",
+          "#c7ffd5"
         ]
       },
       "warning": {
         "role": "status",
         "displayName": "Warning",
-        "canonical": "#9a6205",
-        "oklch": "oklch(54.5% 0.116 70.3)",
+        "canonical": "#96600b",
+        "oklch": "oklch(53.6% 0.112 70.2)",
         "tonalRamp": [
-          "#1c0300",
-          "#391c00",
-          "#653000",
-          "#864f00",
-          "#ac7222",
-          "#d3974c",
-          "#fbbd73",
-          "#ffe7bc"
+          "#140800",
+          "#361f01",
+          "#5d3902",
+          "#875501",
+          "#ad752b",
+          "#d29851",
+          "#f8bc75",
+          "#ffebd5"
         ]
       },
       "info": {
         "role": "status",
         "displayName": "Info",
-        "canonical": "#2f4e7a",
-        "oklch": "oklch(42.2% 0.083 257.3)",
+        "canonical": "#35567a",
+        "oklch": "oklch(44.4% 0.071 251.6)",
         "tonalRamp": [
-          "#010a1f",
-          "#14243c",
-          "#21406b",
-          "#3f5f8c",
-          "#6082b1",
-          "#84a7d8",
-          "#a9cdff",
-          "#daf0ff"
-        ]
-      },
-      "plate-glaze": {
-        "role": "tertiary",
-        "displayName": "Plate Glaze",
-        "canonical": "#f6f2e7",
-        "oklch": "oklch(96.1% 0.015 90.2)",
-        "tonalRamp": [
-          "#0d0b07",
-          "#26241f",
-          "#434037",
-          "#615d54",
-          "#848076",
-          "#a8a49a",
-          "#cecac0",
-          "#f1eee8"
-        ]
-      },
-      "plate-cobalt": {
-        "role": "tertiary",
-        "displayName": "Cobalt Rim",
-        "canonical": "#1e4a8c",
-        "oklch": "oklch(41.6% 0.120 258.6)",
-        "tonalRamp": [
-          "#000828",
-          "#0c2346",
-          "#103d7e",
-          "#305ca0",
-          "#5280c7",
-          "#75a6ef",
-          "#9accff",
-          "#d2f1ff"
-        ]
-      },
-      "plate-turquoise": {
-        "role": "tertiary",
-        "displayName": "Turquoise Line",
-        "canonical": "#2b8f9a",
-        "oklch": "oklch(59.9% 0.090 205.8)",
-        "tonalRamp": [
-          "#001016",
-          "#002b31",
-          "#004c57",
-          "#006b76",
-          "#2c8f9a",
-          "#57b5c0",
-          "#7fdce7",
-          "#c5faff"
-        ]
-      },
-      "brass": {
-        "role": "tertiary",
-        "displayName": "Hammered Brass",
-        "canonical": "#c79a44",
-        "oklch": "oklch(71.2% 0.116 81.1)",
-        "tonalRamp": [
-          "#190500",
-          "#351f00",
-          "#5e3600",
-          "#7e5500",
-          "#a37819",
-          "#ca9c47",
-          "#f1c36e",
-          "#ffebba"
-        ]
-      },
-      "photo-ring": {
-        "role": "tertiary",
-        "displayName": "Photo Ring Gold",
-        "canonical": "#c9951f",
-        "oklch": "oklch(70.2% 0.137 81.9)",
-        "tonalRamp": [
-          "#1b0400",
-          "#371e00",
-          "#623300",
-          "#835200",
-          "#a87600",
-          "#cf9b28",
-          "#f7c157",
-          "#ffeab0"
+          "#000b1d",
+          "#042646",
+          "#234467",
+          "#426489",
+          "#6385ac",
+          "#84a9d1",
+          "#a8cdf7",
+          "#e4f0fe"
         ]
       },
       "dark-ground": {
         "role": "neutral",
-        "displayName": "Green-Black Ground (dark)",
-        "canonical": "#111813",
-        "oklch": "oklch(20.0% 0.014 153.9)",
+        "displayName": "Espresso-Black Ground (dark)",
+        "canonical": "#1a1311",
+        "oklch": "oklch(19.5% 0.012 36.5)",
         "tonalRamp": [
-          "#080c09",
-          "#212522",
-          "#3a423c",
-          "#58605a",
-          "#7a837c",
-          "#9ea7a0",
-          "#c4cdc6",
-          "#eaf0ec"
+          "#100908",
+          "#2b2321",
+          "#48403d",
+          "#685f5c",
+          "#89807d",
+          "#aca2a0",
+          "#d1c7c4",
+          "#f6ece9"
         ]
       },
       "dark-card": {
         "role": "neutral",
         "displayName": "Dark Card",
-        "canonical": "#18211a",
-        "oklch": "oklch(23.6% 0.019 151.5)",
+        "canonical": "#251b19",
+        "oklch": "oklch(23.4% 0.016 31.3)",
         "tonalRamp": [
-          "#080d09",
-          "#202621",
-          "#39433b",
-          "#566158",
-          "#78847b",
-          "#9da89f",
-          "#c2cec5",
-          "#e9f1eb"
+          "#110907",
+          "#2d2220",
+          "#4a3f3d",
+          "#6a5e5c",
+          "#8c7f7c",
+          "#afa29f",
+          "#d4c5c3",
+          "#f9ebe8"
         ]
       },
       "dark-page": {
         "role": "neutral",
         "displayName": "Dark Page",
-        "canonical": "#0b110d",
-        "oklch": "oklch(17.0% 0.013 155.7)",
+        "canonical": "#130d0c",
+        "oklch": "oklch(16.7% 0.011 29.2)",
         "tonalRamp": [
-          "#090c0a",
-          "#212522",
-          "#3b423d",
-          "#58605b",
-          "#7b837d",
-          "#9fa7a1",
-          "#c4cdc7",
-          "#ebf0ec"
+          "#0f0a09",
+          "#2a2322",
+          "#47403f",
+          "#675f5e",
+          "#89807f",
+          "#aca3a1",
+          "#d0c7c5",
+          "#f6ecea"
+        ]
+      },
+      "dark-rail": {
+        "role": "neutral",
+        "displayName": "Dark Rail",
+        "canonical": "#140d0c",
+        "oklch": "oklch(16.8% 0.012 27.8)",
+        "tonalRamp": [
+          "#100908",
+          "#2b2322",
+          "#48403e",
+          "#685f5d",
+          "#8a807e",
+          "#ada2a1",
+          "#d1c6c5",
+          "#f7ecea"
         ]
       },
       "dark-ink": {
         "role": "neutral",
         "displayName": "Dark Ink",
-        "canonical": "#e8efe3",
-        "oklch": "oklch(94.4% 0.018 131.9)",
+        "canonical": "#f3e9dc",
+        "oklch": "oklch(93.8% 0.020 74.7)",
         "tonalRamp": [
-          "#090c08",
-          "#222520",
-          "#3c4238",
-          "#5a6056",
-          "#7c8378",
-          "#a1a79c",
-          "#c6cdc1",
-          "#ecf0e9"
+          "#100a03",
+          "#2b241a",
+          "#494136",
+          "#686055",
+          "#8a8175",
+          "#ada397",
+          "#d1c8bb",
+          "#f7ede0"
         ]
       },
-      "dark-action-gold": {
+      "dark-action": {
         "role": "primary",
-        "displayName": "Gold Action (dark)",
-        "canonical": "#e0b23a",
-        "oklch": "oklch(78.5% 0.141 86.8)",
+        "displayName": "Light Terracotta (dark action)",
+        "canonical": "#e2876a",
+        "oklch": "oklch(71.4% 0.120 38.4)",
         "tonalRamp": [
-          "#1a0500",
-          "#351f00",
-          "#5f3600",
-          "#805500",
-          "#a47800",
-          "#cb9d1a",
-          "#f2c44f",
-          "#ffecad"
+          "#1b0300",
+          "#451000",
+          "#742303",
+          "#984529",
+          "#be674b",
+          "#e5896c",
+          "#ffb49d",
+          "#ffe9e2"
         ]
       },
-      "brand-burgundy": {
-        "role": "identity",
-        "displayName": "Shoof Burgundy (logo only)",
-        "canonical": "#541f2d",
-        "oklch": "oklch(32.3% 0.080 6.3)",
+      "dark-bin": {
+        "role": "neutral",
+        "displayName": "Dark Bin",
+        "canonical": "#2a201e",
+        "oklch": "oklch(25.5% 0.016 31.3)",
         "tonalRamp": [
-          "#1b0208",
-          "#371920",
-          "#622c39",
-          "#844956",
-          "#a96c79",
-          "#d1909d",
-          "#f9b5c2",
-          "#ffe2e9"
-        ]
-      },
-      "brand-ivory": {
-        "role": "identity",
-        "displayName": "Shoof Ivory (logo only)",
-        "canonical": "#fbf5e9",
-        "oklch": "oklch(97.2% 0.017 84.6)",
-        "tonalRamp": [
-          "#0d0b07",
-          "#26241e",
-          "#443f36",
-          "#625d53",
-          "#858075",
-          "#aaa499",
-          "#d0cabe",
-          "#f2eee7"
+          "#110907",
+          "#2c2220",
+          "#4a3f3d",
+          "#6a5e5c",
+          "#8c7f7c",
+          "#afa29f",
+          "#d3c6c3",
+          "#f9ebe8"
         ]
       }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "Sign-in stage headline only (desktop)."
+      "readiness": {
+        "displayName": "Readiness",
+        "purpose": "The home's one hero figure: the menu's 3D readiness in rolling digits; 4rem on phones."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Dashboard greeting; sign-in form title at 2rem."
+        "purpose": "Home greeting and sign-in form title."
       },
       "numeral": {
         "displayName": "Numeral",
-        "purpose": "Figures in the menu-numbers strip and AI queue; always tabular."
+        "purpose": "Ledger cells and ticket counts; always tabular."
       },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Sufra map heading, subscription plan name."
-      },
-      "card-title": {
-        "displayName": "Card Title",
-        "purpose": "Card headers, paired with a 16px gold-mark icon."
+      "section-title": {
+        "displayName": "Section Title",
+        "purpose": "Headers of bins, ticket rail and shelf; stall names."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Subtitles and descriptions; 0.875rem in rows."
+        "purpose": "Greeting sub-line and descriptions."
+      },
+      "row": {
+        "displayName": "Row",
+        "purpose": "Ticket labels, bin names, nav items, table rows."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Quiet labels under numerals, legends, meta. Never uppercase or tracked."
+        "purpose": "Ledger labels, 'of N', notes and chips. Never uppercase or tracked."
       }
     },
     "shadows": [
       {
         "name": "card",
-        "value": "0 1px 2px 0 rgb(23 37 27 / 6%), 0 12px 28px -16px rgb(23 37 27 / 22%)",
-        "purpose": "Every card and the sufra cloth."
+        "value": "0 1px 2px 0 rgb(38 28 26 / 6%), 0 12px 28px -16px rgb(38 28 26 / 22%)",
+        "purpose": "Cards, stalls, dish cards and the ledger slab."
       },
       {
-        "name": "hover-lift",
-        "value": "0 10px 26px -12px color-mix(in srgb, var(--primary) 38%, transparent)",
-        "purpose": "Hoverable resource cards, with translateY(-2px) and a gold-tinted border."
+        "name": "bin-lift",
+        "value": "0 16px 28px -18px rgb(38 28 26 / 0.55)",
+        "purpose": "A hovered category bin, with translateY(-3px)."
       },
       {
-        "name": "plate",
-        "value": "drop-shadow(0 8px 14px rgb(8 20 12 / 0.35))",
-        "purpose": "Plates resting on the cloth."
+        "name": "ticket",
+        "value": "0 12px 20px -12px rgb(38 28 26 / 0.45), 0 0 0 1px rgb(38 28 26 / 0.05)",
+        "purpose": "Every ticket hanging on the rail."
       },
       {
-        "name": "tray",
-        "value": "drop-shadow(0 10px 18px rgb(8 20 12 / 0.45))",
-        "purpose": "The brass tray at the centre of the sufra."
+        "name": "ticket-hot",
+        "value": "inset 0 4px 0 var(--destructive), 0 12px 20px -12px rgb(38 28 26 / 0.45), 0 0 0 1px rgb(38 28 26 / 0.05)",
+        "purpose": "A ticket for failed work."
       },
       {
-        "name": "rail-active-collapsed",
-        "value": "0 6px 16px -6px rgb(0 0 0 / 0.5)",
-        "purpose": "The filled active square on the collapsed icon rail."
+        "name": "rail-bar",
+        "value": "0 3px 6px -2px rgb(38 28 26 / 0.3)",
+        "purpose": "The steel bar the tickets hang from."
+      },
+      {
+        "name": "nav-pill",
+        "value": "0 6px 16px -8px rgb(0 0 0 / 0.45)",
+        "purpose": "The active page's ivory pill on the rail."
+      },
+      {
+        "name": "photo-chip",
+        "value": "0 2px 8px rgb(38 28 26 / 0.22)",
+        "purpose": "Ivory chips over photos."
+      },
+      {
+        "name": "rail-depth",
+        "value": "linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(0 0 0 / 0.14))",
+        "purpose": "Top light on the burgundy rail; the one gradient standing in for light."
       }
     ],
     "motion": [
       {
         "name": "ease-out-expo",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "The single curve: entrances, ring fills, press, nav pill, row settle."
+        "purpose": "The single curve: entrances, fills, rolling digits, meters, press, nav pill."
       },
       {
         "name": "feedback",
-        "value": "180ms ease (colour, background, border); 220ms (shadow, transform)",
-        "purpose": "Base hover and press feedback on every interactive element."
+        "value": "180-200ms (colour, background, border); 220ms (shadow, transform)",
+        "purpose": "Base hover and press feedback."
       },
       {
         "name": "press",
         "value": "scale(0.97)",
-        "purpose": "Every button on :active; off under reduced motion for the Button primitive."
+        "purpose": "Every button on :active; off under reduced motion."
       },
       {
-        "name": "ring-fill",
-        "value": "1.1s ease-out-expo, inner ring +150ms",
-        "purpose": "Plate coverage rings draw in."
+        "name": "rolling-number",
+        "value": "1.1s + 150ms per digit, 100ms delay",
+        "purpose": "Readiness digits roll into place; the final value is the resting state."
       },
       {
-        "name": "row-in",
-        "value": "450ms ease-out-expo, 40ms stagger capped at 320ms",
-        "purpose": "Table rows settle in when a list loads."
+        "name": "meter-fill",
+        "value": "800ms ease-out-expo",
+        "purpose": "Meter fills grow from the reading start."
+      },
+      {
+        "name": "bin-fill",
+        "value": "1.2s ease-out-expo, 150ms + 70ms stagger",
+        "purpose": "Bin photos rise to their 3D share."
+      },
+      {
+        "name": "ticket-swing",
+        "value": "rotate -5 -> 2.5 -> -1 -> 0deg, 1.3s ease-out, 250ms + 80ms stagger",
+        "purpose": "Tickets swing onto the rail."
+      },
+      {
+        "name": "done-stamp",
+        "value": "spring stiffness 420 damping 16, scale 2.2 -> 1, 1s delay",
+        "purpose": "The done stamp when no work is waiting."
+      },
+      {
+        "name": "shelf-focus",
+        "value": "flex-grow 520ms ease-out-expo; label fades in 300ms after 120ms",
+        "purpose": "The focused dish slot widens on the shelf."
+      },
+      {
+        "name": "dish-settle",
+        "value": "translateY(10px) -> 0, 520ms ease-out-expo, 40ms stagger capped at 12",
+        "purpose": "Dish cards settle into the gallery (stalls: 12px rise, 450ms, 50ms stagger)."
       },
       {
         "name": "nav-pill",
         "value": "spring stiffness 500 damping 40",
-        "purpose": "The shared active pill sliding between rail items."
+        "purpose": "The ivory active pill sliding between rail items."
       },
       {
         "name": "brand-gaze",
@@ -726,22 +718,27 @@
     "breakpoints": [
       {
         "name": "sm",
-        "value": "640px"
+        "value": "640px",
+        "note": "below it: bins in 3 columns, shelf scrolls, ledger in 2 columns"
       },
       {
         "name": "md",
-        "value": "768px",
-        "note": "sufra map switches to the round table"
+        "value": "768px"
       },
       {
         "name": "lg",
         "value": "1024px",
-        "note": "sign-in splits stage and form"
+        "note": "ledger slab splits readiness and cells; sign-in splits stage and form"
       },
       {
         "name": "xl",
         "value": "1280px",
-        "note": "dashboard two-column grid"
+        "note": "category stalls in 3 columns"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px",
+        "note": "dish gallery in 4 columns"
       },
       {
         "name": "content-max",
@@ -751,7 +748,11 @@
     "layout": {
       "sidebarWidth": "272px",
       "headerHeight": "64px",
-      "pagePadding": "16px / 24px / 32px (base / md / lg)"
+      "pagePadding": "16px / 24px / 32px (base / md / lg)",
+      "homeSectionGap": "28px",
+      "binMinColumn": "9.5rem",
+      "ticketWidth": "13.5rem",
+      "shelfHeight": "15rem (11rem on phones)"
     }
   },
   "components": [
@@ -759,128 +760,144 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Za'atar-green main action (sign in, save).",
-      "html": "<button class=\"ds-btn-primary\">Sign in</button>",
-      "css": ".ds-btn-primary{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;background:var(--primary,#24553a);color:var(--primary-foreground,#fff);height:40px;padding:0 16px;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .2s,transform .22s cubic-bezier(.16,1,.3,1)}.ds-btn-primary:hover{background:color-mix(in srgb,var(--primary,#24553a) 90%,transparent)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ring,#2f6b47)}.ds-btn-primary:active{transform:scale(.97)}"
+      "description": "Burgundy main action (generate missing models, save).",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9.9 15.5a2 2 0 0 0-1.4-1.4L2.4 12.5a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4L11.5 2.4a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z\"/></svg>Generate missing models</button>",
+      "css": ".ds-btn-primary{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;background:var(--primary,#541f2d);color:var(--primary-foreground,#fbf5e9);height:40px;padding:0 16px;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .2s,box-shadow .2s,transform .2s cubic-bezier(.16,1,.3,1)}.ds-btn-primary:hover{background:color-mix(in srgb,var(--primary,#541f2d) 90%,transparent)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--ring,#b95035) 30%,transparent)}.ds-btn-primary:active{transform:scale(.97)}"
     },
     {
       "name": "Outline Button",
       "kind": "button",
       "refersTo": "button-outline",
-      "description": "Secondary action, e.g. Export to Excel.",
+      "description": "Secondary action, e.g. Export Excel beside the period filter.",
       "html": "<button class=\"ds-btn-outline\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5\"/><path d=\"M12 15V3\"/></svg>Export Excel</button>",
-      "css": ".ds-btn-outline{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;background:var(--background,#f3f5ef);color:var(--accent-foreground,#1d4a30);border:1px solid var(--input,#c6d0bf);height:34px;padding:0 12px;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;transition:background-color .2s,transform .22s cubic-bezier(.16,1,.3,1)}.ds-btn-outline:hover{background:var(--accent,#e5efdf)}.ds-btn-outline:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ring,#2f6b47)}.ds-btn-outline:active{transform:scale(.97)}"
+      "css": ".ds-btn-outline{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;display:inline-flex;align-items:center;gap:6px;background:var(--background,#faf5ec);color:var(--accent-foreground,#541f2d);border:1px solid var(--input,#d6c5b2);height:34px;padding:0 12px;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;transition:background-color .2s,box-shadow .2s,transform .2s cubic-bezier(.16,1,.3,1)}.ds-btn-outline:hover{background:var(--accent,#f3e8dc)}.ds-btn-outline:focus-visible{outline:none;border-color:var(--ring,#b95035);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring,#b95035) 30%,transparent)}.ds-btn-outline:active{transform:scale(.97)}"
     },
     {
       "name": "Text Input",
       "kind": "input",
       "refersTo": "input",
-      "description": "Form field with sage stroke and za'atar focus ring.",
-      "html": "<input class=\"ds-input\" placeholder=\"admin@example.com\" />",
-      "css": ".ds-input{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;width:280px;height:40px;padding:0 16px;background:var(--background,#f3f5ef);color:var(--foreground,#17251b);border:1px solid var(--input,#c6d0bf);border-radius:12px;font-size:14px;caret-color:var(--terracotta,#b8861a);box-shadow:0 1px 2px rgb(0 0 0/.05);transition:border-color .18s,box-shadow .22s}.ds-input::placeholder{color:color-mix(in srgb,var(--muted-foreground,#536253) 80%,transparent)}.ds-input:focus-visible{outline:none;border-color:var(--ring,#2f6b47);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring,#2f6b47) 30%,transparent)}"
-    },
-    {
-      "name": "Dashboard Card",
-      "kind": "card",
-      "refersTo": "card",
-      "description": "White card with gold-mark icon title and hairline rows.",
-      "html": "<section class=\"ds-card\"><header class=\"ds-card-h\"><h2><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/><path d=\"M14 14h7v7h-7z\"/></svg>Tables &amp; QR</h2><a href=\"#\">Open</a></header><dl><div class=\"ds-row\"><dt>Active tables</dt><dd>16 / 18</dd></div><div class=\"ds-row\"><dt>With QR</dt><dd>14</dd></div><div class=\"ds-row\"><dt>Without QR</dt><dd class=\"warn\">4</dd></div></dl></section>",
-      "css": ".ds-card{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;width:340px;background:var(--card,#fff);color:var(--card-foreground,#17251b);border:1px solid var(--border,#dce3d5);border-radius:16px;padding:20px;box-shadow:0 1px 2px 0 rgb(23 37 27/6%),0 12px 28px -16px rgb(23 37 27/22%)}.ds-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.ds-card-h h2{display:flex;align-items:center;gap:8px;margin:0;font-size:14px;font-weight:600}.ds-card-h svg{color:var(--terracotta,#b8861a)}.ds-card-h a{font-size:12px;font-weight:500;color:var(--primary,#24553a);text-decoration:none}.ds-card-h a:hover{text-decoration:underline;text-underline-offset:3px}.ds-card dl{margin:0}.ds-row{display:flex;justify-content:space-between;border-top:1px solid var(--border,#dce3d5);padding:10px 0;font-size:14px}.ds-row:first-child{border-top:0;padding-top:0}.ds-row dt{color:var(--muted-foreground,#536253)}.ds-row dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}.ds-row dd.warn{color:var(--warning,#9a6205)}"
+      "description": "Paper field with sand stroke and terracotta focus ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"owner@restaurant.com\" />",
+      "css": ".ds-input{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;width:280px;height:40px;padding:0 16px;background:var(--background,#faf5ec);color:var(--foreground,#261c1a);border:1px solid var(--input,#d6c5b2);border-radius:12px;font-size:14px;caret-color:var(--terracotta,#b95035);transition:border-color .18s,box-shadow .22s}.ds-input::placeholder{color:var(--muted-foreground,#6e5d58)}.ds-input:focus-visible{outline:none;border-color:var(--ring,#b95035);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring,#b95035) 30%,transparent)}"
     },
     {
       "name": "Rail Navigation",
       "kind": "nav",
-      "refersTo": "nav-item",
-      "description": "Za'atar rail: section head with spice-hue icon, items with hue marker on the active row.",
-      "html": "<nav class=\"ds-rail\"><div class=\"ds-rail-head\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#8cc79a\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8\"/><path d=\"M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7\"/><path d=\"m2.1 21.8 6.4-6.3\"/><path d=\"m19 5-7 7\"/></svg>Menu</div><a class=\"ds-rail-item is-active\" href=\"#\" style=\"--hue:#8cc79a\"><span class=\"mk\"></span>Categories</a><a class=\"ds-rail-item\" href=\"#\">Menu items</a><a class=\"ds-rail-item\" href=\"#\">Ingredients</a></nav>",
-      "css": ".ds-rail{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;width:248px;padding:8px;background:var(--sidebar-background,#1c3526);border-radius:16px;display:flex;flex-direction:column;gap:2px}.ds-rail-head{display:flex;align-items:center;gap:12px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--sidebar-strong,#f4f7ee)}.ds-rail-item{position:relative;display:flex;align-items:center;height:40px;padding:0 12px 0 43px;border-radius:14px;font-size:14px;font-weight:500;color:var(--sidebar-foreground,#c3d3c1);text-decoration:none;transition:background-color .15s,color .3s}.ds-rail-item:hover{background:rgba(233,245,220,.054);color:var(--sidebar-strong,#f4f7ee)}.ds-rail-item:focus-visible{outline:none;box-shadow:0 0 0 2px var(--sidebar-ring,#e0b23a)}.ds-rail-item.is-active{background:var(--sidebar-accent,rgba(233,245,220,.09));color:var(--sidebar-strong,#f4f7ee);font-weight:600}.ds-rail-item .mk{position:absolute;inset-block:8px;inset-inline-start:0;width:3px;border-radius:9999px;background:var(--hue)}"
+      "refersTo": "nav-item-active",
+      "description": "Burgundy rail; section hue on the head icon; the active page is an ivory pill with burgundy text.",
+      "html": "<nav class=\"ds-rail\"><div class=\"ds-rail-head\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#f0a98a\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"/></svg>Menu</div><a class=\"ds-rail-item is-active\" href=\"#\">Categories</a><a class=\"ds-rail-item\" href=\"#\">Dishes</a><a class=\"ds-rail-item\" href=\"#\">Ingredients</a></nav>",
+      "css": ".ds-rail{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;width:248px;padding:8px;background:var(--sidebar-background,#541f2d);background-image:linear-gradient(180deg,rgb(255 255 255/.035),rgb(0 0 0/.14));border-radius:16px;display:flex;flex-direction:column;gap:2px}.ds-rail-head{display:flex;align-items:center;gap:12px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--sidebar-strong,#fbf5e9)}.ds-rail-item{display:flex;align-items:center;height:40px;padding:0 12px;border-radius:14px;font-size:14px;font-weight:500;color:var(--sidebar-foreground,#e6d3c9);text-decoration:none;transition:background-color .15s,color .3s}.ds-rail-item:hover{background:rgba(251,245,233,.054);color:var(--sidebar-strong,#fbf5e9)}.ds-rail-item:focus-visible{outline:none;box-shadow:0 0 0 2px var(--sidebar-ring,#e9a283)}.ds-rail-item.is-active{background:var(--sidebar-strong,#fbf5e9);color:var(--sidebar-primary-foreground,#541f2d);font-weight:600;box-shadow:0 6px 16px -8px rgb(0 0 0/.45)}"
     },
     {
-      "name": "Sufra Plate",
-      "kind": "custom",
-      "refersTo": "plate",
-      "description": "A category as a glazed plate: outer za'atar ring = 3D share, inner gold ring = photo share; opens the category's items missing 3D.",
-      "html": "<a class=\"ds-plate\" href=\"#\"><svg viewBox=\"0 0 120 120\" width=\"104\" height=\"104\" style=\"filter:drop-shadow(0 8px 14px rgb(8 20 12/.35))\"><circle cx=\"60\" cy=\"60\" r=\"57\" fill=\"#f6f2e7\"/><circle cx=\"60\" cy=\"60\" r=\"55\" fill=\"none\" stroke=\"#1e4a8c\" stroke-width=\"2.5\" opacity=\".85\"/><circle cx=\"60\" cy=\"60\" r=\"51\" fill=\"none\" stroke=\"#2b8f9a\" stroke-width=\".8\" opacity=\".6\"/><circle cx=\"60\" cy=\"60\" r=\"44\" fill=\"none\" stroke=\"#e4ddcc\" stroke-width=\"7\"/><circle cx=\"60\" cy=\"60\" r=\"34\" fill=\"none\" stroke=\"#ece6d8\" stroke-width=\"4\"/><circle cx=\"60\" cy=\"60\" r=\"44\" fill=\"none\" stroke=\"#24553a\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-dasharray=\"276.5\" stroke-dashoffset=\"118.9\" transform=\"rotate(-90 60 60)\"/><circle cx=\"60\" cy=\"60\" r=\"34\" fill=\"none\" stroke=\"#c9951f\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-dasharray=\"213.6\" stroke-dashoffset=\"42.7\" transform=\"rotate(-90 60 60)\"/><text x=\"60\" y=\"56\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"#17251b\">7</text><text x=\"60\" y=\"78\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"500\" fill=\"#24553a\">57%</text></svg><span class=\"n\">Grills</span><span class=\"s\">3 without 3D</span></a>",
-      "css": ".ds-plate{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;display:inline-flex;flex-direction:column;align-items:center;gap:8px;width:152px;padding:6px;border-radius:16px;background:#1f3a2a;text-decoration:none;transition:transform .3s cubic-bezier(.16,1,.3,1)}.ds-plate svg{transition:transform .3s}.ds-plate:hover{transform:translateY(-4px)}.ds-plate:hover svg{transform:rotate(8deg)}.ds-plate:focus-visible{outline:none;box-shadow:0 0 0 2px #e0b23a}.ds-plate .n{font-size:14px;font-weight:600;color:#f4f7ee}.ds-plate .s{font-size:12px;color:#f1d68f}"
-    },
-    {
-      "name": "Brass Tray",
-      "kind": "custom",
-      "refersTo": "sufra-cloth",
-      "description": "The tray at the centre of the sufra map carrying the menu-wide 3D share.",
-      "html": "<div class=\"ds-cloth\"><div class=\"ds-tray\"><svg viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"99\" fill=\"#c79a44\"/><circle cx=\"100\" cy=\"100\" r=\"92\" fill=\"none\" stroke=\"#a87c2c\" stroke-width=\"3\"/><circle cx=\"100\" cy=\"100\" r=\"80\" fill=\"none\" stroke=\"#b58a38\" stroke-dasharray=\"2 5\"/><circle cx=\"100\" cy=\"100\" r=\"66\" fill=\"none\" stroke=\"#b58a38\" stroke-dasharray=\"2 5\"/><circle cx=\"100\" cy=\"100\" r=\"52\" fill=\"none\" stroke=\"#b58a38\" stroke-dasharray=\"2 5\"/></svg><div class=\"t\"><b>49%</b><span>3D models</span><small>41 items</small></div></div></div>",
-      "css": ".ds-cloth{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;display:grid;place-items:center;width:320px;height:260px;background:#1f3a2a;border-radius:24px;box-shadow:0 1px 2px 0 rgb(23 37 27/6%),0 12px 28px -16px rgb(23 37 27/22%)}.ds-tray{position:relative;width:180px;height:180px;display:grid;place-items:center}.ds-tray svg{position:absolute;inset:0;filter:drop-shadow(0 10px 18px rgb(8 20 12/.45))}.ds-tray .t{position:relative;text-align:center;color:#2a1f0c;display:flex;flex-direction:column}.ds-tray b{font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}.ds-tray span{margin-top:4px;font-size:11px;font-weight:500}.ds-tray small{margin-top:8px;font-size:12px}"
-    },
-    {
-      "name": "Figure Strip",
+      "name": "Meter",
       "kind": "custom",
       "refersTo": "card",
-      "description": "Hairline-divided linked figures: big tabular numeral, small muted label.",
-      "html": "<div class=\"ds-figs\"><a href=\"#\"><b>6</b><span>Categories</span></a><a href=\"#\"><b>39</b><span>Active items</span></a><a href=\"#\"><b class=\"warn\">20</b><span>Without 3D</span></a></div>",
-      "css": ".ds-figs{font-family:\"Readex Pro\",ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:repeat(3,120px);overflow:hidden;background:var(--card,#fff);border:1px solid var(--border,#dce3d5);border-radius:16px}.ds-figs a{margin:-1px 0 0 -1px;border-inline-start:1px solid var(--border,#dce3d5);border-top:1px solid var(--border,#dce3d5);padding:14px 16px;text-decoration:none;transition:background-color .18s}.ds-figs a:hover{background:color-mix(in srgb,var(--accent,#e5efdf) 60%,transparent)}.ds-figs a:focus-visible{outline:2px solid color-mix(in srgb,var(--ring,#2f6b47) 60%,transparent);outline-offset:-2px}.ds-figs b{display:block;font-size:28px;font-weight:600;line-height:1;color:var(--foreground,#17251b);font-variant-numeric:tabular-nums}.ds-figs b.warn{color:var(--warning,#9a6205)}.ds-figs span{display:block;margin-top:6px;font-size:12px;color:var(--muted-foreground,#536253)}"
+      "description": "One share of a whole: burgundy plain progress, terracotta usage, destructive when used up.",
+      "html": "<div class=\"ds-meters\"><div><span>Tables with QR</span><b>14 <small>of 18</small></b><i class=\"ds-meter\"><em style=\"width:78%\"></em></i></div><div><span>This month</span><b>212 <small>of 300</small></b><i class=\"ds-meter usage\"><em style=\"width:71%\"></em></i></div><div><span>Today</span><b>20 <small>of 20</small></b><i class=\"ds-meter danger\"><em style=\"width:100%\"></em></i></div></div>",
+      "css": ".ds-meters{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;display:grid;gap:14px;width:260px;color:var(--foreground,#261c1a)}.ds-meters span{display:block;font-size:12px;color:var(--muted-foreground,#6e5d58)}.ds-meters b{display:block;margin:4px 0 8px;font-size:22px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}.ds-meters small{font-size:12px;font-weight:400;color:var(--muted-foreground,#6e5d58)}.ds-meter{--c:var(--meter,#541f2d);position:relative;display:block;height:4px;border-radius:9999px;overflow:hidden;background:color-mix(in srgb,var(--c) 16%,transparent)}.ds-meter.usage{--c:var(--terracotta,#b95035)}.ds-meter.danger{--c:var(--destructive,#b42318)}.ds-meter em{position:absolute;inset-block:0;inset-inline-start:0;border-radius:9999px;background:var(--c);transition:width .8s cubic-bezier(.16,1,.3,1)}"
+    },
+    {
+      "name": "Ledger Slab",
+      "kind": "card",
+      "refersTo": "ledger-slab",
+      "description": "Readiness figure, meter and next threshold beside a hairline ledger; no inner cards.",
+      "html": "<section class=\"ds-slab\"><div class=\"ds-ready\"><h2>Ready for guests in 3D</h2><p class=\"fig\">57<span>%</span></p><i class=\"ds-bar\"><em style=\"width:57%\"></em></i><p class=\"cnt\">29 of 51 dishes<b>Generate 7 more models to reach 70%</b></p></div><div class=\"ds-cells\"><a href=\"#\"><span>Today</span><b>12 <small>of 20</small></b></a><a href=\"#\"><span>This month</span><b>212 <small>of 300</small></b></a><a href=\"#\"><span>Tables with QR</span><b>14 <small>of 18</small></b></a><a href=\"#\"><span>Plan</span><b>23 <small>days</small></b></a></div></section>",
+      "css": ".ds-slab{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:1fr 1.75fr;width:720px;overflow:hidden;background:var(--card,#fffdf8);color:var(--card-foreground,#261c1a);border:1px solid var(--border,#e3d6c6);border-radius:24px;box-shadow:0 1px 2px 0 rgb(38 28 26/6%),0 12px 28px -16px rgb(38 28 26/22%)}.ds-ready{padding:28px;display:flex;flex-direction:column;gap:12px}.ds-ready h2{margin:0;font-size:14px;font-weight:500;color:var(--muted-foreground,#6e5d58)}.ds-ready .fig{margin:0;font-size:76px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ds-ready .fig span{font-size:28px;font-weight:500;color:var(--muted-foreground,#6e5d58)}.ds-bar{position:relative;display:block;height:8px;border-radius:9999px;overflow:hidden;background:color-mix(in srgb,var(--meter,#541f2d) 16%,transparent)}.ds-bar em{position:absolute;inset-block:0;inset-inline-start:0;border-radius:9999px;background:var(--meter,#541f2d)}.ds-ready .cnt{margin:0;font-size:14px;color:var(--muted-foreground,#6e5d58)}.ds-ready .cnt b{display:block;margin-top:4px;font-weight:500;color:var(--foreground,#261c1a)}.ds-cells{display:grid;grid-template-columns:repeat(2,1fr)}.ds-cells a{margin:-1px 0 0 -1px;border-inline-start:1px solid var(--border,#e3d6c6);border-top:1px solid var(--border,#e3d6c6);padding:16px 20px;text-decoration:none;color:inherit;transition:background-color .18s}.ds-cells a:hover,.ds-cells a:focus-visible{outline:none;background:color-mix(in srgb,var(--accent,#f3e8dc) 50%,transparent)}.ds-cells span{display:block;font-size:12px;color:var(--muted-foreground,#6e5d58)}.ds-cells b{display:block;margin-top:8px;font-size:28px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}.ds-cells small{font-size:12px;font-weight:400;color:var(--muted-foreground,#6e5d58)}"
+    },
+    {
+      "name": "Category Bin",
+      "kind": "custom",
+      "refersTo": "souk-bin",
+      "description": "A category as an open bin filled with its own dish photo to its 3D share (shown here with the hatched no-photo fill).",
+      "html": "<a class=\"ds-bin\" href=\"#\"><span class=\"fill\" style=\"height:45%\"></span><span class=\"t\"><b>Grills</b><small>7 of 12</small></span><span class=\"chip\">58%</span></a>",
+      "css": ".ds-bin{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;position:relative;isolation:isolate;display:flex;flex-direction:column;width:152px;aspect-ratio:3/4;overflow:hidden;border-radius:16px;background:var(--souk-bin,#ece1d3);text-decoration:none;transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1)}.ds-bin:hover{transform:translateY(-3px);box-shadow:0 16px 28px -18px rgb(38 28 26/.55)}.ds-bin:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background,#faf5ec),0 0 0 4px var(--ring,#b95035)}.ds-bin .fill{position:absolute;inset-inline:0;bottom:0;z-index:0;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--primary,#541f2d) 22%,transparent) 0 6px,color-mix(in srgb,var(--primary,#541f2d) 10%,transparent) 6px 12px)}.ds-bin .fill::before{content:\"\";position:absolute;inset-inline:0;top:0;height:3px;background:rgb(251 245 233/.9)}.ds-bin .t{position:relative;z-index:1;display:flex;flex-direction:column;gap:2px;padding:12px}.ds-bin b{font-size:14px;font-weight:600;color:var(--foreground,#261c1a)}.ds-bin small{font-size:12px;color:var(--muted-foreground,#6e5d58)}.ds-bin .chip{position:absolute;bottom:10px;inset-inline-start:10px;z-index:1;border-radius:999px;background:#fbf5e9;color:#261c1a;padding:2px 10px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgb(38 28 26/.22)}"
+    },
+    {
+      "name": "Kitchen Ticket",
+      "kind": "custom",
+      "refersTo": "ticket",
+      "description": "Attention item as a paper ticket on the steel rail; the hot one marks failed work.",
+      "html": "<div class=\"ds-rail-wrap\"><span class=\"bar\"></span><div class=\"ds-tickets\"><a class=\"ds-ticket hot\" href=\"#\"><span class=\"h\">3D generation failed</span><span class=\"l\">Mixed grill<small>Image too dark</small></span><span class=\"f\"><b>2</b><em>Open the jobs</em></span></a><a class=\"ds-ticket\" href=\"#\"><span class=\"h\">Dishes without a 3D model</span><span class=\"l\">Drinks 6, Grills 5</span><span class=\"f\"><b class=\"ink\">22</b><em>Open Drinks</em></span></a></div></div>",
+      "css": ".ds-rail-wrap{font-family:\"IBM Plex Sans Variable\",\"IBM Plex Sans Arabic\",ui-sans-serif,system-ui,sans-serif;position:relative;padding-top:20px;width:480px}.ds-rail-wrap .bar{position:absolute;top:10px;inset-inline:0;height:10px;border-radius:999px;background:var(--souk-steel-2,#9a8e85);box-shadow:0 3px 6px -2px rgb(38 28 26/.3)}.ds-tickets{display:flex;gap:14px;padding:0 4px 20px}.ds-ticket{position:relative;flex:0 0 216px;min-height:152px;display:flex;flex-direction:column;gap:6px;padding:22px 14px 14px;background:var(--souk-paper,#fffdf8);border-radius:3px 3px 0 0;text-decoration:none;color:var(--foreground,#261c1a);box-shadow:0 12px 20px -12px rgb(38 28 26/.45),0 0 0 1px rgb(38 28 26/.05)}.ds-ticket::before{content:\"\";position:absolute;top:-8px;inset-inline-start:50%;width:26px;height:16px;margin-inline-start:-13px;border-radius:4px;background:var(--souk-clip,#8e827a)}.ds-ticket::after{content:\"\";position:absolute;inset-inline:0;bottom:-6px;height:7px;background:radial-gradient(circle at 6px 0,transparent 5px,var(--souk-paper,#fffdf8) 5.5px) 0 0/12px 7px repeat-x}.ds-ticket.hot{box-shadow:inset 0 4px 0 var(--destructive,#b42318),0 12px 20px -12px rgb(38 28 26/.45),0 0 0 1px rgb(38 28 26/.05)}.ds-ticket:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ring,#b95035),0 12px 20px -12px rgb(38 28 26/.45)}.ds-ticket .h{font-size:14px;font-weight:600}.ds-ticket .l{display:flex;flex-direction:column;border-top:1px dashed var(--border,#e3d6c6);padding-top:6px;font-size:12px;font-weight:500}.ds-ticket .l small{font-size:11px;font-weight:400;color:var(--muted-foreground,#6e5d58)}.ds-ticket .f{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}.ds-ticket b{font-size:28px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;color:var(--destructive,#b42318)}.ds-ticket b.ink{color:var(--foreground,#261c1a)}.ds-ticket em{font-style:normal;font-size:12px;font-weight:600;color:var(--primary,#541f2d)}.ds-ticket:hover em{text-decoration:underline}"
     }
   ],
   "narrative": {
-    "northStar": "The Sufra",
-    "overview": "The console is laid out like a Levantine mezze table seen from above. Za'atar green is the cloth and the rail; herb-white is the daylight surface the work happens on; olive-oil gold marks whatever is active; sumac is kept for alarms. The restaurant's menu is read the way you read a spread: categories are plates, and a plate fills as its dishes gain 3D models and photos.\n\nThe density is an operator's density: white cards on a sage page, hairline rows instead of boxes inside boxes, big tabular numerals with small quiet labels under them. Arabic is the first language and the layout mirrors in RTL; Readex Pro carries both scripts at one weight ramp. Material lives in the signature pieces (the glazed plates, the hammered brass tray, the daylight 3D table on sign-in), not in textures painted onto every surface.\n\nThis world is deliberately not the sibling SuperAdmin console: no espresso rail, no burgundy hero card, no ivory/terracotta ground. Burgundy and the brand ivory appear only on the Shoof logo and its lockup badge, which keep their own identity colours.",
+    "northStar": "The Spice Souk Display",
+    "overview": "The console wears Shoof's own identity: a deep burgundy rail, warm ivory paper for the work, espresso ink, and roasted terracotta for what is being spent. The home reads like a souk stall seen from across the lane: the menu laid out as open bins, each filled with its own dishes' photos to the level of its 3D readiness; the day's work hung as paper order tickets on a steel kitchen rail; a shelf of real dishes below. The colour on these surfaces comes from the food photography; the chrome stays ivory and sand.\n\nThe density is an operator's density: one hairline-ruled ledger slab instead of a band of equal cards, big tabular numerals with quiet labels, sand hairlines instead of boxes inside boxes. Arabic is the first language and the layout mirrors in RTL; IBM Plex Sans Arabic with IBM Plex Sans (self-hosted) carries both scripts. Material lives in the signature objects (bins, tickets, the rail's clip and bar, the dish photos), not in textures painted onto every surface.\n\nSign-in is \"the dish and the eye\": always the light set, an espresso stage with a drifting wall of real dish photos washed in burgundy, a plate holding a turning dish beside the watching eye of the Shoof mark, and an ivory form column carrying the official logo.",
     "keyCharacteristics": [
-      "Za'atar-green rail and cloth, herb-white work surface, olive-oil gold for active marks.",
-      "One spice hue per navigation section for wayfinding.",
-      "Categories drawn as glazed plates whose rings show 3D and photo coverage.",
-      "Readex Pro throughout; scale contrast between numerals and labels carries hierarchy.",
-      "Flat surfaces with one soft card shadow; depth belongs to the plates and tray.",
+      "Burgundy rail with a slight top-light depth; the active page is an ivory pill with burgundy text.",
+      "Ivory ground and paper cards; real dish photography is the colour.",
+      "Terracotta means spent (quota and usage); plain progress is burgundy (sand in dark); red is only for failure.",
+      "One 76px readiness figure per home; every other figure is a 28px tabular numeral.",
+      "Category bins, kitchen tickets and a dish shelf are the home's signature objects.",
       "Sign-in is always the daylight (light) set."
     ],
     "rules": [
       {
         "name": "The Logo Keeps Its Colours Rule",
-        "body": "The Shoof mark is always a burgundy tile with ivory plates, in every theme and on every surface. The tile-less mark and wordmark use burgundy on light and ivory on dark. The console palette never re-themes the logo, and burgundy is never used for console UI beyond the lockup's own badge.",
+        "body": "The Shoof mark is always a burgundy tile with ivory plates, in every theme and on every surface. The tile-less mark and wordmark use burgundy on light and ivory on dark. The console's own palette never re-themes the logo.",
         "section": "colors"
       },
       {
-        "name": "The Spice Wayfinding Rule",
-        "body": "Each navigation section owns one spice hue: za'atar for Menu, turmeric for AI generation, sumac for Restaurant, nigella for Team. The hue marks the section icon and the active row's marker and icon. It is not used as a fill anywhere else.",
+        "name": "The Terracotta Is Spent Rule",
+        "body": "A terracotta meter is a quota being consumed; plain progress (readiness, tables with QR, active dishes, plan period) is a burgundy meter, sand in dark. In light mode terracotta is never a button fill.",
         "section": "colors"
       },
       {
-        "name": "The Gold Marks Rule",
-        "body": "Olive-oil gold marks what is active or selected (indicators, carets, row hover, focus on the rail). It is never body text and never a large fill, except as the dark-mode action colour.",
+        "name": "The Red Means Failure Rule",
+        "body": "Destructive red marks only failed jobs, the hot ticket and a quota that is used up. Everything else that needs attention stays in espresso ink with an icon.",
         "section": "colors"
       },
       {
-        "name": "The Big Number, Small Label Rule",
-        "body": "A figure is set large in display weight with tabular numerals; its label sits under it at 0.75rem in the muted colour. Labels never compete with the figure.",
+        "name": "The Photography Is The Colour Rule",
+        "body": "On the home and the menu, colour comes from the restaurant's own dish photos; surfaces around them stay ivory, sand and espresso. A missing photo shows the bin colour with a faint burgundy diagonal hatch and a \"no photo\" note, never a stock image.",
+        "section": "colors"
+      },
+      {
+        "name": "The Section Hue Rule",
+        "body": "Each navigation section owns one hue (terracotta Menu, ochre AI, rose Restaurant, slate Team), used only on that section's head icon on the rail. It is not a fill anywhere.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Hero Figure Rule",
+        "body": "The readiness percentage is the page's only hero figure. No other figure on the home repeats it or competes with its size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Label Rule",
+        "body": "A figure is set large and tabular; its label is 0.75rem muted ink and never competes with it. A share always says what it is a share of (\"20 of 51\").",
         "section": "typography"
       },
       {
         "name": "The Lining Numerals Rule",
-        "body": "All numerals are lining; tables and figure rows are tabular. Numbers in mixed-direction strings are isolated LTR.",
+        "body": "All numerals are lining and tabular in figures and tables; the UI's own numerals are used (Arabic-Indic in Arabic). Numbers in mixed-direction strings are isolated LTR.",
         "section": "typography"
       },
       {
-        "name": "The Hairline Row Rule",
-        "body": "Inside a card, related values are separated by hairline rows (top border, 10px vertical padding), never by nested boxes or tile grids.",
+        "name": "The Hairline Ledger Rule",
+        "body": "Values that belong together sit in one slab, divided by sand hairlines (cells overlap by -1px so rules never double), never by nested cards or tiles.",
         "section": "layout"
       },
       {
         "name": "The Objects Carry Depth Rule",
-        "body": "The cloth is flat colour. Only things set on it (plates, tray, the 3D dish) are lifted. No faked fabric weave, no gradients standing in for material.",
+        "body": "Cards are flat paper. Only the things on the display (bins, tickets, the rail, the active pill) are lifted. The rail's top-light gradient is the one gradient that stands in for light.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do use the single motion curve `cubic-bezier(0.16, 1, 0.3, 1)` for entrances, rings and the sliding nav pill; interface feedback always animates, and only decorative infinite loops stop under reduced motion.",
-      "Do give each navigation section its spice hue, and only on its icon and active marker.",
-      "Do separate values inside a card with hairline rows.",
-      "Do set figures large and tabular with a small muted label under them.",
-      "Do draw scrims and overlays on the cloth in za'atar green, not black.",
+      "Do use the single motion curve `cubic-bezier(0.16, 1, 0.3, 1)` for entrances, fills, rolling digits and the nav pill; interface feedback always animates, decorative loops stop under reduced motion, and a still frame always shows the final state.",
+      "Do draw every share with the one meter, saying what it is a share of.",
+      "Do keep terracotta for spending and marks, burgundy for actions and plain progress.",
+      "Do let dish photos carry the colour on the home and menu, and show the hatched bin when a photo is missing.",
+      "Do name the work on an attention ticket and link straight to where it is fixed.",
       "Do mirror layouts with logical properties (start/end) so Arabic and English share one layout."
     ],
     "donts": [
-      "Don't re-theme the Shoof logo, and don't use its burgundy, or the SuperAdmin console's espresso and terracotta, for console UI. The plates' ivory glaze is the table's own and stays.",
-      "Don't nest boxed tiles inside cards.",
-      "Don't fake material with CSS textures or gradients on the cloth; material lives in the plates, tray and 3D scene.",
-      "Don't use gold for body text or large fills in light mode.",
+      "Don't re-theme the Shoof logo.",
+      "Don't set the home as a band of equal cards, or nest cards inside the ledger slab.",
+      "Don't use terracotta as a light-mode button fill or for plain progress.",
+      "Don't use red for anything but failure, the hot ticket and a used-up quota.",
+      "Don't repeat or rival the readiness figure elsewhere on the home.",
       "Don't put small uppercase labels above headings; the date and restaurant name follow the greeting."
     ]
   }
