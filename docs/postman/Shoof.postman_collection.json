@@ -16,7 +16,13 @@
 							"name": "Login",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{superAdminApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{superAdminBaseUrl}}/api/auth/login",
 									"host": [
@@ -59,7 +65,13 @@
 							"name": "Refresh Token",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{superAdminApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{superAdminBaseUrl}}/api/auth/refresh",
 									"host": [
@@ -100,7 +112,13 @@
 							"name": "Revoke Refresh Token",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{superAdminApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{superAdminBaseUrl}}/api/auth/revoke",
 									"host": [
@@ -244,7 +262,13 @@
 							"name": "Forgot Password",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{superAdminApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{superAdminBaseUrl}}/api/account/forgot-password",
 									"host": [
@@ -273,7 +297,13 @@
 							"name": "Reset Password",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{superAdminApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{superAdminBaseUrl}}/api/account/reset-password",
 									"host": [
@@ -1784,7 +1814,7 @@
 							"response": []
 						}
 					],
-					"description": "Restaurant is provisioned here at tenant onboarding. No Update/Delete on this API -- branding updates happen via Shoof.Api.Restaurant's own Restaurants controller."
+					"description": "Restaurant is provisioned here at tenant onboarding. No Update/Delete on this API -- branding updates happen via Shoof.Api.Restaurant's own Restaurants controller. GET responses include tenantName next to tenantId."
 				},
 				{
 					"name": "Registrations",
@@ -2000,7 +2030,7 @@
 							]
 						}
 					],
-					"description": "Billing subscription for a Tenant or an ApiKey -- set exactly one of tenantId/apiKeyId. discountType: 0=Percentage, 1=FixedAmount. supportType: 0=Basic, 1=Standard, 2=Premium."
+					"description": "Billing subscription for a Tenant or an ApiKey -- set exactly one of tenantId/apiKeyId. discountType: 0=Percentage, 1=FixedAmount. supportType: 0=Basic, 1=Standard, 2=Premium. GET responses include tenantName: the registration's tenant, or for an apiKeyId-billed one the key's tenant."
 				},
 				{
 					"name": "Api Keys",
@@ -2298,7 +2328,7 @@
 							"response": []
 						}
 					],
-					"description": "Per-tenant B2B integration key (e.g. a delivery app partner) -- distinct from the static ApiKeyOptions config-driven [ApiKeyProtected] filter used by the Restaurant/Portal APIs themselves. plainTextKey is only ever returned once, on Create. rateLimitPerMinute is null by default (falls back to the platform default, 30/min) -- set it per key to throttle one noisy/misbehaving partner without affecting others. Only enforced on the Integration API surface (see that folder), not on this CRUD API itself."
+					"description": "Per-tenant B2B integration key (e.g. a delivery app partner) -- distinct from the static ApiKeyOptions config-driven [ApiKeyProtected] filter used by the Restaurant/Portal APIs themselves. plainTextKey is only ever returned once, on Create. rateLimitPerMinute is null by default (falls back to the platform default, 30/min) -- set it per key to throttle one noisy/misbehaving partner without affecting others. Only enforced on the Integration API surface (see that folder), not on this CRUD API itself. GET responses include tenantName next to tenantId."
 				},
 				{
 					"name": "Reports",
@@ -2807,7 +2837,7 @@
 							"response": []
 						}
 					],
-					"description": "Read-only cross-tenant exception/event monitoring -- entries are written internally by ExceptionHandlingMiddleware, never through a public create endpoint."
+					"description": "Read-only cross-tenant exception/event monitoring -- entries are written internally by ExceptionHandlingMiddleware, never through a public create endpoint. GET responses include tenantName (null for platform-level entries with no tenantId)."
 				},
 				{
 					"name": "Super Admin Users",
@@ -3701,10 +3731,10 @@
 							"response": []
 						}
 					],
-					"description": "Append-only; kept 180 days."
+					"description": "Append-only; kept 180 days. GET responses include tenantName (null when the log has no tenantId)."
 				}
 			],
-			"description": "Platform-operator surface (Shoof.Api.SuperAdmin). Base URL: {{superAdminBaseUrl}}. No API key required -- ApiKeyOptions.EnableFiltering is false for this API. Every non-auth request needs Authorization: Bearer {{superAdminToken}}."
+			"description": "Platform-operator surface (Shoof.Api.SuperAdmin). Base URL: {{superAdminBaseUrl}}. No API key required -- ApiKeyOptions.EnableFiltering is false for this API. Every non-auth request needs Authorization: Bearer {{superAdminToken}}. {{superAdminToken}} is signed for this host only: it is rejected by the Restaurant API, and an admin token is rejected here."
 		},
 		{
 			"name": "Restaurant API",
@@ -3716,7 +3746,13 @@
 							"name": "Login",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{restaurantApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{restaurantBaseUrl}}/api/auth/login",
 									"host": [
@@ -3764,7 +3800,13 @@
 							"name": "Refresh Token",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{restaurantApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{restaurantBaseUrl}}/api/auth/refresh",
 									"host": [
@@ -3805,7 +3847,13 @@
 							"name": "Revoke Refresh Token",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{restaurantApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{restaurantBaseUrl}}/api/auth/revoke",
 									"host": [
@@ -3979,7 +4027,13 @@
 							"name": "Forgot Password",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{restaurantApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{restaurantBaseUrl}}/api/account/forgot-password",
 									"host": [
@@ -4008,7 +4062,13 @@
 							"name": "Reset Password",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "X-Api-Key",
+										"value": "{{restaurantApiKey}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{restaurantBaseUrl}}/api/account/reset-password",
 									"host": [
@@ -7943,7 +8003,7 @@
 					"description": "Per-admin inbox (JWT only; no permission group)."
 				}
 			],
-			"description": "Tenant-scoped restaurant-admin surface (Shoof.Api.Restaurant). Base URL: {{restaurantBaseUrl}}. Every non-auth request needs Authorization: Bearer {{adminToken}} + X-Api-Key: {{restaurantApiKey}} + X-Tenant-Id: {{tenantId}} (X-Tenant-Id must match the JWT's tenant_id claim exactly or the request is rejected)."
+			"description": "Tenant-scoped restaurant-admin surface (Shoof.Api.Restaurant). Base URL: {{restaurantBaseUrl}}. Every non-auth request needs Authorization: Bearer {{adminToken}} + X-Api-Key: {{restaurantApiKey}} + X-Tenant-Id: {{tenantId}} (X-Tenant-Id must match the JWT's tenant_id claim exactly or the request is rejected). A missing or wrong X-Api-Key returns 403 (401 if the JWT is missing too) with header X-Error-Code: InvalidApiKey and a plain-text reason. {{restaurantApiKey}} holds the dev key; set it to the environment's own key for staging/production. {{adminToken}} is signed for this host only: a token from another host (e.g. SuperAdmin) is rejected."
 		},
 		{
 			"name": "Portal API (Public)",
@@ -8119,7 +8179,7 @@
 					"response": []
 				}
 			],
-			"description": "The customer-facing menu website hits these -- served from Shoof.Api.Restaurant but with NO JWT/tenant claim at all. Tenant is resolved per-request purely from the Host header's subdomain (e.g. pepsi.shoof.lambdor.com or www.pepsi.shoof.lambdor.com both resolve to slug 'pepsi'; a bare host with no dot, like 'localhost', is its own slug directly -- create a tenant with slug 'localhost' to test locally). Each request below has a disabled Host header you can enable and edit to test a specific slug against restaurantBaseUrl. Requires X-Api-Key: {{portalApiKey}} only -- no Authorization header, no X-Tenant-Id."
+			"description": "The customer-facing menu website hits these -- served from Shoof.Api.Restaurant but with NO JWT/tenant claim at all. Tenant is resolved per-request purely from the Host header's subdomain (e.g. pepsi.shoof.lambdor.com or www.pepsi.shoof.lambdor.com both resolve to slug 'pepsi'; a bare host with no dot, like 'localhost', is its own slug directly -- create a tenant with slug 'localhost' to test locally). Each request below has a disabled Host header you can enable and edit to test a specific slug against restaurantBaseUrl. Requires X-Api-Key: {{portalApiKey}} only -- no Authorization header, no X-Tenant-Id. A missing or wrong X-Api-Key returns 401 with header X-Error-Code: InvalidApiKey and a plain-text reason. {{portalApiKey}} holds the dev key; set it to the environment's own key for staging/production."
 		},
 		{
 			"name": "Integration API (B2B Partner)",
@@ -9619,6 +9679,12 @@
 			"key": "portalApiKey",
 			"value": "CHANGE_ME_DEV_ONLY_PORTAL_API_KEY",
 			"type": "string"
+		},
+		{
+			"key": "superAdminApiKey",
+			"value": "CHANGE_ME_DEV_ONLY_SUPERADMIN_API_KEY",
+			"type": "string",
+			"description": "Only for the SuperAdmin calls made before login (auth/*, forgot/reset password)."
 		},
 		{
 			"key": "superAdminEmail",

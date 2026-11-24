@@ -88,16 +88,14 @@ announcements, and watch reports/logs.
   - The link expires after 2 hours, and an invalid or expired link returns `400`.
 - **My profile**: `GET` / `PUT api/account/me`. Name (and phone for restaurant admins) is editable,
   and email is read-only. The one exception is the primary SuperAdmin, see [03 §16](03-superadmin-console.md#16-settings).
-- Login, forgot and reset are rate-limited (10/min per IP) → show "too many attempts, try again shortly" on `429`.
+- Login, refresh, logout, forgot and reset need the app's `X-Api-Key` (there is no token yet); without it they return `401`.
+- Login, refresh, logout, forgot and reset are rate-limited together (10/min per IP), and change-password to 5 tries per
+  15 min per user → show "too many attempts, try again shortly" on `429`.
 - A user or tenant can be **deactivated mid-session**: any call may return `403` with text
   `"Tenant is inactive."` / `"User is inactive."` → show a blocking "account disabled" screen and log out.
   An expired subscription causes `"Tenant is inactive."` too, so word the screen "contact Shoof", not "you were banned".
 - A token from one app is rejected by the other (`403`, empty body).
 - Restaurant Admin calls also need headers `X-Api-Key` (app key) and `X-Tenant-Id` (= `tenant_id` claim of the JWT).
-  **Each environment has its own app key**: the dev value `CHANGE_ME_DEV_ONLY_RESTAURANT_API_KEY` works only against a
-  backend run locally; the deployed `*.shoof.lambdor.com` hosts need the production `Restaurant` key from the backend team.
-  With the wrong key, login and `GET api/account/me` still succeed but every other call returns `403` with an empty body.
-  The Portal (customer menu) has a separate key: never reuse one for the other.
 
 Details: guide §2.1.
 

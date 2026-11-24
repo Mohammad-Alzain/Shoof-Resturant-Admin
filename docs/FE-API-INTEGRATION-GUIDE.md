@@ -201,7 +201,7 @@ JWT for two of the three APIs.
 | API | Audience | Auth | Tenant scoping |
 |---|---|---|---|
 | **Shoof.Api.Restaurant** | A restaurant's own admin dashboard | JWT (AdminUser) + `X-Api-Key` + `X-Tenant-Id` | Scoped to the caller's own tenant |
-| **Shoof.Api.SuperAdmin** | Platform operator (you), not tenants | JWT (SuperAdminUser) | Cross-tenant by design |
+| **Shoof.Api.SuperAdmin** | Platform operator (you), not tenants | JWT (SuperAdminUser); `X-Api-Key` on the pre-login endpoints | Cross-tenant by design |
 | **Shoof.Api.Integration** | A B2B partner's own backend (e.g. a delivery app) | `X-Integration-Key` header only, no JWT | Scoped to the partner's own tenant, enforced purely by key possession |
 
 A fourth surface, `PortalController` inside `Shoof.Api.Restaurant`, is the **anonymous
@@ -318,7 +318,9 @@ Swagger is available in every environment (local: `/swagger`; deployed: `/backen
 
 ### 2.1 Restaurant & SuperAdmin — JWT
 
-**Login** (`[AllowAnonymous]`, rate-limited 10 req/min/IP under policy `"auth"`):
+**Login** (no JWT, but **`X-Api-Key` is required**: the `"Restaurant"` key on the Restaurant API, the `"SuperAdmin"` key on
+the SuperAdmin API. Missing/wrong key → `401`/`403` with `X-Error-Code: InvalidApiKey`. Rate-limited 10 req/min/IP under
+policy `"auth"`, one bucket shared with forgot/reset password. No endpoint on either API accepts a call with no credential at all):
 
 ```
 POST /api/auth/login
@@ -397,11 +399,15 @@ Authorization: Bearer <jwt>
    `CHANGE_ME_DEV_ONLY_RESTAURANT_API_KEY`, see `appsettings.Development.json` → `ApiKeys:Clients`). The
    public `PortalController` instead requires client `"Portal"` (dev value
    `CHANGE_ME_DEV_ONLY_PORTAL_API_KEY`) — **do not reuse the two**.
+   Missing/wrong key → `403` (or `401` when nothing else authenticated, e.g. the portal) with
+   **`X-Error-Code: InvalidApiKey`** and a plain-text reason. Each environment has its own keys — the dev
+   values above do not work on staging/production.
 2. Header `X-Tenant-Id: <guid>` — must exactly match the JWT's `tenant_id` claim (case-insensitive).
    Missing/mismatched → `400 BadRequest`, plain text `"Missing or mismatched X-Tenant-Id header."`
 
-**SuperAdmin API**: `ApiKeys:EnableFiltering = false` in dev config — **no `X-Api-Key`
-requirement at all**, the JWT alone is sufficient.
+**SuperAdmin API**: `X-Api-Key` with client `"SuperAdmin"` (dev value `CHANGE_ME_DEV_ONLY_SUPERADMIN_API_KEY`) is required
+**only** on the calls made before there is a JWT: `api/auth/login`, `refresh`, `revoke`, `api/account/forgot-password`,
+`reset-password`. Every other SuperAdmin call needs the JWT alone (sending the key there too is harmless).
 
 **Active-status enforcement** (both APIs): a deactivated tenant or user with an otherwise
 valid, non-expired JWT gets `403 Forbidden` with a plain-text body (`"Tenant is inactive."` /
@@ -426,11 +432,11 @@ SuperAdmin. Its login returns `mustChangePassword: true`, and every call except
 
 | Method + Route | Auth | Body → result |
 |---|---|---|
-| `POST api/account/change-password` | JWT (allowed during a forced change) | `ChangePasswordDto` → `200 AuthResultDto` (**new tokens**: replace both). Wrong current password → `400` "The current password is incorrect." |
+| `POST api/account/change-password` | JWT (allowed during a forced change), rate-limited `"password-change"` (5 per 15 min **per user**) | `ChangePasswordDto` → `200 AuthResultDto` (**new tokens**: replace both). Wrong current password → `400` "The current password is incorrect." Too many tries → `429` |
 | `GET api/account/me` | JWT (allowed during a forced change) | → `MyProfileDto` |
 | `PUT api/account/me` | JWT | `UpdateMyProfileDto` → `MyProfileDto` |
-| `POST api/account/forgot-password` | anonymous, rate-limited `"auth"` | Restaurant `AdminForgotPasswordDto`, SuperAdmin `ForgotPasswordDto` → **always `204`** |
-| `POST api/account/reset-password` | anonymous, rate-limited `"auth"` | Restaurant `AdminResetPasswordDto`, SuperAdmin `ResetPasswordDto` → `204`, or `400` "This password reset link is invalid or has expired. Request a new one." |
+| `POST api/account/forgot-password` | `X-Api-Key` (no JWT), rate-limited `"auth"` | Restaurant `AdminForgotPasswordDto`, SuperAdmin `ForgotPasswordDto` → **always `204`** |
+| `POST api/account/reset-password` | `X-Api-Key` (no JWT), rate-limited `"auth"` | Restaurant `AdminResetPasswordDto`, SuperAdmin `ResetPasswordDto` → `204`, or `400` "This password reset link is invalid or has expired. Request a new one." |
 
 ```csharp
 public class ChangePasswordDto { public string CurrentPassword; public string NewPassword; }
@@ -718,7 +724,7 @@ The Integration API has no automatic model validation: a malformed body returns 
 | `403 Forbidden` — permission denied | `[RequirePermission]` failed | empty |
 | `403 Forbidden` — inactive tenant/user | deactivated account | plain text (`"Tenant is inactive."` / `"User is inactive."`) |
 | `404 Not Found` | resource missing, or another tenant's | plain text, or JSON problem details (`title`, `status`), or empty (Integration): branch on the status |
-| `429 Too Many Requests` | rate limit hit (`"auth"` policy = 10/min/IP, `"portal"` = 60/min/IP, integration policy also applies) | — |
+| `429 Too Many Requests` | rate limit hit (`"auth"` policy = 10/min/IP, `"password-change"` = 5 per 15 min per user, `"portal"` = 60/min/IP, integration policy also applies) | — |
 
 ### 3.3 File uploads
 
@@ -847,7 +853,7 @@ unless marked otherwise (see §2.1). All resources are implicitly scoped to the 
 via EF Core global query filters.
 
 ### AuthController — `api/auth`
-Anonymous, rate-limited (`"auth"`, 10/min/IP). See §2.1 for full DTO shapes.
+No JWT or `X-Tenant-Id`, but `X-Api-Key` (Restaurant client key) is required. Rate-limited (`"auth"`, 10/min/IP). See §2.1 for full DTO shapes.
 
 | Method + Route | Description |
 |---|---|
@@ -863,8 +869,8 @@ The signed-in admin's own account; no permission needed. Full shapes in §2.1a.
 | `POST api/account/change-password` | Change own password → new `AuthResultDto` (allowed during a forced change) |
 | `GET api/account/me` | Own profile → `MyProfileDto` (allowed during a forced change) |
 | `PUT api/account/me` | Edit own name + phone (email can't change) |
-| `POST api/account/forgot-password` | Anonymous: `{ tenantSlug, email }` → always `204`, emails a reset link |
-| `POST api/account/reset-password` | Anonymous: `{ tenantSlug, email, token, newPassword }` → `204` |
+| `POST api/account/forgot-password` | `X-Api-Key` only (no JWT): `{ tenantSlug, email }` → always `204`, emails a reset link |
+| `POST api/account/reset-password` | `X-Api-Key` only (no JWT): `{ tenantSlug, email, token, newPassword }` → `204` |
 
 ### MenuCategoriesController — `api/menu-categories` (permission group `MenuCategories`)
 
@@ -1259,7 +1265,7 @@ long (50 characters at most).". Subscription-expiry reminder emails go to `Conta
 Owner admins' emails when it's empty. `PUT` replaces every field, so send the current contact values
 back when editing something else.
 
-`RestaurantDto`: `Id`, `TenantId: Guid`, `Name: string` (resolved), `LogoUrl: string?`,
+`RestaurantDto`: `Id`, `TenantId: Guid`, `TenantName: string?`, `Name: string` (resolved), `LogoUrl: string?`,
 `ContactEmail: string?`, `ContactPhone: string?`, `CurrencyId: Guid`, `CurrencyIsoCode: string?`, `CountryId: Guid`, `CountryIsoCode: string?`,
 `CountryName: string?`, `TimeZoneId: string?` (the IANA zone this restaurant's date/time fields
 are converted to — see §3.1's timezone-aware-responses rule).
@@ -1404,9 +1410,10 @@ PortalMenuCategoryDto: { Id, Name, Description?, DisplayOrder,
                           Items: PortalMenuItemDto[] }
 PortalMenuItemDto: { Id, Name, Description?, Price, CurrencyIsoCode?, DisplayOrder,
                       Ingredients: PortalIngredientDto[], Models: PortalMenuItem3DModelDto[],
-                      Images: MenuItemImageDto[] }  // lowest DisplayOrder = primary photo
+                      Images: PortalMenuItemImageDto[] }  // lowest DisplayOrder = primary photo
 PortalIngredientDto: { Id, Name, Description?, Note?, IsRemovable }
 PortalMenuItem3DModelDto: { Id, GlbUrl?, UsdzUrl?, ThumbnailUrl? }
+PortalMenuItemImageDto: { Id, Url, Caption?, DisplayOrder }
 ```
 
 This is the endpoint set a **public menu website / QR-landing frontend** should build against —
@@ -1417,8 +1424,9 @@ distinct from the admin dashboard, which uses everything else in this section.
 ## 5. Shoof.Api.SuperAdmin — endpoint reference
 
 Base URL (dev): `https://localhost:7060`. Every endpoint requires `Authorization: Bearer <jwt>`
-(SuperAdminUser token) — **no `X-Api-Key`, no `X-Tenant-Id`** (this API is cross-tenant by
-design). See §2.1/§2.3 for auth/permission mechanics.
+(SuperAdminUser token) and **no `X-Tenant-Id`** (this API is cross-tenant by design). The exceptions are the calls made before
+there is a token (`api/auth/*`, `api/account/forgot-password`, `reset-password`): those take `X-Api-Key` (client `"SuperAdmin"`)
+instead of the JWT. See §2.1/§2.3 for auth/permission mechanics.
 
 Most controllers extend generic base classes providing standard CRUD shape:
 - Query-only base: `GET {prefix}` (paged list) + `GET {prefix}/{id:guid}` (detail, 404 if missing)
@@ -1426,11 +1434,13 @@ Most controllers extend generic base classes providing standard CRUD shape:
   overwrites body `Id`) + `DELETE {prefix}/{id:guid}`
 
 ### AuthController — `api/auth`
-Identical to the Restaurant API's (§2.1/§4) — `POST login`, `POST refresh`, `POST revoke`.
+Identical to the Restaurant API's (§2.1/§4) — `POST login`, `POST refresh`, `POST revoke`. No JWT; `X-Api-Key` (SuperAdmin client
+key) required. Rate-limited (`"auth"`, 10/min/IP).
 `AuthResultDto.Roles` is always `[]` for SuperAdmin tokens (no roles feature).
 
 ### AccountController — `api/account`
-Same routes as the Restaurant API's (§2.1a), without the slug: `POST change-password`, `GET/PUT me`
+Same routes and rules as the Restaurant API's (§2.1a: forgot/reset take `X-Api-Key` instead of a JWT, change-password is
+limited to 5 tries per 15 min per user), without the slug: `POST change-password`, `GET/PUT me`
 (only the primary SuperAdmin may change its email), `POST forgot-password` `{ email }` (never
 for the primary), `POST reset-password` `{ email, token, newPassword }`.
 
@@ -1451,8 +1461,10 @@ The primary SuperAdmin also can't be the target of `PUT/DELETE api/super-admin-u
 |---|---|---|---|
 | `GET api/tenants` | `.View` | Query `TenantFilter`: `IsActive: bool?` | `PaginatedDataDto<TenantDto>` |
 | `GET api/tenants/{id:guid}` | `.View` | route `id` | `TenantDto` (only this call populates `Registrations`) |
-| `POST api/tenants` | `.Add` | `CreateTenantDto`: `Name: string`, `Slug: string` | `TenantDto` |
+| `POST api/tenants` | `.Add` | `CreateTenantDto`: `Name: string`, `Slug: string` | `TenantDto` (`IsActive: false`) |
 | `PUT api/tenants/{id:guid}` | `.Edit` | `UpdateTenantDto`: `Name`, `IsActive: bool`, `Slug` | `TenantDto` |
+| `POST api/tenants/{id:guid}/activate` | `.Edit` | route `id` | `TenantDto`; `400` without a valid registration |
+| `POST api/tenants/{id:guid}/deactivate` | `.Edit` | route `id` | `TenantDto` |
 | `DELETE api/tenants/{id:guid}` | `.Delete` | route `id` | `200` |
 | `POST api/tenants/{id:guid}/bootstrap-admin` | `.Add` | `BootstrapTenantAdminDto`: `FullName`, `Email`, `Password` | `AdminUserDto` |
 | `GET api/tenants/{id:guid}/usage` | `.View` | route `id` | `TenantUsageDto` |
@@ -1461,6 +1473,14 @@ The primary SuperAdmin also can't be the target of `PUT/DELETE api/super-admin-u
 `bootstrap-admin` idempotently find-or-creates the locked "Owner" `AdminRole` (every Restaurant-side
 permission) and creates an `AdminUser` under it, marked `IsPrimary` if the tenant has no primary admin yet. For a new customer, prefer the
 single-call onboarding `POST api/restaurants` below, which does tenant + restaurant + Owner in one go.
+
+**A tenant starts inactive.** Its admins can't sign in and its API keys don't work until it is
+activated. Creating (or upgrading to) a tenant registration in `api/registrations` whose `ToDate`
+hasn't passed activates it automatically. Use `activate` / `deactivate` as quick actions (e.g. a
+toggle in the tenants list). `activate`, and `PUT` switching `IsActive` from `false` to `true`, return
+`400` "A tenant can only be activated while it has an active registration that hasn't ended…" when
+there is no such registration. `deactivate` always works and takes effect on the next request.
+Editing an existing registration never re-activates a tenant.
 
 ```
 TenantDto: { Id, Name, IsActive, Slug, CreationDateTime, Registrations: RegistrationDto[] }
@@ -1471,15 +1491,16 @@ TenantLookupDto: { Id, Name }
 
 `CreationDateTime` and each `Registrations[].FromDate/ToDate` follow the timezone rule in §3.1.
 
-### RestaurantsController — `api/restaurants` (permission group `Restaurants`) — query-only + create
+### RestaurantsController — `api/restaurants` (permission group `Restaurants`) — query, create, update
 
-No PUT/DELETE at all — branding updates happen on `Shoof.Api.Restaurant` instead.
+No DELETE. Logo upload stays on `Shoof.Api.Restaurant`.
 
 | Method + Route | Permission | Request | Response |
 |---|---|---|---|
 | `GET api/restaurants` | `.View` | Query `RestaurantFilter`: `TenantId: Guid?`, `CountryIds: Guid[]?` | `PaginatedDataDto<RestaurantDto>` (true cross-tenant view, bypasses the tenant query filter) |
 | `GET api/restaurants/{id:guid}` | `.View` | route `id` | `RestaurantDto` |
 | `POST api/restaurants` | `.Add` | `OnboardRestaurantDto` (below) | `RestaurantDto` |
+| `PUT api/restaurants/{id:guid}` | `.Edit` | `UpdateRestaurantDto`: `NameEn`, `NameAr?`, `LogoUrl?`, `ContactEmail?`, `ContactPhone?`, `CurrencyId`, `CountryId` | `RestaurantDto` — the restaurant's own details only; its admins, roles and tenant are untouched. Send the current `LogoUrl` to keep the logo (`null` clears it). |
 | `GET api/restaurants/permissions` | `.View` | — | `List<PermissionGroupDto>` — what the new Owner role is granted |
 
 **`POST api/restaurants` onboards a new customer** — it always creates a **new tenant** (it no
@@ -1498,8 +1519,9 @@ permission) and the admin in it. The admin gets `mustChangePassword: true`, so s
 password and they replace it at first login. All checks run before anything is saved; on any
 `400` nothing is created: slug errors ("Slug is required.", "…lowercase letters, digits, and
 hyphens.", "…reserved…", "Slug '…' is already taken by another tenant."), password rule
-violations, or invalid contact email/phone. Then create the subscription (`api/registrations`)
-for the new `tenantId` from the response.
+violations, or invalid contact email/phone. The new tenant is **inactive**: its admin can't sign in
+until you create the subscription (`api/registrations`) for the new `tenantId` from the response,
+which activates it.
 
 `RestaurantDto` field shapes are identical to §4's `RestaurantsController` above (including
 `ContactEmail`/`ContactPhone`, `CountryId`/`CountryIsoCode`/`CountryName`/`TimeZoneId`).
@@ -1517,7 +1539,7 @@ for the new `tenantId` from the response.
 | `POST api/api-keys/{id:guid}/rotate` | `ApiKeyRotation.Rotate` (own group) | `RotateApiKeyDto`: `GraceHours: int` (default 24, 1..168) | `ApiKeyDto` of the **new** key, `PlainTextKey` populated **only** here |
 | `PUT api/api-keys/{id:guid}/allowed-ip-ranges` | `ApiKeyAllowedIps.Edit` (own group) | `UpdateApiKeyAllowedIpRangesDto`: `AllowedIpRanges: string[]` (≤ 50 CIDRs or single IPs; `[]` = any IP) | `ApiKeyDto` (ranges normalized, e.g. `203.0.113.7` → `203.0.113.7/32`) |
 
-`ApiKeyDto`: `Id`, `TenantId`, `ClientName`, `KeyPrefix: string`, `IsActive`, `ExpiresAt?`,
+`ApiKeyDto`: `Id`, `TenantId`, `TenantName?`, `ClientName`, `KeyPrefix: string`, `IsActive`, `ExpiresAt?`,
 `LastUsedAt?` (accepted calls only), `RateLimitPerMinute?`, `AllowedIpRanges: string[]`, `ReplacedByApiKeyId?`,
 `LineageId`, `PlainTextKey?`, `WebhookUrl?` (query string and fragment removed), `WebhookEnabled: bool`.
 
@@ -1582,7 +1604,7 @@ either a direct tenant or an API-key partner; both are immutable after creation,
 the plan/support tier's current list price; an explicit value overrides that.
 
 ```
-RegistrationDto: { Id, TenantId?, ApiKeyId?, Price?, CurrencyId?, CurrencyIsoCode?,
+RegistrationDto: { Id, TenantId?, TenantName? (the key's tenant for an ApiKey-billed row), ApiKeyId?, Price?, CurrencyId?, CurrencyIsoCode?,
                     DiscountType?, Discount?, FromDate, ToDate, IsActive,
                     PlanId?, PlanName?, SupportPrice?, SupportTierId?, SupportTierName? }
 CreateRegistrationDto: { TenantId?, ApiKeyId?, Price?, CurrencyId?, DiscountType?, Discount?,
@@ -1743,7 +1765,7 @@ Entries are written internally only — no create/update/delete endpoints exist 
 | `GET api/audit-log-entries` | `.View` | Query `AuditLogEntryFilter`: `TenantId?`, `Level: string?` | `PaginatedDataDto<AuditLogEntryDto>` |
 | `GET api/audit-log-entries/{id:guid}` | `.View` | route `id` | `AuditLogEntryDto` |
 
-`AuditLogEntryDto`: `Id`, `TenantId?`, `Level: string`, `Message: string`, `ExceptionDetails?`,
+`AuditLogEntryDto`: `Id`, `TenantId?`, `TenantName?`, `Level: string`, `Message: string`, `ExceptionDetails?`,
 `Source?`, `CreationDateTime`.
 
 `CreationDateTime` follows the timezone rule in §3.1, resolved via `TenantId` when set, else
@@ -1849,7 +1871,7 @@ Every Integration API call **and** every webhook delivery attempt, across all te
 | `GET api/integration-request-logs` | `.View` | Query `IntegrationRequestLogFilter`: `TenantId?`, `ApiKeyId?`, `ClientIp?`, `StatusCode?: int`, `Method?`, `PathContains?`, `Direction?: LogDirection` (`0` Inbound, `1` Outbound), `FromUtc?`, `ToUtc?`, `CorrelationId?` | `PaginatedDataDto<IntegrationRequestLogDto>` — **metadata only** |
 | `GET api/integration-request-logs/{id:guid}` | `.View` | route `id` | `IntegrationRequestLogDetailDto` (adds sanitized headers + bodies) / `404` |
 
-`IntegrationRequestLogDto`: `Id`, `Direction`, `TenantId?`, `ApiKeyId?`, `KeyPrefix?`, `ClientIp`, `UserAgent?`, `Method`, `Url` (query values
+`IntegrationRequestLogDto`: `Id`, `Direction`, `TenantId?`, `TenantName?`, `ApiKeyId?`, `KeyPrefix?`, `ClientIp`, `UserAgent?`, `Method`, `Url` (query values
 of sensitive-looking names redacted), `StatusCode?`, `DurationMs`, `RequestedAtUtc`, `BodyTruncated`, `ErrorType?`, `ErrorMessage?`,
 `CorrelationId` (the `X-Correlation-Id` the partner sees), `WebhookDeliveryId?`. The detail adds `RequestHeadersJson?`, `RequestBody?`,
 `ResponseBody?`. **Every detail read is itself written to the audit log** (the entry names the SuperAdmin and the log row). What is and

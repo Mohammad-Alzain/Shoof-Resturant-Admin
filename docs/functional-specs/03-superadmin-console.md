@@ -8,7 +8,8 @@ through dashboards, reports and logs. **Cross-tenant**: sees all customers.
 Read [README.md](README.md) §2 first. API details:
 [guide §5](../FE-API-INTEGRATION-GUIDE.md#5-shoofapisuperadmin--endpoint-reference).
 
-Requests send `Authorization: Bearer <superadmin jwt>` and `X-Language`. **No** `X-Api-Key`, **no** `X-Tenant-Id`.
+Requests send `Authorization: Bearer <superadmin jwt>` and `X-Language`, **no** `X-Tenant-Id`. The calls made before there is a
+token (login, refresh, logout, forgot and reset password) send `X-Api-Key` (the SuperAdmin app key) instead of the JWT.
 
 ---
 

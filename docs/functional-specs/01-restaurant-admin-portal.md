@@ -7,7 +7,8 @@ models, and the team's access.
 Read [README.md](README.md) §2 first (login, headers, permissions, errors, paging, language, time zones,
 uploads, notifications). API details: [guide §4](../FE-API-INTEGRATION-GUIDE.md#4-shoofapirestaurant--endpoint-reference).
 
-Every request sends `Authorization: Bearer`, `X-Api-Key`, `X-Tenant-Id`, `X-Language`.
+Every request sends `Authorization: Bearer`, `X-Api-Key`, `X-Tenant-Id`, `X-Language`. Login, refresh, logout, forgot and
+reset password have no token yet: they send only `X-Api-Key` and `X-Language` (without the key they return `401`).
 Everything is automatically limited to the user's own tenant.
 
 ---
@@ -46,7 +47,7 @@ The tenant may own **several restaurants**. Most create forms need a `restaurant
 | Log in | `POST api/auth/login` | Body: `tenantSlug` + `email` + `password`. The slug comes from the subdomain (`pepsi.shoof.lambdor.com` → `pepsi`), or the user types it as "Restaurant code". It's required because the same email can be a separate account in another restaurant. Error `400` "Incorrect email or password." (also returned for a wrong or missing slug) / "Account is inactive." |
 | Refresh | `POST api/auth/refresh` | Rotating refresh token |
 | Log out | `POST api/auth/revoke` | |
-| Change my password | `POST api/account/change-password` | `currentPassword`, `newPassword` → new tokens (replace both). Forced when login returned `mustChangePassword: true` (everything else returns `403` "Password change required." until then). |
+| Change my password | `POST api/account/change-password` | `currentPassword`, `newPassword` → new tokens (replace both). Forced when login returned `mustChangePassword: true` (everything else returns `403` "Password change required." until then). Max 5 tries per 15 min, then `429`. |
 | My profile | `GET` / `PUT api/account/me` | Edit name + phone. Email is read-only. |
 | Forgot password | `POST api/account/forgot-password` | `tenantSlug` (from the subdomain) + `email` → always `204`; emails a link to `https://{slug}.shoof.lambdor.com/admin/reset-password?email=…&token=…&slug=…` (expires after 2 hours) |
 | Reset password page | `POST api/account/reset-password` | `/admin/reset-password` reads `email`, `token`, `slug` from the query string and posts them with `newPassword` → `204`, or `400` "This password reset link is invalid or has expired." |
