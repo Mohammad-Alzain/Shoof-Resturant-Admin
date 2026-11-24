@@ -3,6 +3,7 @@
 import { AccountDisabledNotice } from "../components/AccountDisabledNotice";
 import { useAccountState } from "@/Api/accountState";
 import { createRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 import { useSignInPost } from "../../core/api";
-import { defaultSlug, hostSlug, saveSlug } from "../../core/tenant";
+import { defaultSlug, forgetLinkedSlug, hostSlug, knownSlug, saveSlug } from "../../core/tenant";
+import { RestaurantChip } from "../components/RestaurantChip";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -37,6 +39,8 @@ function LoginComponent() {
   const fetchProfile = useAuthStore((s) => s.fetchProfile);
   const signIn = useSignInPost();
 
+  // the restaurant's own host or the link it sent already names the restaurant: the code is not asked for
+  const [known, setKnown] = useState(knownSlug);
   const fromHost = hostSlug();
   const schema = z.object({
     tenantSlug: z.string().trim().min(1, t("field_required")),
@@ -98,7 +102,8 @@ function LoginComponent() {
             {errors.root.message}
           </div>
         )}
-        {!fromHost && (
+        {known && <RestaurantChip code={known} onChange={fromHost ? undefined : () => { forgetLinkedSlug(); setKnown(""); }} />}
+        {!known && (
           <AuthField
             label={t("restaurant_code")}
             dir="ltr"
@@ -117,7 +122,7 @@ function LoginComponent() {
           autoComplete="username"
           dir="ltr"
           className="text-start"
-          autoFocus={!!fromHost}
+          autoFocus={!!known}
           placeholder="admin@example.com"
           error={errors.email?.message}
           {...register("email")}

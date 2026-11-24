@@ -8,6 +8,10 @@ import "@fontsource/ibm-plex-sans-arabic/700.css";
 import "./App.css";
 import "./index.css";
 import App from "./App";
+import { captureLinkSlug } from "./modules/Auth/core/tenant";
+
+// A link that carries the restaurant code (…/login?slug=pizzahut) is read before anything else needs it.
+captureLinkSlug();
 
 // Clickjacking fallback for hosts that cannot send `frame-ancestors`: never render inside another site.
 if (window.top !== window.self) {

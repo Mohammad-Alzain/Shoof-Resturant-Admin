@@ -29,9 +29,45 @@ export const saveSlug = (slug: string) => {
   }
 };
 
-/** What the login and forgot-password forms start with: the host's code, the last one used here, or the dev default. */
+/**
+ * A restaurant can send its people a link that already carries its code: `https://app.example.com/admin/login?slug=pizzahut`
+ * (`tenant` works too). It is read once when the app opens, remembered for this browser tab and as the last code used, and
+ * the sign-in pages then never ask for it. Only a well-formed code is taken, and it only ever picks a host under the
+ * configured platform domain (see `apiBaseUrl`).
+ */
+const LINK_KEY = "shoof-restaurant-linked-slug";
+export const captureLinkSlug = (): void => {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const code = (q.get("slug") ?? q.get("tenant") ?? "").trim().toLowerCase();
+    if (!SLUG_RE.test(code)) return;
+    sessionStorage.setItem(LINK_KEY, code);
+    saveSlug(code);
+  } catch {
+    /* no storage: the code is still in the address for this page */
+  }
+};
+/** The code the opened link carried, or "" when the page was opened without one. */
+export const linkedSlug = (): string => {
+  try {
+    return sessionStorage.getItem(LINK_KEY) ?? "";
+  } catch {
+    return "";
+  }
+};
+export const forgetLinkedSlug = () => {
+  try {
+    sessionStorage.removeItem(LINK_KEY);
+  } catch {
+    /* nothing stored */
+  }
+};
+/** The code the restaurant itself supplied (its own host, or the link it sent): the sign-in pages do not ask for it. */
+export const knownSlug = (): string => hostSlug() || linkedSlug();
+
+/** What the login and forgot-password forms start with: the host's or link's code, the last one used here, or the dev default. */
 export const defaultSlug = (): string =>
-  hostSlug() || savedSlug() || ((import.meta.env.VITE_DEV_SLUG as string | undefined) ?? "").trim();
+  knownSlug() || savedSlug() || ((import.meta.env.VITE_DEV_SLUG as string | undefined) ?? "").trim();
 
 /** A restaurant code as the backend issues them: lowercase letters, digits and dashes. Anything else never builds a URL. */
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
