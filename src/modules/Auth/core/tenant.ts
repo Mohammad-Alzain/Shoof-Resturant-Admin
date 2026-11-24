@@ -54,6 +54,18 @@ export const apiBaseUrl = (slug?: string): string => {
   return configured;
 };
 
+/** `exp` and `iat` of an access token, in seconds since the epoch (undefined when the token has none or is unreadable). */
+export const tokenTimes = (token?: string): { exp?: number; iat?: number } => {
+  if (!token) return {};
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = JSON.parse(atob(part));
+    return { exp: typeof json.exp === "number" ? json.exp : undefined, iat: typeof json.iat === "number" ? json.iat : undefined };
+  } catch {
+    return {};
+  }
+};
+
 /** `tenant_id` claim of an access token: sent back as X-Tenant-Id on every call. */
 export const tenantIdFromToken = (token?: string): string | undefined => {
   if (!token) return undefined;

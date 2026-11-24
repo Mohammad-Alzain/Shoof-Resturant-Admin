@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAccountState } from "./accountState";
-import { apiBaseUrl } from "@/modules/Auth/core/tenant";
+import { apiBaseUrl, tokenTimes } from "@/modules/Auth/core/tenant";
 import { useAccessStore } from "./access";
 import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
@@ -62,11 +62,32 @@ export const parseApiError = (error: unknown): ApiError => {
   return { status, fieldErrors, code };
 };
 
-httpClient.interceptors.request.use((config) => {
+/** Calls made before there is a session (or to end it): they never wait for, or trigger, a refresh. */
+const SESSIONLESS = /^\/?(auth\/|account\/(forgot|reset)-password)/i;
+/** A token this close to its expiry is renewed before the call, so the server never sees an expired one. */
+const RENEW_BEFORE_MS = 15_000;
+/** A 403 right after a token was issued is a real refusal, not an expired token: no refresh for it. */
+const FRESH_MS = 30_000;
+
+httpClient.interceptors.request.use(async (config) => {
   // The bearer token must only ever reach our API: refuse absolute URLs and path-traversal in request paths.
   if (config.url && isUnsafeApiPath(config.url)) throw new axios.CanceledError("Blocked unsafe request path");
   // Login / forgot / reset pass the base of the restaurant being signed in to; everything else follows the saved code.
   if (!config.baseURL) config.baseURL = getBaseUrl();
+
+  // An expired access token can be answered with 403 (not 401), so waiting for a 401 never renews it. Renew it first;
+  // concurrent calls share one refresh. If the server rejects the refresh token the session is over: sign out.
+  if (!config.skipAuthRefresh && !SESSIONLESS.test(config.url ?? "")) {
+    const auth = useAuthStore.getState().auth;
+    const { exp } = tokenTimes(auth?.token);
+    if (auth?.token && auth.refreshToken && exp && exp * 1000 - Date.now() < RENEW_BEFORE_MS) {
+      const fresh = await refreshSession();
+      if (!fresh && refreshRejected) {
+        endSession();
+        throw new axios.CanceledError("Session expired");
+      }
+    }
+  }
   const token = useAuthStore.getState().auth?.token;
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
   // Read per request so a language switch applies without rebuilding the client.
@@ -81,11 +102,25 @@ httpClient.interceptors.request.use((config) => {
 /* ---------- silent refresh: one refresh at a time, requests wait for it ---------- */
 
 let refreshing: Promise<string | null> | null = null;
+/** When the last refresh succeeded, and whether the last one was refused by the server (as opposed to the network failing). */
+let lastRefreshAt = 0;
+let refreshRejected = false;
+
+/** The refresh token is no longer good (revoked, expired, reused): the session is over, back to the sign-in page. */
+const endSession = () => {
+  if (!useAuthStore.getState().auth) return;
+  toast.info(i18n.t("session_expired"));
+  useAuthStore.getState().logout();
+};
 
 const refreshSession = (): Promise<string | null> => {
   refreshing ??= (async () => {
     const { auth, applySession } = useAuthStore.getState();
-    if (!auth?.refreshToken) return null;
+    refreshRejected = false;
+    if (!auth?.refreshToken) {
+      refreshRejected = true;
+      return null;
+    }
     try {
       // Tokens rotate: always store the new pair.
       const reply: any = await axios.post(
@@ -94,8 +129,12 @@ const refreshSession = (): Promise<string | null> => {
         { headers: { "X-Language": getLanguage(), "X-Api-Key": appKey(), ...(auth.tenantId ? { "X-Tenant-Id": auth.tenantId } : {}) } },
       );
       applySession(reply.data);
+      lastRefreshAt = Date.now();
       return useAuthStore.getState().auth?.token ?? null;
-    } catch {
+    } catch (e) {
+      // A 4xx answer means the refresh token is dead; a network failure or a 5xx says nothing about the session.
+      const status = (e as AxiosError)?.response?.status;
+      refreshRejected = !!status && status >= 400 && status < 500;
       return null;
     } finally {
       refreshing = null;
@@ -128,6 +167,16 @@ httpClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // A call that went out with a token the session has since replaced (it was in flight while another call renewed it)
+    // just goes again with the current one: no second refresh.
+    const sentWith = String(config?.headers?.get?.("Authorization") ?? "");
+    const current = useAuthStore.getState().auth?.token;
+    if ((status === 401 || (status === 403 && !String(error.response?.headers?.["x-error-code"] ?? ""))) && config && !config.skipAuthRefresh && !config._retried && !SESSIONLESS.test(config.url ?? "") && sentWith && current && sentWith !== `Bearer ${current}`) {
+      config._retried = true;
+      config.headers.set("Authorization", `Bearer ${current}`);
+      return httpClient(config);
+    }
+
     if (status === 401 && config && !config.skipAuthRefresh && !config._retried) {
       config._retried = true;
       const token = await refreshSession();
@@ -135,7 +184,7 @@ httpClient.interceptors.response.use(
         config.headers.set("Authorization", `Bearer ${token}`);
         return httpClient(config);
       }
-      useAuthStore.getState().logout();
+      endSession();
       return Promise.reject(error);
     }
 
@@ -148,6 +197,26 @@ httpClient.interceptors.response.use(
       useAccountState.getState().setDisabled(body);
       useAuthStore.getState().logout();
       return Promise.reject(error);
+    }
+
+    // A plain 403 (no error code) can also mean the access token went stale without the server saying 401. Try one refresh
+    // when the token is not brand new; if the refresh token is refused, the session is over. A genuine refusal (a missing
+    // permission) comes back again after the refresh and is handled below as usual.
+    if (status === 403 && config && !config.skipAuthRefresh && !config._retried && !String(error.response?.headers?.["x-error-code"] ?? "") && !SESSIONLESS.test(config.url ?? "")) {
+      const auth = useAuthStore.getState().auth;
+      const issued = Math.max((tokenTimes(auth?.token).iat ?? 0) * 1000, lastRefreshAt);
+      if (auth?.refreshToken && Date.now() - issued > FRESH_MS) {
+        config._retried = true;
+        const token = await refreshSession();
+        if (token) {
+          config.headers.set("Authorization", `Bearer ${token}`);
+          return httpClient(config);
+        }
+        if (refreshRejected) {
+          endSession();
+          return Promise.reject(error);
+        }
+      }
     }
 
     if (!config?.silent && !axios.isCancel(error)) {
