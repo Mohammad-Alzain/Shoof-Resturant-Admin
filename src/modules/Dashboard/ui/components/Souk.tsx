@@ -42,7 +42,8 @@ export function RollingNumber({ value, className }: { value: number; className?:
 
 export type Ticket = {
   key: string;
-  n: number;
+  /** how many; a ticket without one (no subscription) shows no figure */
+  n?: number;
   label: string;
   href: string;
   search?: Record<string, unknown>;
@@ -114,7 +115,7 @@ export function TicketRail({ items }: { items: Ticket[] }) {
                     </span>
                   ) : null}
                   <span className="mt-auto flex items-end justify-between gap-3 pt-2">
-                    <span className={cn("font-display text-[1.75rem] font-semibold leading-none tabular-nums", it.tone === "bad" ? "text-destructive" : "text-foreground")}>{n(it.n)}</span>
+                    {it.n !== undefined ? <span className={cn("font-display text-[1.75rem] font-semibold leading-none tabular-nums", it.tone === "bad" ? "text-destructive" : "text-foreground")}>{n(it.n)}</span> : <span />}
                     <span className="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-primary group-hover/tk:underline">
                       <span className="truncate">{it.cta}</span>
                       <ArrowUpRight className="size-3.5 shrink-0 rtl:-scale-x-100" aria-hidden />

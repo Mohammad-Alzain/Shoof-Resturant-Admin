@@ -130,11 +130,12 @@ export default function DashboardPage() {
         { key: "no_qr", n: d.tablesAndQr.tablesWithoutQrCode, label: t("att_no_qr"), href: "/dashboard/restaurant/tables", cta: t("souk_cta_tables"), icon: QrCode, tone: "warn" },
         { key: "no_ingredients", n: d.menuContent.itemsMissingIngredientsCount, label: t("att_no_ingredients"), href: "/dashboard/menu/items", cta: t("souk_cta_dishes"), icon: Utensils, tone: "info" },
         { key: "inactive", n: d.menuContent.inactiveItemCount, label: t("att_inactive"), href: "/dashboard/menu/items", cta: t("souk_cta_dishes"), icon: CircleSlash, tone: "info" },
+        ...(sub && !sub.hasRegistration ? [{ key: "nosub", label: t("no_subscription"), href: "/dashboard", cta: t("souk_cta_plan"), icon: CalendarClock, tone: "bad" as const }] : []),
         ...(left !== null && left >= 0 && left <= 14 ? [{ key: "sub", n: left, label: t("att_sub_days"), href: "/dashboard", cta: t("souk_cta_plan"), icon: CalendarClock, tone: "warn" as const }] : []),
         ...(monthShare >= 0.8
           ? [{ key: "quota", n: Math.round(monthShare * 100), label: t("att_quota"), href: "/dashboard/generation/jobs", cta: t("souk_cta_jobs"), icon: Wallet, tone: monthShare >= 1 ? ("bad" as const) : ("warn" as const) }]
           : []),
-      ] as Ticket[]).filter((x) => x.n > 0)
+      ] as Ticket[]).filter((x) => x.n === undefined || x.n > 0)
     : [];
 
   const cells: Cell[] = d
