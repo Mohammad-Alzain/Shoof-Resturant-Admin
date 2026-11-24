@@ -1456,5 +1456,6 @@
   "hidden_from_guests": "Hidden from guests",
   "preview_ar_fallback": "No Arabic name yet: guests see the English one.",
   "cat_3d_share": "{{n}}% in 3D",
-  "cat_3d_coverage": "{{n}} of {{total}} dishes have a 3D model"
+  "cat_3d_coverage": "{{n}} of {{total}} dishes have a 3D model",
+  "access_InvalidApiKey": "The dashboard's app key (VITE_APP_API_KEY) is missing or wrong for this server."
 }

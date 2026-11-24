@@ -14,7 +14,7 @@ export default function AccessBanner() {
   const roles = myRoles(auth);
   if (dismissed || !accessBlocked({ code, count, ok })) return null;
 
-  const known = ["SubscriptionExpired", "IpNotAllowed"].includes(code);
+  const known = ["SubscriptionExpired", "IpNotAllowed", "InvalidApiKey"].includes(code);
   const title = known ? t(`access_${code}`) : text || t("access_denied_title");
   return (
     <div role="alert" className="mb-5 flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm">

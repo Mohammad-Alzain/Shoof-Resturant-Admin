@@ -65,8 +65,10 @@ function LoginComponent() {
       await fetchProfile();
       navigate({ to: dashboardUrl("/") });
     } catch (error) {
-      const { status, message, fieldErrors } = parseApiError(error);
+      const { status, message, fieldErrors, code } = parseApiError(error);
       if (status === 429) return; // the client already showed "too many attempts"
+      // The app's own key is wrong for this restaurant's server: say so, instead of blaming the password.
+      if (code === "InvalidApiKey") return void setError("root", { message: t("access_InvalidApiKey") });
       (["tenantSlug", "email", "password"] as const).forEach((field) => {
         if (fieldErrors[field]?.[0]) setError(field, { message: fieldErrors[field][0] });
       });

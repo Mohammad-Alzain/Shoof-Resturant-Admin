@@ -57,6 +57,8 @@ function ChangePasswordPage() {
       // The reply carries a fresh token pair: replace both.
       const reply = await change.mutateAsync({ currentPassword, newPassword });
       applySession({ ...reply, mustChangePassword: false });
+      // a new token pair is a new session: read its roles and permissions again, as sign-in does
+      await useAuthStore.getState().fetchProfile();
       toast.success(t("password_changed"));
       navigate({ to: dashboardUrl("/") });
     } catch (error) {

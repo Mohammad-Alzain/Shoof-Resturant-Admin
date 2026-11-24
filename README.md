@@ -21,8 +21,8 @@ npm run build            # dist/ (الواجهة في dist/admin) يُنشر ت�
 | Backend محلي (`dotnet run`، `https://localhost:7221`) | مفتاح التطوير `CHANGE_ME_DEV_ONLY_RESTAURANT_API_KEY` من `appsettings.Development.json` |
 | الخادم المنشور (`*.shoof.lambdor.com`) | مفتاح الإنتاج من إعدادات الخادم (`ApiKeys:Clients` → `Restaurant`)، يُطلب من فريق الـBackend |
 
-- **مفتاح خاطئ لا يمنع تسجيل الدخول:** `auth/login` و`account/me` لا يفحصان المفتاح، لكن كل ما بعدهما يرجع `403` برد فارغ
-  (حتى `notifications/unread-count`). إذا كان المالك يُرفض في كل شيء فالسبب المفتاح، لا الصلاحيات.
+- **المفتاح مطلوب في كل طلب حتى قبل تسجيل الدخول** (`auth/login` و`refresh` و`revoke` وطلبات كلمة المرور). المفتاح الخاطئ يرجع
+  `401`/`403` برأس `X-Error-Code: InvalidApiKey`، فتعرض الواجهة رسالة المفتاح بدل «كلمة المرور خاطئة». لا يوجد أي استدعاء بلا اعتماد.
 - **لا يُكتب المفتاح في Git.** مكانه:
   - محلياً: `VITE_APP_API_KEY` في `.env` (الملف مستثنى من Git؛ `.env.example` هو القالب).
   - على Netlify: Site configuration → Environment variables → `VITE_APP_API_KEY`، ثم إعادة النشر.

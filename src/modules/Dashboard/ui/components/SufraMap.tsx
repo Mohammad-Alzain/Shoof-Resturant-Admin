@@ -35,56 +35,69 @@ interface Plate {
   dishes: Dish[];
 }
 
+/** The restaurant's whole menu (categories, dishes, live 3D models), read once and shared by every screen that needs it. */
+export interface MenuData {
+  categories: ICategory[];
+  items: IItem[];
+  models: IModel3D[];
+}
+const MENU_DATA_KEY = ["menu-items", "data"] as const;
+export const menuDataKey = (restaurantId?: string) => [...MENU_DATA_KEY, restaurantId] as const;
+const readMenuData = async (restaurantId?: string): Promise<MenuData> => {
+  const [categories, items, models] = await Promise.all([
+    fetchAll<ICategory>("menu-categories", { restaurantId }),
+    fetchAll<IItem>("menu-items", { restaurantId }),
+    fetchAll<IModel3D>("menu-item-3d-models"),
+  ]);
+  return { categories, items, models };
+};
+
 /** One plate per top-level category: its own items plus its sub-categories' items, with 3D-model and photo coverage. */
+const toPlates = ({ categories, items, models }: MenuData): Plate[] => {
+  const withModel = new Set(models.filter((m) => m.isActive && m.generationStatus === 2).map((m) => m.menuItemId));
+  const parentOf = new Map(categories.map((c) => [c.id, c.parentCategoryId || c.id]));
+  const plates = new Map<string, Plate>(
+    categories
+      .filter((c) => !c.parentCategoryId)
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((c) => [c.id, { id: c.id, name: c.name, items: 0, models: 0, photos: 0, target: c.id, dishes: [] }]),
+  );
+  // per category: [items, items without a model]
+  const work = new Map<string, [number, number]>();
+  for (const item of items) {
+    const plate = plates.get(parentOf.get(item.menuCategoryId) ?? item.menuCategoryId);
+    if (!plate) continue;
+    plate.items++;
+    const has = withModel.has(item.id);
+    if (has) plate.models++;
+    const img = primaryImage(item);
+    if (img) {
+      plate.photos++;
+      if (isSafeUrl(img.url)) plate.dishes.push({ id: item.id, name: item.name, category: plate.name, photo: img.url, has3d: has, price: item.price, currencyId: item.currencyId });
+    }
+    const w = work.get(item.menuCategoryId) ?? [0, 0];
+    work.set(item.menuCategoryId, [w[0] + 1, w[1] + (has ? 0 : 1)]);
+  }
+  for (const plate of plates.values()) {
+    plate.dishes.sort((a, b) => Number(b.has3d) - Number(a.has3d));
+    let best: [number, number] = [-1, -1];
+    for (const [cat, w] of work) {
+      if ((parentOf.get(cat) ?? cat) !== plate.id) continue;
+      if (w[1] > best[1] || (w[1] === best[1] && w[0] > best[0])) {
+        best = w;
+        plate.target = cat;
+      }
+    }
+  }
+  return [...plates.values()];
+};
+
+export const useMenuData = (restaurantId?: string) =>
+  useQuery({ queryKey: menuDataKey(restaurantId), enabled: !!restaurantId, staleTime: 60_000, queryFn: () => readMenuData(restaurantId) });
+
+/** The plates, from the shared menu data: the dashboard, its bins and the categories page cost one read between them. */
 export const useSufra = (restaurantId?: string) =>
-  useQuery({
-    queryKey: ["dashboard", "sufra", restaurantId],
-    enabled: !!restaurantId,
-    staleTime: 60_000,
-    queryFn: async (): Promise<Plate[]> => {
-      const [categories, items, models] = await Promise.all([
-        fetchAll<ICategory>("menu-categories", { restaurantId }),
-        fetchAll<IItem>("menu-items", { restaurantId }),
-        fetchAll<IModel3D>("menu-item-3d-models"),
-      ]);
-      const withModel = new Set(models.filter((m) => m.isActive && m.generationStatus === 2).map((m) => m.menuItemId));
-      const parentOf = new Map(categories.map((c) => [c.id, c.parentCategoryId || c.id]));
-      const plates = new Map<string, Plate>(
-        categories
-          .filter((c) => !c.parentCategoryId)
-          .sort((a, b) => a.displayOrder - b.displayOrder)
-          .map((c) => [c.id, { id: c.id, name: c.name, items: 0, models: 0, photos: 0, target: c.id, dishes: [] }]),
-      );
-      // per category: [items, items without a model]
-      const work = new Map<string, [number, number]>();
-      for (const item of items) {
-        const plate = plates.get(parentOf.get(item.menuCategoryId) ?? item.menuCategoryId);
-        if (!plate) continue;
-        plate.items++;
-        const has = withModel.has(item.id);
-        if (has) plate.models++;
-        const img = primaryImage(item);
-        if (img) {
-          plate.photos++;
-          if (isSafeUrl(img.url)) plate.dishes.push({ id: item.id, name: item.name, category: plate.name, photo: img.url, has3d: has, price: item.price, currencyId: item.currencyId });
-        }
-        const w = work.get(item.menuCategoryId) ?? [0, 0];
-        work.set(item.menuCategoryId, [w[0] + 1, w[1] + (has ? 0 : 1)]);
-      }
-      for (const plate of plates.values()) {
-        plate.dishes.sort((a, b) => Number(b.has3d) - Number(a.has3d));
-        let best: [number, number] = [-1, -1];
-        for (const [cat, w] of work) {
-          if ((parentOf.get(cat) ?? cat) !== plate.id) continue;
-          if (w[1] > best[1] || (w[1] === best[1] && w[0] > best[0])) {
-            best = w;
-            plate.target = cat;
-          }
-        }
-      }
-      return [...plates.values()];
-    },
-  });
+  useQuery({ queryKey: menuDataKey(restaurantId), enabled: !!restaurantId, staleTime: 60_000, queryFn: () => readMenuData(restaurantId), select: toPlates });
 
 /**
  * One category as an open bin on a souk display: its own best dish photo fills the bin from the bottom, as high as the

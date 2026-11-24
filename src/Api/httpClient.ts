@@ -37,6 +37,8 @@ export interface ApiError {
   message?: string;
   /** `errors.{Field}[]` from a validation problem, keys lower-cased first letter. */
   fieldErrors: Record<string, string[]>;
+  /** `X-Error-Code` header (e.g. InvalidApiKey, SubscriptionExpired), empty when the server sent none. */
+  code?: string;
 }
 
 export const parseApiError = (error: unknown): ApiError => {
@@ -44,9 +46,10 @@ export const parseApiError = (error: unknown): ApiError => {
   const status = err?.response?.status;
   const data = err?.response?.data;
   const fieldErrors: Record<string, string[]> = {};
+  const code = String(err?.response?.headers?.["x-error-code"] ?? "") || undefined;
 
   if (typeof data === "string") {
-    return { status, message: data || undefined, fieldErrors };
+    return { status, message: data || undefined, fieldErrors, code };
   }
   if (data && typeof data === "object") {
     for (const [key, value] of Object.entries<any>(data.errors ?? {})) {
@@ -54,9 +57,9 @@ export const parseApiError = (error: unknown): ApiError => {
       fieldErrors[field] = Array.isArray(value) ? value : [String(value)];
     }
     const first = Object.values(fieldErrors)[0]?.[0];
-    return { status, message: first ?? data.detail ?? data.title ?? data.message, fieldErrors };
+    return { status, message: first ?? data.detail ?? data.title ?? data.message, fieldErrors, code };
   }
-  return { status, fieldErrors };
+  return { status, fieldErrors, code };
 };
 
 httpClient.interceptors.request.use((config) => {
@@ -117,6 +120,13 @@ httpClient.interceptors.response.use(
     const config = error.config as (InternalAxiosRequestConfig & { _retried?: boolean }) | undefined;
     const status = error.response?.status;
     const body = text(error.response?.data);
+
+    // A wrong app key (VITE_APP_API_KEY) is refused before anyone is authenticated, sign-in included. It is not an expired
+    // session: refreshing or signing out would not help, so say what is wrong and let the sign-in page show it.
+    if ((status === 401 || status === 403) && String(error.response?.headers?.["x-error-code"] ?? "") === "InvalidApiKey") {
+      useAccessStore.getState().record("InvalidApiKey", body);
+      return Promise.reject(error);
+    }
 
     if (status === 401 && config && !config.skipAuthRefresh && !config._retried) {
       config._retried = true;

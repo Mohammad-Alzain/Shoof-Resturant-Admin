@@ -1495,5 +1495,6 @@
   "hidden_from_guests": "مخفي عن الضيوف",
   "preview_ar_fallback": "لا اسم عربي بعد: يرى الضيف الاسم الإنجليزي.",
   "cat_3d_share": "{{n}}% بمجسّم 3D",
-  "cat_3d_coverage": "{{n}} من {{total}} طبقاً بمجسّم ثلاثي الأبعاد"
+  "cat_3d_coverage": "{{n}} من {{total}} طبقاً بمجسّم ثلاثي الأبعاد",
+  "access_InvalidApiKey": "مفتاح التطبيق (VITE_APP_API_KEY) غير موجود أو غير صحيح لهذا الخادم."
 }

@@ -1,4 +1,4 @@
-import { useSufra } from "@/modules/Dashboard/ui/components/SufraMap";
+import { menuDataKey, useMenuData, useSufra } from "@/modules/Dashboard/ui/components/SufraMap";
 import { Meter } from "@/modules/shared/ui/parts";
 import { can } from "@/modules/Auth/core/can";
 import { Can } from "@/components/common/Can";
@@ -7,7 +7,7 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import NiceModal from "@ebay/nice-modal-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CornerDownRight, EyeOff, FolderTree, GripVertical, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
@@ -22,12 +22,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { strOrNull } from "@/helpers/body";
-import { fetchAll, getBilingual } from "@/modules/shared/core/lookups";
+import { getBilingual } from "@/modules/shared/core/lookups";
 import { useRestaurantId, useRestaurants } from "@/modules/shared/core/restaurant";
 import { EmptyState } from "@/modules/shared/ui/parts";
 import { categoriesApi, type ICategory } from "../../core/api";
 
-const KEY = ["menu-categories", "tree"];
 
 /** What a sortable item hands its drag handle: the activator ref and the pointer/keyboard listeners. */
 type Handle = { ref: (el: HTMLElement | null) => void; props: Record<string, unknown>; dragging: boolean };
@@ -71,16 +70,18 @@ export default function CategoriesPage() {
   const restaurants = useRestaurants();
   const multi = (restaurants.data?.length ?? 0) > 1;
 
-  const cats = useQuery({ queryKey: KEY, queryFn: () => fetchAll<ICategory>("menu-categories") });
-  const counts = useQuery({
-    queryKey: ["menu-items", "counts"],
-    queryFn: async () => {
-      const m = new Map<string, number>();
-      for (const i of await fetchAll<{ menuCategoryId: string }>("menu-items")) m.set(i.menuCategoryId, (m.get(i.menuCategoryId) ?? 0) + 1);
-      return m;
-    },
-  });
-  const refresh = () => qc.invalidateQueries({ queryKey: ["menu-categories"] });
+  // categories and their dish counts come from the menu data the dashboard shares: one read, not three
+  const menu = useMenuData(restaurantId);
+  const cats = { data: menu.data?.categories, isLoading: menu.isLoading };
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const i of menu.data?.items ?? []) m.set(i.menuCategoryId, (m.get(i.menuCategoryId) ?? 0) + 1);
+    return { data: m };
+  }, [menu.data]);
+  const refresh = async () => {
+    await qc.invalidateQueries({ queryKey: ["menu-categories"] });
+    await qc.invalidateQueries({ queryKey: menuDataKey(restaurantId) });
+  };
 
   // the dashboard's per-category 3D coverage (items and items with a live model, sub-categories included)
   const sufra = useSufra(restaurantId);

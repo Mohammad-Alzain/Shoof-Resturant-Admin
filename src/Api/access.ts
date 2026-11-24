@@ -58,6 +58,6 @@ export const useAccessStore = create<AccessState>((set) => ({
   },
 }));
 
-/** Refusals the banner explains: a blocking code (expired plan, IP not allowed), or every call refused, at least two. */
+/** Refusals the banner explains: a blocking code (expired plan, IP not allowed, wrong app key), or every call refused, at least two. */
 export const accessBlocked = (s: Pick<AccessState, "code" | "count" | "ok">) =>
-  ["SubscriptionExpired", "IpNotAllowed"].includes(s.code) ? s.count > 0 : s.count >= 2 && s.ok === 0;
+  ["SubscriptionExpired", "IpNotAllowed", "InvalidApiKey"].includes(s.code) ? s.count > 0 : s.count >= 2 && s.ok === 0;

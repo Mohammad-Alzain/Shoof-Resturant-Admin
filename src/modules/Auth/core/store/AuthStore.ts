@@ -61,7 +61,27 @@ const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  fetchProfile: async () => {
+  fetchProfile: () => {
+    // One read per session at a time: callers that arrive while it runs (the app's mount, run twice by React's
+    // development checks, and the sign-in page) share it instead of asking for the profile and roles again.
+    const token = get().auth?.token;
+    if (!token) return Promise.resolve();
+    if (inflight && inflight.token === token) return inflight.promise;
+    const promise = readProfile().finally(() => {
+      if (inflight?.promise === promise) inflight = null;
+    });
+    inflight = { token, promise };
+    return promise;
+  },
+}));
+
+/** The profile read in flight, keyed by the token it was started for (a new token starts a new read). */
+let inflight: { token: string; promise: Promise<void> } | null = null;
+
+async function readProfile() {
+  const get = useAuthStore.getState;
+  const set = useAuthStore.setState;
+  {
     const current = get().auth;
     if (!current?.token) return;
     set({ permissionsIsFetching: true });
@@ -89,7 +109,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       set({ permissionsIsFetching: false });
     }
-  },
-}));
+  }
+}
 
 export default useAuthStore;
