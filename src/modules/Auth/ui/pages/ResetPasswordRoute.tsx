@@ -10,8 +10,7 @@ import { RootRoute } from "../../../../App";
 import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import { useForgotPassword, useResetPassword } from "../../core/api";
-import { defaultSlug, forgetLinkedSlug, hostSlug, knownSlug } from "../../core/tenant";
-import { RestaurantChip } from "../components/RestaurantChip";
+import { defaultSlug, knownSlug } from "../../core/tenant";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -59,8 +58,8 @@ function RequestLink() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
   const forgot = useForgotPassword();
-  const [known, setKnown] = useState(knownSlug);
-  const fromHost = hostSlug();
+  // the code is never shown: a known one is simply not asked for
+  const known = knownSlug();
   const schema = z.object({
     tenantSlug: z.string().trim().min(1, t("field_required")),
     email: z.string().min(1, t("field_required")).email(t("invalid_email")),
@@ -93,7 +92,6 @@ function RequestLink() {
         </p>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-          {known && <RestaurantChip code={known} onChange={fromHost ? undefined : () => { forgetLinkedSlug(); setKnown(""); }} />}
           {!known && (
             <AuthField label={t("restaurant_code")} dir="ltr" className="text-start" autoCapitalize="none" placeholder="pizzahut" error={errors.tenantSlug?.message} {...register("tenantSlug")} />
           )}

@@ -16,7 +16,6 @@ import { parseApiError } from "@/Api/httpClient";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 import { useSignInPost } from "../../core/api";
 import { defaultSlug, forgetLinkedSlug, hostSlug, knownSlug, saveSlug } from "../../core/tenant";
-import { RestaurantChip } from "../components/RestaurantChip";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -53,6 +52,7 @@ function LoginComponent() {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: defaultSlug(), email: "", password: "" } });
 
@@ -87,9 +87,25 @@ function LoginComponent() {
       title={t("signin_title")}
       description={t("signin_desc")}
       footer={
-        <Link to="/reset-password" className="font-medium text-primary hover:underline">
-          {t("forgot_link")}
-        </Link>
+        <span className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+          <Link to="/reset-password" className="font-medium text-primary hover:underline">
+            {t("forgot_link")}
+          </Link>
+          {/* the code is never shown; this only lets someone whose browser remembers another restaurant type theirs */}
+          {known && !fromHost && (
+            <button
+              type="button"
+              onClick={() => {
+                forgetLinkedSlug();
+                setValue("tenantSlug", "");
+                setKnown("");
+              }}
+              className="text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("another_restaurant")}
+            </button>
+          )}
+        </span>
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -102,7 +118,6 @@ function LoginComponent() {
             {errors.root.message}
           </div>
         )}
-        {known && <RestaurantChip code={known} onChange={fromHost ? undefined : () => { forgetLinkedSlug(); setKnown(""); }} />}
         {!known && (
           <AuthField
             label={t("restaurant_code")}
