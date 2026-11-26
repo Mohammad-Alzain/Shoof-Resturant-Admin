@@ -11,9 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { fetchAll } from "@/modules/shared/core/lookups";
+import { SourceSelect } from "../components/SourceSelect";
 import { EmptyState, QuotaStrip } from "@/modules/shared/ui/parts";
 import { primaryImage, type IItem } from "@/modules/Menu/core/api";
-import { remainingCap, useBulkGenerate, useCancelBatch, useQuota, type IBulkResult } from "../../core/api";
+import { ModelSource, remainingCap, useBulkGenerate, useCancelBatch, useQuota, type IBulkResult } from "../../core/api";
 
 const MAX = 500;
 
@@ -24,6 +25,7 @@ export default function BulkPage() {
   const [term, setTerm] = useState("");
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [forceNew, setForceNew] = useState(false);
+  const [source, setSource] = useState<ModelSource>(ModelSource.Auto);
   const [result, setResult] = useState<IBulkResult | null>(null);
   const quota = useQuota();
   const bulk = useBulkGenerate();
@@ -47,7 +49,7 @@ export default function BulkPage() {
 
   const run = () =>
     bulk.mutate(
-      { menuItemIds: [...picked], forceNew },
+      { menuItemIds: [...picked], forceNew, source },
       {
         onSuccess: (r) => {
           setResult(r);
@@ -57,7 +59,7 @@ export default function BulkPage() {
       },
     );
 
-  const SKIP: Record<string, string> = { NotFound: "skip_notfound", AlreadyProcessing: "skip_processing", NoMeaningfulChange: "skip_nochange", QuotaExceeded: "skip_quota", MonthlyQuotaExceeded: "skip_monthly" };
+  const SKIP: Record<string, string> = { NotFound: "skip_notfound", AlreadyProcessing: "skip_processing", NoMeaningfulChange: "skip_nochange", QuotaExceeded: "skip_quota", MonthlyQuotaExceeded: "skip_monthly", NoPhoto: "skip_nophoto" };
 
   return (
     <section className="space-y-5">
@@ -94,6 +96,8 @@ export default function BulkPage() {
           )}
         </motion.div>
       )}
+
+      <SourceSelect value={source} onChange={setSource} disabled={bulk.isPending} />
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 sm:max-w-xs">

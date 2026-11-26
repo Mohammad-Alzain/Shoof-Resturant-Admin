@@ -1,10 +1,11 @@
-import { createElement, useEffect, useState } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import { Box } from "lucide-react";
 import { isSafeUrl } from "@/helpers/url";
 
 /** `<model-viewer>` for a GLB (and a USDZ for iOS AR). The library is loaded on first use, so it never weighs on other pages. */
-export function ModelViewer({ glb, usdz, poster, className }: { glb?: string | null; usdz?: string | null; poster?: string | null; className?: string }) {
+export function ModelViewer({ glb, usdz, poster, className, onLoadError }: { glb?: string | null; usdz?: string | null; poster?: string | null; className?: string; onLoadError?: () => void }) {
   const [ready, setReady] = useState(false);
+  const viewer = useRef<HTMLElement>(null);
   useEffect(() => {
     let live = true;
     import("@google/model-viewer").then(() => live && setReady(true)).catch(() => undefined);
@@ -12,6 +13,13 @@ export function ModelViewer({ glb, usdz, poster, className }: { glb?: string | n
       live = false;
     };
   }, []);
+  // Signed file links expire: a failed load (403) tells the page to fetch the data again for fresh links.
+  useEffect(() => {
+    if (!ready || !onLoadError) return;
+    const el = viewer.current;
+    el?.addEventListener("error", onLoadError);
+    return () => el?.removeEventListener("error", onLoadError);
+  }, [ready, glb, onLoadError]);
   if (!glb || !isSafeUrl(glb)) return null;
   if (!ready)
     return (
@@ -22,6 +30,7 @@ export function ModelViewer({ glb, usdz, poster, className }: { glb?: string | n
       </div>
     );
   return createElement("model-viewer", {
+    ref: viewer,
     src: glb,
     "ios-src": usdz && isSafeUrl(usdz) ? usdz : undefined,
     poster: poster && isSafeUrl(poster) ? poster : undefined,

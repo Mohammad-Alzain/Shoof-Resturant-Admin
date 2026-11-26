@@ -1,7 +1,7 @@
 import { isSafeUrl } from "@/helpers/url";
 import { can } from "@/modules/Auth/core/can";
 import { Can } from "@/components/common/Can";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,9 @@ import { strOrNull } from "@/helpers/body";
 import { http } from "@/Api/httpClient";
 import { fetchAll, formatPrice, getBilingual, useCurrencies } from "@/modules/shared/core/lookups";
 import { EmptyState, FilePickButton, JobBadge, QuotaStrip } from "@/modules/shared/ui/parts";
-import { JobKind, JobStatus, remainingCap, useGenerate, useQuota, type IJob } from "@/modules/Generation/core/api";
+import { JobKind, JobStatus, ModelSource, remainingCap, useGenerate, useQuota, type IJob } from "@/modules/Generation/core/api";
+import { SOURCE_LABEL, SourceSelect } from "@/modules/Generation/ui/components/SourceSelect";
+import { parseApiError } from "@/Api/httpClient";
 import {
   deleteItemImage,
   generateItemImage,
@@ -486,8 +488,16 @@ function ModelTab({ item }: { item: IItem }) {
   const noQuota = remainingCap(quota.data) === 0;
   const refresh = () => qc.invalidateQueries({ queryKey: ["menu-item-3d-models"] });
 
+  const [source, setSource] = useState<ModelSource>(ModelSource.Auto);
   const run = (forceNew: boolean) =>
-    generate.mutate({ menuItemId: item.id, forceNew }, { onError: () => undefined });
+    generate.mutate({ menuItemId: item.id, forceNew, source }, { onError: () => undefined });
+  // Model links are signed and expire: when the viewer cannot load one (403), fetch the models again for fresh links.
+  const lastRefetch = useRef(0);
+  const refetchLinks = () => {
+    if (Date.now() - lastRefetch.current < 30_000) return;
+    lastRefetch.current = Date.now();
+    refresh();
+  };
 
   const [byUrl, setByUrl] = useState({ glbUrl: "", usdzUrl: "", thumbnailUrl: "" });
   const addByUrl = useMutation({
@@ -522,7 +532,7 @@ function ModelTab({ item }: { item: IItem }) {
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       <div className="overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-card">
-        {active ? <ModelViewer glb={active.glbUrl} usdz={active.usdzUrl} poster={active.thumbnailUrl} className="h-[22rem] w-full" /> : (
+        {active ? <ModelViewer glb={active.glbUrl} usdz={active.usdzUrl} poster={active.thumbnailUrl} onLoadError={refetchLinks} className="h-[22rem] w-full" /> : (
           <EmptyState icon={Box} title={t("no_model_yet")} hint={t("no_model_hint")} />
         )}
         {active && (
@@ -571,10 +581,12 @@ function ModelTab({ item }: { item: IItem }) {
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <JobBadge job={lastJob} />
               {lastJob.isLibraryMatch && <Badge variant="info" appearance="light" size="sm">{t("library_reused")}</Badge>}
+              <Badge variant="secondary" appearance="light" size="sm">{t("source_label", { s: t(SOURCE_LABEL[lastJob.source ?? ModelSource.Auto]) })}</Badge>
               {lastJob.status === JobStatus.Failed && lastJob.errorMessage && <span className="text-destructive">{lastJob.errorMessage}</span>}
             </div>
           )}
-          {generate.isError && <p role="alert" className="text-xs text-destructive">{t("generate_blocked")}</p>}
+          <SourceSelect value={source} onChange={setSource} disabled={busy || generate.isPending} />
+          {generate.isError && <p role="alert" className="text-xs text-destructive">{parseApiError(generate.error).status === 400 && source >= ModelSource.Image ? t("generate_no_photo") : t("generate_blocked")}</p>}
           <div className="flex flex-wrap gap-2">
             <Can permission="ModelGenerationJobs.Add"><Button type="button" variant="primary" disabled={busy || noQuota || generate.isPending} onClick={() => run(false)}>
               {generate.isPending || busy ? <Loader2 className="animate-spin" /> : <Sparkles />}

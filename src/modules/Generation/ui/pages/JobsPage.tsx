@@ -9,7 +9,8 @@ import { createdFilters } from "@/modules/shared/core/filters";
 import { relativeTime, shortDate } from "@/modules/shared/core/format";
 import { categoryPicker, itemPicker, restaurantPicker } from "@/modules/shared/core/pickers";
 import { JobBadge, KindLabel, QuotaStrip } from "@/modules/shared/ui/parts";
-import { JobStatus, jobsApi, useCancelJob, type IJob } from "../../core/api";
+import { JobKind, JobStatus, ModelSource, jobsApi, useCancelJob, type IJob } from "../../core/api";
+import { SOURCE_LABEL } from "../components/SourceSelect";
 
 /** Every 3D / AI photo job: queued, running, finished, with the place in the queue and the reason a job failed. */
 export default function JobsPage() {
@@ -40,6 +41,7 @@ export default function JobsPage() {
               <span className="min-w-0">
                 <span className="block truncate font-medium text-foreground">{j.menuItemName ?? "—"}</span>
                 <KindLabel kind={j.kind} />
+                {j.kind === JobKind.Model && <span className="block text-xs text-muted-foreground">{t("source_label", { s: t(SOURCE_LABEL[j.source ?? ModelSource.Auto]) })}</span>}
               </span>
             </span>
           ),

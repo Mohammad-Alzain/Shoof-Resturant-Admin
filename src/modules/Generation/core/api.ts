@@ -16,12 +16,22 @@ export enum JobKind {
   Image = 1,
 }
 
+/** What a 3D model is generated from: 0 Auto (photo when there is one, else text), 1 Text, 2 Image, 3 Image and text. */
+export enum ModelSource {
+  Auto = 0,
+  Text = 1,
+  Image = 2,
+  ImageAndText = 3,
+}
+
 export interface IJob {
   id: string;
   menuItemId: string;
   menuItemName?: string | null;
   status: JobStatus;
   kind: JobKind;
+  /** Only for 3D jobs; old jobs read 0 (Auto). */
+  source?: ModelSource | null;
   externalProviderName?: string | null;
   retryCount: number;
   errorMessage?: string | null;
@@ -58,7 +68,7 @@ export const remainingCap = (q?: IQuota): number | null => {
 export const useGenerate = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { menuItemId: string; forceNew?: boolean }) => http.post<IJob>("model-generation-jobs", { menuItemId: v.menuItemId, forceNew: !!v.forceNew }),
+    mutationFn: (v: { menuItemId: string; forceNew?: boolean; source?: ModelSource }) => http.post<IJob>("model-generation-jobs", { menuItemId: v.menuItemId, forceNew: !!v.forceNew, source: v.source ?? ModelSource.Auto }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["model-generation-jobs"] });
       qc.invalidateQueries({ queryKey: ["menu-items"] });
@@ -74,7 +84,7 @@ export interface IBulkResult {
 export const useBulkGenerate = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { menuItemIds: string[]; forceNew?: boolean }) => http.post<IBulkResult>("model-generation-jobs/bulk", { menuItemIds: v.menuItemIds, forceNew: !!v.forceNew }),
+    mutationFn: (v: { menuItemIds: string[]; forceNew?: boolean; source?: ModelSource }) => http.post<IBulkResult>("model-generation-jobs/bulk", { menuItemIds: v.menuItemIds, forceNew: !!v.forceNew, source: v.source ?? ModelSource.Auto }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["model-generation-jobs"] });
       qc.invalidateQueries({ queryKey: ["menu-items"] });

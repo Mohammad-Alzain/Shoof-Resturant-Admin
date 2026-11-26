@@ -1460,5 +1460,17 @@
   "preview_ar_fallback": "No Arabic name yet: guests see the English one.",
   "cat_3d_share": "{{n}}% in 3D",
   "cat_3d_coverage": "{{n}} of {{total}} dishes have a 3D model",
-  "access_InvalidApiKey": "The dashboard's app key (VITE_APP_API_KEY) is missing or wrong for this server."
+  "access_InvalidApiKey": "The dashboard's app key (VITE_APP_API_KEY) is missing or wrong for this server.",
+  "model_source": "Generate the model from",
+  "source_auto": "Automatic",
+  "source_auto_hint": "The main photo when the dish has one, otherwise its name and description.",
+  "source_text": "Text",
+  "source_text_hint": "Name, description and ingredients, even if the dish has a photo.",
+  "source_image": "Photo",
+  "source_image_hint": "The main photo only. The dish needs a photo.",
+  "source_image_text": "Photo + text",
+  "source_image_text_hint": "The photo sets the shape and the text guides textures and colours. The dish needs a photo.",
+  "skip_nophoto": "No photo (needed for this source)",
+  "generate_no_photo": "This dish has no photo. Add one or pick another source.",
+  "source_label": "Source: {{s}}"
 }

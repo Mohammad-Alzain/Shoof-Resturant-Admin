@@ -245,6 +245,9 @@ httpClient.interceptors.response.use(
         // problem+json): the form shows them per field. Anything else is a business rule: show its text as-is.
         const validation = !!error.response?.data && typeof error.response.data === "object" && "errors" in error.response.data;
         if (!validation && message) toast.error(message);
+        // A file link field (logoUrl, glbUrl...) that points at another account's file is refused with a validation error:
+        // the form may not show it, so say it here.
+        else if (validation && message && Object.keys(parseApiError(error).fieldErrors).some((k) => /url$/i.test(k))) toast.error(message);
         // A deleted or unknown country/currency: reload the pickers (spec README, Release 2).
         if (/(country|currency|البلد|الدولة|العملة)/i.test(message ?? "") && /(deleted|doesn.t exist|محذوف|غير موجود)/i.test(message ?? "")) useAccountState.getState().markLookupsStale();
       }
