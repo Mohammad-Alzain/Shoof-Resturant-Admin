@@ -8,17 +8,14 @@
 [build.environment]
   # Vite 8 needs Node 20.19+ / 22.12+
   NODE_VERSION = "22"
-  # Relative: the API is reached on the same origin through the /backend proxy below (no CORS, CSP connect-src 'self').
   VITE_BASE_URL = "/backend/api/"
+  # This host carries no restaurant code, so the app calls the restaurant's own API directly, chosen by the code in the
+  # sign-in link: https://{slug}.shoof.lambdor.com/backend/api/. The build adds those hosts to the CSP connect-src, and
+  # the API must allow this site's origin (CORS). There is deliberately no /backend proxy: it could only reach one restaurant.
+  VITE_API_BASE_DOMAIN = "shoof.lambdor.com"
   VITE_APP_I18N_CONFIG_KEY = "shoof-restaurant-i18n"
-  # Set VITE_APP_API_KEY in the Netlify UI (Site configuration > Environment variables): it is not committed.
-
-# Netlify has no /backend of its own: forward it to the restaurant host. Change the host for production.
-[[redirects]]
-  from = "/backend/*"
-  to = "https://pizzahut.shoof.lambdor.com/backend/:splat"
-  status = 200
-  force = true
+  # Set VITE_APP_API_KEY in the Netlify UI (Site configuration > Environment variables) to the PRODUCTION Restaurant key,
+  # then redeploy. It is not committed. The dev placeholder is refused by the live API (X-Error-Code: InvalidApiKey).
 
 [[redirects]]
   from = "/"

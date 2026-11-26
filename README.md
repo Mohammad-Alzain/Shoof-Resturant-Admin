@@ -33,8 +33,11 @@ npm run build            # dist/ (الواجهة في dist/admin) يُنشر ت�
 ## العنوان ورمز المطعم
 
 - عند النشر: `https://{slug}.shoof.lambdor.com/admin/`، والـAPI على نفس الأصل `/backend/api/`، ورمز المطعم من اسم المضيف.
-- على localhost أو أي مضيف بلا رمز: يُكتب الرمز في شاشة الدخول، فيصبح الـAPI `https://{slug}.{VITE_API_BASE_DOMAIN}/backend/api/`
+- على localhost أو أي مضيف بلا رمز (ومنه Netlify): يأتي الرمز من رابط الدخول، فيصبح الـAPI `https://{slug}.{VITE_API_BASE_DOMAIN}/backend/api/`
   للوحة كلها (الطلبات وتجديد التوكن وقناة الإشعارات). النطاق ثابت في الإعدادات والرمز يُتحقق منه، فلا يصل التوكن لخادم آخر.
+- **Netlify:** `netlify.toml` يضبط `VITE_API_BASE_DOMAIN=shoof.lambdor.com` ولا يمرّر `/backend` (الممرّر لا يصل إلا لمطعم واحد). يلزم أن
+  يسمح CORS الخادم بنطاق الموقع، وأن يُضبط مفتاح الإنتاج `VITE_APP_API_KEY` في واجهة Netlify ثم يُعاد النشر. رابط الدخول:
+  `https://{الموقع}.netlify.app/admin/login?slug={slug}`.
 - **المطعم يأتي من الرابط فقط:** يرسل المطعم لموظفيه رابطاً مثل `https://{التطبيق}/admin/login?slug=pizzahut` (يقبل أيضاً `tenant` و`tenantSlug`
   و`restaurant` و`code`). تقرأ الواجهة الرمز عند الفتح وتحفظه في هذا المتصفح، فيعمل العنوان العادي بعدها. لا يوجد حقل لإدخال الرمز
   ولا عرض له ولا زر لتغييره؛ لمطعم آخر يُفتح رابطه. على نطاق المطعم نفسه (`pizzahut.shoof.lambdor.com`) يؤخذ الرمز من النطاق. إن فُتح
