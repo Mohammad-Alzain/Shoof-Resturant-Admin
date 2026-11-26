@@ -31,7 +31,7 @@ export const saveSlug = (slug: string) => {
 
 /**
  * A restaurant can send its people a link that already carries its code: `https://app.example.com/admin/login?slug=pizzahut`
- * (`tenant` works too). It is read once when the app opens, remembered for this browser tab and as the last code used, and
+ * (`tenant`, `tenantSlug`, `restaurant` and `code` work too). It is read once when the app opens, remembered for this browser tab and as the last code used, and
  * the sign-in pages then never ask for it. Only a well-formed code is taken, and it only ever picks a host under the
  * configured platform domain (see `apiBaseUrl`).
  */
@@ -39,7 +39,8 @@ const LINK_KEY = "shoof-restaurant-linked-slug";
 export const captureLinkSlug = (): void => {
   try {
     const q = new URLSearchParams(window.location.search);
-    const code = (q.get("slug") ?? q.get("tenant") ?? "").trim().toLowerCase();
+    const raw = ["slug", "tenant", "tenantSlug", "restaurant", "code"].map((k) => q.get(k)).find((v) => v && v.trim());
+    const code = (raw ?? "").trim().toLowerCase();
     if (!SLUG_RE.test(code)) return;
     sessionStorage.setItem(LINK_KEY, code);
     saveSlug(code);
@@ -62,12 +63,18 @@ export const forgetLinkedSlug = () => {
     /* nothing stored */
   }
 };
-/** The code the restaurant itself supplied (its own host, or the link it sent): the sign-in pages do not ask for it. */
-export const knownSlug = (): string => hostSlug() || linkedSlug();
+/**
+ * The restaurant code the sign-in pages already have, so they do not ask for it: the restaurant's own host, the link it
+ * sent, the one this browser signed in with last time, or the dev default. Only a first visit with a bare address (none of
+ * these) shows the field.
+ */
+export const knownSlug = (): string => {
+  const dev = ((import.meta.env.VITE_DEV_SLUG as string | undefined) ?? "").trim().toLowerCase();
+  return [hostSlug(), linkedSlug(), savedSlug(), dev].find((c) => !!c && SLUG_RE.test(c.toLowerCase())) ?? "";
+};
 
-/** What the login and forgot-password forms start with: the host's or link's code, the last one used here, or the dev default. */
-export const defaultSlug = (): string =>
-  knownSlug() || savedSlug() || ((import.meta.env.VITE_DEV_SLUG as string | undefined) ?? "").trim();
+/** What the sign-in forms start with (also what the field shows when someone chooses to change the restaurant). */
+export const defaultSlug = (): string => knownSlug() || savedSlug();
 
 /** A restaurant code as the backend issues them: lowercase letters, digits and dashes. Anything else never builds a URL. */
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
