@@ -1415,7 +1415,7 @@
   "empty_plate_hint": "Nothing here yet. What you add will show in this list.",
   "souk_left": "left",
   "session_expired": "Your session ended. Please sign in again.",
-  "another_restaurant": "Another restaurant?",
+  "signin_need_link": "Open the sign-in link your restaurant sent you. You can't sign in from an address that doesn't carry the restaurant's code.",
   "sufra_more": "+{{n}} more categories",
   "ai_queue": "AI kitchen",
   "today_date": "Today",

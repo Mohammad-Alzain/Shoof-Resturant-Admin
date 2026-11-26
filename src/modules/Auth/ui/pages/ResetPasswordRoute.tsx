@@ -58,7 +58,7 @@ function RequestLink() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
   const forgot = useForgotPassword();
-  // the code is never shown: a known one is simply not asked for
+  // the restaurant comes from the link: not asked for, not shown, not changeable here
   const known = knownSlug();
   const schema = z.object({
     tenantSlug: z.string().trim().min(1, t("field_required")),
@@ -93,7 +93,9 @@ function RequestLink() {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
           {!known && (
-            <AuthField label={t("restaurant_code")} dir="ltr" className="text-start" autoCapitalize="none" placeholder="pizzahut" error={errors.tenantSlug?.message} {...register("tenantSlug")} />
+            <p role="status" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm leading-relaxed text-foreground">
+              {t("signin_need_link")}
+            </p>
           )}
           <AuthField
             label={t("email")}
@@ -103,7 +105,7 @@ function RequestLink() {
             error={errors.email?.message}
             {...register("email")}
           />
-          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting || !known}>
             {isSubmitting && <Loader2 className="animate-spin" />}
             {t("send_reset_link")}
           </Button>
