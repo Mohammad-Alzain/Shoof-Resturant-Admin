@@ -3,6 +3,7 @@
 import { AccountDisabledNotice } from "../components/AccountDisabledNotice";
 import { useAccountState } from "@/Api/accountState";
 import { createRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import useAuthStore from "@/modules/Auth/core/store/AuthStore";
 import { useSignInPost } from "../../core/api";
-import { defaultSlug, knownSlug, saveSlug } from "../../core/tenant";
+import { defaultSlug, forgetLinkedSlug, hostSlug, isSlug, knownSlug, saveSlug } from "../../core/tenant";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -37,10 +38,11 @@ function LoginComponent() {
   const fetchProfile = useAuthStore((s) => s.fetchProfile);
   const signIn = useSignInPost();
 
-  // The restaurant comes from the link (or its own host). It is not asked for, not shown and cannot be changed here.
-  const known = knownSlug();
+  // The restaurant's own host, its link or the last sign-in already name the restaurant: the code is not asked for.
+  const [known, setKnown] = useState(knownSlug);
+  const fromHost = hostSlug();
   const schema = z.object({
-    tenantSlug: z.string().trim().min(1, t("field_required")),
+    tenantSlug: z.string().trim().min(1, t("field_required")).refine((v) => isSlug(v.toLowerCase()), t("slug_rule")),
     email: z.string().min(1, t("field_required")).email(t("invalid_email")),
     password: z.string().min(1, t("field_required")),
   });
@@ -50,6 +52,7 @@ function LoginComponent() {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tenantSlug: defaultSlug(), email: "", password: "" } });
 
@@ -84,9 +87,25 @@ function LoginComponent() {
       title={t("signin_title")}
       description={t("signin_desc")}
       footer={
-        <Link to="/reset-password" className="font-medium text-primary hover:underline">
-          {t("forgot_link")}
-        </Link>
+        <span className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+          <Link to="/reset-password" className="font-medium text-primary hover:underline">
+            {t("forgot_link")}
+          </Link>
+          {/* the remembered code is never shown; this only lets someone type another restaurant's */}
+          {known && !fromHost && (
+            <button
+              type="button"
+              onClick={() => {
+                forgetLinkedSlug();
+                setValue("tenantSlug", "");
+                setKnown("");
+              }}
+              className="text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("another_restaurant")}
+            </button>
+          )}
+        </span>
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -100,9 +119,17 @@ function LoginComponent() {
           </div>
         )}
         {!known && (
-          <p role="status" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm leading-relaxed text-foreground">
-            {t("signin_need_link")}
-          </p>
+          <AuthField
+            label={t("restaurant_code")}
+            dir="ltr"
+            className="text-start"
+            autoFocus
+            autoCapitalize="none"
+            autoCorrect="off"
+            placeholder="my-restaurant"
+            error={errors.tenantSlug?.message}
+            {...register("tenantSlug")}
+          />
         )}
         <AuthField
           label={t("field_email")}
@@ -110,7 +137,7 @@ function LoginComponent() {
           autoComplete="username"
           dir="ltr"
           className="text-start"
-          autoFocus
+          autoFocus={!!known}
           placeholder="admin@example.com"
           error={errors.email?.message}
           {...register("email")}
@@ -123,7 +150,7 @@ function LoginComponent() {
           error={errors.password?.message}
           {...register("password")}
         />
-        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting || !known}>
+        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="animate-spin" />}
           {t("sign_in")}
         </Button>

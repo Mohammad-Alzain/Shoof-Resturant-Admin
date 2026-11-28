@@ -83,12 +83,12 @@ export default function TablesPage() {
   const qrs = useQuery({ queryKey: ["qr-codes", "all", rid], queryFn: () => fetchAll<IQr>("qr-codes", rid ? { restaurantId: rid } : {}) });
   const [busy, setBusy] = useState<string>("");
   const search = useListSearch();
-  const matches = useMatchingIds("tables", search.term, rid ? { restaurantId: rid } : {});
   const [status, setStatus] = useState<(typeof STATUSES)[number]>(() => STATUSES.find((s) => s === queryParam("status")) ?? "");
   const pickStatus = (next: (typeof STATUSES)[number]) => {
     setQueryParams({ status: next });
     setStatus(next);
   };
+  const matches = useMatchingIds("tables", search.term, rid ? { restaurantId: rid } : {}, status ? { isActive: status === "active" } : {});
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["tables"] });
     qc.invalidateQueries({ queryKey: ["qr-codes"] });

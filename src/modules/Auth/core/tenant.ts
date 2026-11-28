@@ -56,21 +56,29 @@ export const linkedSlug = (): string => {
     return "";
   }
 };
+export const forgetLinkedSlug = () => {
+  try {
+    sessionStorage.removeItem(LINK_KEY);
+  } catch {
+    /* nothing stored */
+  }
+};
 /**
- * The restaurant a sign-in is for. It is never typed and never shown, and nothing on the page changes it: it comes from the
- * restaurant's own host or from the link the restaurant sent (remembered by this browser, so the plain address works again
- * later). Only in development, where there is neither, `VITE_DEV_SLUG` stands in. Empty means "no link was ever opened".
+ * The restaurant code the sign-in pages already have, so they do not ask for it (and never show it): the restaurant's own
+ * host, the link it sent, or the one this browser signed in with last time. In development `VITE_DEV_SLUG` also stands
+ * in. Empty means the pages show the "Restaurant code" field.
  */
 export const knownSlug = (): string => {
   const dev = import.meta.env.DEV ? ((import.meta.env.VITE_DEV_SLUG as string | undefined) ?? "").trim().toLowerCase() : "";
-  return [hostSlug(), linkedSlug(), savedSlug(), dev].find((c) => !!c && SLUG_RE.test(c.toLowerCase())) ?? "";
+  return [hostSlug(), linkedSlug(), savedSlug(), dev].find((c) => !!c && isSlug(c.toLowerCase())) ?? "";
 };
 
-/** What the sign-in forms send as the restaurant code. */
+/** What the sign-in forms start with. */
 export const defaultSlug = (): string => knownSlug();
 
 /** A restaurant code as the backend issues them: lowercase letters, digits and dashes. Anything else never builds a URL. */
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+export const isSlug = (code: string) => SLUG_RE.test(code);
 
 /**
  * Where the Restaurant API is for a restaurant code:

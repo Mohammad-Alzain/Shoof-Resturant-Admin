@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -19,15 +19,20 @@ export const useListSearch = () => {
   return { text, setText, term };
 };
 
-/** The ids the server matches for a term; `undefined` while there is no term (everything shows). */
-export const useMatchingIds = (path: string, term: string, params: Record<string, unknown> = {}) => {
+/**
+ * The ids the server matches for a term and filters (`isActive`...); `undefined` while neither is set (everything shows)
+ * or until the first answer.
+ */
+export const useMatchingIds = (path: string, term: string, params: Record<string, unknown> = {}, filters: Record<string, unknown> = {}) => {
+  const filtering = !!term || Object.keys(filters).length > 0;
   const q = useQuery({
-    queryKey: [path, "search", term, params],
-    queryFn: async () => new Set((await fetchAll<{ id: string }>(path, { ...params, searchTerm: term })).map((r) => r.id)),
-    enabled: !!term,
-    placeholderData: keepPreviousData,
+    queryKey: [path, "search", term, params, filters],
+    queryFn: async () => new Set((await fetchAll<{ id: string }>(path, { ...params, ...filters, searchTerm: term || undefined })).map((r) => r.id)),
+    enabled: filtering,
+    // While typing, the last answer stays on screen; after a filter change it would be the wrong list.
+    placeholderData: (previous, last) => (JSON.stringify(last?.queryKey[4]) === JSON.stringify(filters) ? previous : undefined),
   });
-  return term ? q.data : undefined;
+  return filtering ? q.data : undefined;
 };
 
 export function ListSearch({ value, onChange }: { value: string; onChange: (value: string) => void }) {

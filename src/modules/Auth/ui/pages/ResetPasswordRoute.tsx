@@ -10,7 +10,7 @@ import { RootRoute } from "../../../../App";
 import { Button } from "@/components/ui/button";
 import { parseApiError } from "@/Api/httpClient";
 import { useForgotPassword, useResetPassword } from "../../core/api";
-import { defaultSlug, knownSlug } from "../../core/tenant";
+import { defaultSlug, isSlug, knownSlug } from "../../core/tenant";
 import { AuthShell } from "../components/AuthShell";
 import { AuthField } from "../components/AuthField";
 
@@ -58,10 +58,10 @@ function RequestLink() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
   const forgot = useForgotPassword();
-  // the restaurant comes from the link: not asked for, not shown, not changeable here
+  // a known code is simply not asked for (and never shown)
   const known = knownSlug();
   const schema = z.object({
-    tenantSlug: z.string().trim().min(1, t("field_required")),
+    tenantSlug: z.string().trim().min(1, t("field_required")).refine((v) => isSlug(v.toLowerCase()), t("slug_rule")),
     email: z.string().min(1, t("field_required")).email(t("invalid_email")),
   });
   const {
@@ -93,9 +93,7 @@ function RequestLink() {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
           {!known && (
-            <p role="status" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm leading-relaxed text-foreground">
-              {t("signin_need_link")}
-            </p>
+            <AuthField label={t("restaurant_code")} dir="ltr" className="text-start" autoCapitalize="none" placeholder="my-restaurant" error={errors.tenantSlug?.message} {...register("tenantSlug")} />
           )}
           <AuthField
             label={t("email")}
@@ -105,7 +103,7 @@ function RequestLink() {
             error={errors.email?.message}
             {...register("email")}
           />
-          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting || !known}>
+          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="animate-spin" />}
             {t("send_reset_link")}
           </Button>
