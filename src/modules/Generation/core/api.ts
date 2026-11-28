@@ -44,7 +44,7 @@ export interface IJob {
   creationDateTime?: string | null;
 }
 
-export const jobsApi = createCrudApi<IJob>("model-generation-jobs", "model-generation-jobs", { serverSearch: true });
+export const jobsApi = createCrudApi<IJob>("model-generation-jobs", "model-generation-jobs");
 
 export interface IQuota {
   dailyRemaining?: number | null;

@@ -1471,5 +1471,15 @@
   "source_image_text_hint": "The photo sets the shape and the text guides textures and colours. The dish needs a photo.",
   "skip_nophoto": "No photo (needed for this source)",
   "generate_no_photo": "This dish has no photo. Add one or pick another source.",
-  "source_label": "Source: {{s}}"
+  "source_label": "Source: {{s}}",
+  "a11y_prev_page": "Previous page",
+  "search_list": "Search this list",
+  "no_search_results": "Nothing matches",
+  "no_search_results_hint": "Change the search or the status to see more.",
+  "photo_filter": "Photo",
+  "has_photo": "Has a photo",
+  "min_price": "Lowest price",
+  "max_price": "Highest price",
+  "usage_filter": "Usage",
+  "unused_only": "Unused only"
 }

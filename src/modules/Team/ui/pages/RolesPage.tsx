@@ -247,9 +247,6 @@ export default function RolesPage() {
             <EmptyState icon={ShieldCheck} title={t("no_roles")} />
           ) : (
             <ul className="space-y-1.5">
-              {currentId === "new" && (
-                <li className="flex items-center gap-3 rounded-xl border border-dashed border-primary bg-primary/5 p-3 text-sm font-medium text-primary"><Plus className="size-4" />{t("add_role")}</li>
-              )}
               {roles.map((r) => {
                 const active = r.id === currentId;
                 const owner = r.isOwner ?? r.name === "Owner";

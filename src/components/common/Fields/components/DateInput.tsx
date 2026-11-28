@@ -169,6 +169,7 @@ function DatePickerInput(props: FieldPropsInterface) {
           {!selectedDate && props?.placeholder}
         </span>
         <DatePicker
+          preventOpenOnFocus
           popperContainer={DatePickerLayer}
           showFullMonthYearPicker
           // popperClassName=" z-[9999]"

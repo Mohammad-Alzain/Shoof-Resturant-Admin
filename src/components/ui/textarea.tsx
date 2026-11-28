@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useFieldA11yProps } from './field-a11y';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -31,7 +32,8 @@ function Textarea({
   variant,
   ...props
 }: React.ComponentProps<'textarea'> & VariantProps<typeof textareaVariants>) {
-  return <textarea data-slot="textarea" className={cn(textareaVariants({ variant }), className)} {...props} />;
+  const field = useFieldA11yProps();
+  return <textarea data-slot="textarea" className={cn(textareaVariants({ variant }), className)} {...field} {...props} />;
 }
 
 export { Textarea, textareaVariants };

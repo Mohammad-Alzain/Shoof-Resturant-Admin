@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import InputLabel from "./Common/InputLabel";
 import { FieldProps } from "../interfaces/FieldProps";
 import { useTranslation } from "react-i18next";
+import { useFieldA11yProps } from "@/components/ui/field-a11y";
 
 /** The form value is a real boolean (what the API and the zod schemas use); legacy 1 / "on" / "true" read as on. */
 const isOn = (v: unknown) => v === true || v === 1 || v === "on" || v === "true";
@@ -10,6 +11,7 @@ const isOn = (v: unknown) => v === true || v === 1 || v === "on" || v === "true"
 export const SwitchFormField = (props: FieldProps) => {
   const { t } = useTranslation();
   const [checked, setChecked] = useState(isOn(props?.value));
+  const a11y = useFieldA11yProps();
 
   useEffect(() => {
     setChecked(isOn(props?.value));
@@ -19,6 +21,7 @@ export const SwitchFormField = (props: FieldProps) => {
     <div className={props?.className + " flex items-center space-x-4 gap-2 "}>
       <InputLabel className={props?.labelClassName} label={props.label} htmlFor={props?.name} />
       <Switch
+        {...a11y}
         disabled={props?.disabled}
         className="flex direction-reverse"
         id={props?.name}

@@ -8,7 +8,6 @@ import { Add } from "iconsax-react";
 import { FilterDrawer } from "./Filters";
 import { useTranslation } from "react-i18next";
 import { ShowHideColumnsControl } from "../Actions/ShowHideCoulmn/ShowHideCoulmn";
-import SortsMenu from "./Sorts";
 import {
   Tooltip,
   TooltipContent,
@@ -75,7 +74,6 @@ const TableHeaderToolbar = <T extends object>(props: DataTableProps<T>) => {
         )}
 
         {props?.filters && <FilterDrawer {...props} />}
-        {(props?.allowSorts ?? true) && <SortsMenu {...props} />}
         {(props?.columnsShowHideControl === undefined ||
           props?.columnsShowHideControl) &&
           (props?.tableMode === "table" || props?.tableMode === undefined) && (

@@ -33,7 +33,7 @@ export default function JobsPage() {
       belowTitle={<QuotaStrip />}
       columns={[
         {
-          header: "item",
+          header: "item", sortKey: "menuItemName",
           access: "menuItemName",
           Cell: (_c, _v, j: IJob) => (
             <span className="flex min-w-0 items-center gap-3">
@@ -47,7 +47,7 @@ export default function JobsPage() {
           ),
         },
         {
-          header: "status",
+          header: "status", sortKey: "status",
           access: "status",
           Cell: (_c, _v, j: IJob) => (
             <span className="flex flex-col items-start gap-1">
@@ -62,7 +62,7 @@ export default function JobsPage() {
           ),
         },
         {
-          header: "time",
+          header: "time", sortKey: "creationDateTime",
           access: "creationDateTime",
           Cell: (_c, _v, j: IJob) => (
             <span className="flex flex-col whitespace-nowrap text-xs">
@@ -72,7 +72,7 @@ export default function JobsPage() {
           ),
         },
         {
-          header: "batch",
+          header: "batch", sortKey: "batchId",
           access: "batchId",
           Cell: (_c, _v, j: IJob) =>
             j.batchId ? (
@@ -84,7 +84,7 @@ export default function JobsPage() {
             ),
         },
         {
-          header: "error",
+          header: "error", sortKey: "errorMessage",
           access: "errorMessage",
           Cell: (_c, _v, j: IJob) =>
             j.errorMessage ? (

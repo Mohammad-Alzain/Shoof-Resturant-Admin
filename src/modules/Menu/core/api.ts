@@ -23,7 +23,7 @@ export interface ICategoryBody {
   displayOrder: number;
   isActive?: boolean;
 }
-export const categoriesApi = createCrudApi<ICategory, ICategoryBody, ICategoryBody>("menu-categories", "menu-categories", { serverSearch: true });
+export const categoriesApi = createCrudApi<ICategory, ICategoryBody, ICategoryBody>("menu-categories", "menu-categories");
 
 /* ---------------- items ---------------- */
 /** 0 Upload, 1 AI generated, 2 AI variant */
@@ -65,7 +65,7 @@ export interface IItemBody {
   displayOrder: number;
   isActive?: boolean;
 }
-export const itemsApi = createCrudApi<IItem, IItemBody, IItemBody>("menu-items", "menu-items", { serverSearch: true });
+export const itemsApi = createCrudApi<IItem, IItemBody, IItemBody>("menu-items", "menu-items");
 
 /** The primary photo is the one with the lowest display order. */
 export const primaryImage = (item: Pick<IItem, "images">): IItemImage | undefined =>
@@ -95,7 +95,7 @@ export interface IIngredientBody {
   descriptionEn?: string | null;
   descriptionAr?: string | null;
 }
-export const ingredientsApi = createCrudApi<IIngredient, IIngredientBody, IIngredientBody>("ingredients", "ingredients", { serverSearch: true });
+export const ingredientsApi = createCrudApi<IIngredient, IIngredientBody, IIngredientBody>("ingredients", "ingredients");
 
 export interface IItemIngredient {
   id: string;

@@ -88,7 +88,8 @@ const ShowHideColumnsControlComponent = ({
             <DropdownMenuSeparator />
             {columnStates.map(
               ({ header, checked, className }, index) =>
-                index > 1 && (
+                // The first column names the row, so it always stays.
+                index > 0 && header !== "actions" && header !== "action" && (
                   <DropdownMenuCheckboxItem
                     key={index}
                     onClick={(e) => {

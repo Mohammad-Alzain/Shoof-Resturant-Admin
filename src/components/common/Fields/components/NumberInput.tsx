@@ -11,28 +11,31 @@ function NumberInput(props: FieldPropsInterface) {
 
     const sanitizedValue = inputValue.replace(/[^\d.]/g, "");
     // Ensure the value is treated as a number
-    let numericValue = Number(sanitizedValue);
+    let numericValue: number | string = Number(sanitizedValue);
     const max =
       typeof props?.max === "function"
         ? Number(props?.max(props?.getValues()))
         : 10000000;
 
     // Prevent negative values
-    if (numericValue < 0) {
+    if (Number(numericValue) < 0) {
       numericValue = 0;
     }
     if (numericValue === 0) numericValue = 0;
 
     // Prevent value from exceeding max value from props
-    if (numericValue > max) {
+    if (Number(numericValue) > max) {
       numericValue = max;
     }
+
+    // An emptied field stays empty: it must not turn into 0 (a filter would then send 0).
+    if (inputValue === "") numericValue = "";
 
     if (props?.register) {
       const e = { ...event, target: { ...event.target, value: numericValue } };
       props.register(props?.name)?.onChange(e);
     } else {
-      props?.onChange?.(numericValue);
+      props?.onChange?.(numericValue as number);
     }
 
     if (typeof props?.afterChangeFunction === "function") {

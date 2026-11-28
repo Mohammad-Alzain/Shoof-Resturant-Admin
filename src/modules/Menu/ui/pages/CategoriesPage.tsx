@@ -26,6 +26,7 @@ import { getBilingual } from "@/modules/shared/core/lookups";
 import { useRestaurantId, useRestaurants } from "@/modules/shared/core/restaurant";
 import { EmptyState } from "@/modules/shared/ui/parts";
 import { categoriesApi, type ICategory } from "../../core/api";
+import { ListSearch, useListSearch, useMatchingIds } from "@/modules/shared/ui/ListSearch";
 
 
 /** What a sortable item hands its drag handle: the activator ref and the pointer/keyboard listeners. */
@@ -97,7 +98,13 @@ export default function CategoriesPage() {
   };
   const parents = arrange("root", rows.filter((c) => !c.parentCategoryId).sort((a, b) => a.displayOrder - b.displayOrder));
   const kids = (id: string) => arrange(id, rows.filter((c) => c.parentCategoryId === id).sort((a, b) => a.displayOrder - b.displayOrder));
-  const canEdit = can("MenuCategories.Edit");
+  // The server decides what matches; a match inside a category keeps that category on screen.
+  const search = useListSearch();
+  const matches = useMatchingIds("menu-categories", search.term, restaurantId ? { restaurantId } : {});
+  const shownKids = (c: ICategory) => (!matches || matches.has(c.id) ? kids(c.id) : kids(c.id).filter((k) => matches.has(k.id)));
+  const shown = matches ? parents.filter((c) => matches.has(c.id) || kids(c.id).some((k) => matches.has(k.id))) : parents;
+  // No reordering while searching: positions are only meaningful in the full list.
+  const canEdit = can("MenuCategories.Edit") && !search.term;
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const patch = useMutation({
@@ -247,7 +254,7 @@ export default function CategoriesPage() {
    * is one column and the same arrows point up and down.
    */
   const stall = (c: ICategory, i: number, h: Handle) => {
-    const sub = kids(c.id);
+    const sub = shownKids(c);
     const cov = coverage.get(c.id);
     const photos = (cov?.dishes ?? []).slice(0, 3);
     const total = cov?.items ?? counts.data?.get(c.id) ?? 0;
@@ -371,19 +378,23 @@ export default function CategoriesPage() {
         </Can>
       </header>
 
+      <ListSearch value={search.text} onChange={search.setText} />
+
       {cats.isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-64 rounded-2xl" />
           ))}
         </div>
+      ) : parents.length > 0 && shown.length === 0 ? (
+        <EmptyState icon={FolderTree} title={t("no_search_results")} hint={t("no_search_results_hint")} />
       ) : parents.length === 0 ? (
         <EmptyState icon={FolderTree} title={t("no_categories")} hint={t("no_categories_hint")} action={<Can permission="MenuCategories.Add"><Button variant="primary" onClick={() => open()}>{t("add_category")}</Button></Can>} />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDrop("root", parents)}>
-          <SortableContext items={parents.map((p) => p.id)} strategy={rectSortingStrategy}>
+          <SortableContext items={shown.map((p) => p.id)} strategy={rectSortingStrategy}>
             <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {parents.map((p, i) => (
+              {shown.map((p, i) => (
                 <Sortable key={p.id} id={p.id} disabled={!canEdit} className="h-full">
                   {(h) => stall(p, i, h)}
                 </Sortable>

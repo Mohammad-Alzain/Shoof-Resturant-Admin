@@ -75,6 +75,7 @@ function TimePicker(props: FieldPropsInterface) {
           {!selectedTime && props?.placeholder}
         </span>
         <DatePicker
+          preventOpenOnFocus
           popperContainer={DatePickerLayer}
           // popperContainer={CalendarContainer}
           selected={selectedTime}

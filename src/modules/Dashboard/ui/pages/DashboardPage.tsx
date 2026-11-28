@@ -227,7 +227,9 @@ export default function DashboardPage() {
             </p>
             <Meter value={readyShare} label={t("ready_title")} />
             <p className="text-sm text-muted-foreground">
-              {t("ready_counts", { ready: n(ready), total: n(total) })}
+              <Link to={"/dashboard/menu/items" as never} className="rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring">
+                {t("ready_counts", { ready: n(ready), total: n(total) })}
+              </Link>
               {missing > 0 && toNext > 0 && <span className="mt-1 block font-medium text-foreground">{t("souk_ready_next", { n: n(toNext), p: n(nextPct) })}</span>}
             </p>
             <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">

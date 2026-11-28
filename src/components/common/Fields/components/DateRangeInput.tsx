@@ -96,6 +96,7 @@ function DateRangePicker({
         )}
       >
         <DatePicker
+          preventOpenOnFocus
           popperContainer={DatePickerLayer}
           // popperContainer={CalendarContainer}
           selected={startDate}

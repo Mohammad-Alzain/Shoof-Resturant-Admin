@@ -17,20 +17,22 @@ const SearchComponent = ({
   filterSearchParamName,
   placeholder,
   className = "",
-  debounceTime = 500,
+  debounceTime = 300,
   onSearch,
 }: SearchComponentProps) => {
   const { t } = useTranslation();
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const { filters, setCheckedFilters } = useContext(TableFilterContext);
+  // A search that came with the link is shown in the box.
+  const initial = String(filters?.[filterSearchParamName ?? "searchTerm"] ?? "");
+  const [searchTerm, setSearchTerm] = useState<string>(initial);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { setCheckedFilters } = useContext(TableFilterContext);
   const debouncedSearchTerm = useDebounce(searchTerm, debounceTime);
 
   // The term last pushed into the table filters. Starting from "" means the
   // first (empty) value is not pushed: doing so changed the query key and made
   // every list load request the same page twice (RBC-021).
-  const lastPushed = useRef("");
+  const lastPushed = useRef(initial);
 
   useEffect(() => {
     if (debouncedSearchTerm === undefined) return;

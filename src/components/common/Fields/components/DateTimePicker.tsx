@@ -160,6 +160,7 @@ function DateTimePicker(props: FieldPropsInterface) {
           {!selectedDate && props?.placeholder}
         </span>
         <DatePicker
+          preventOpenOnFocus
           // portalId="calendar-portal"
           // appendTo={typeof window !== "undefined" ? document.body : undefined} // 👈 Important
           popperContainer={DatePickerLayer}

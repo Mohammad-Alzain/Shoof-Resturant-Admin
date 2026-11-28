@@ -7,6 +7,7 @@ import { FieldProps } from "../interfaces/FieldProps";
 import InputContainer from "./Common/InputContainer";
 import InputLabel from "./Common/InputLabel";
 import { useFormLang } from "../FormLang";
+import { errorId } from "@/components/ui/field-a11y";
 
 /**
  * Two values of one text (English in `name`, Arabic in `pairName`) behind the console's language flip. Both inputs stay
@@ -32,7 +33,7 @@ function BilingualInput(props: FieldProps & { pairName?: string; multiline?: boo
   const field = (key: string, dir: "ltr" | "rtl", active: boolean) => {
     const reg = props.register?.(key);
     const invalid = key === name ? !!errEn : !!errAr;
-    const common = { id: key, ...reg, dir, "aria-invalid": invalid || undefined, disabled: props.disabled, placeholder: props.placeholder, className: dir === "rtl" ? "text-right" : "" };
+    const common = { id: key, ...reg, dir, "aria-invalid": invalid || undefined, "aria-describedby": invalid ? errorId(key) : undefined, disabled: props.disabled, placeholder: props.placeholder, className: dir === "rtl" ? "text-right" : "" };
     return (
       <div key={key} className={cn(!active && "hidden")}>
         {multiline ? <Textarea rows={rows} {...common} /> : <Input {...common} className={cn("h-[42px] text-base", common.className)} />}
@@ -53,7 +54,7 @@ function BilingualInput(props: FieldProps & { pairName?: string; multiline?: boo
       {field(name, "ltr", lang === "en")}
       {field(pairName, "rtl", lang === "ar")}
       {lang === "ar" && errAr?.message && (
-        <p role="alert" className="mt-1 text-xs text-destructive">
+        <p id={errorId(pairName)} role="alert" className="mt-1 text-xs text-destructive">
           {String(errAr.message)}
         </p>
       )}

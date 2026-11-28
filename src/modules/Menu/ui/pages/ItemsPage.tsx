@@ -16,6 +16,7 @@ import { formatPrice, getBilingual, useCurrencies } from "@/modules/shared/core/
 import { categoryPicker } from "@/modules/shared/core/pickers";
 import { useCurrentRestaurant } from "@/modules/shared/core/restaurant";
 import { itemsApi, primaryImage, type IItem } from "../../core/api";
+import { setQueryParams } from "@/helpers/query";
 type View = "gallery" | "table";
 const VIEW_KEY = "shoof.items.view";
 const readView = (): View => {
@@ -58,7 +59,11 @@ export default function ItemsPage() {
   const currencies = useCurrencies();
   const { restaurant } = useCurrentRestaurant();
   const plateWantsMissing = useRouterState({ select: (s) => Boolean((s.location.search as { withoutModelOnly?: boolean }).withoutModelOnly) });
-  const [onlyNoModel, setOnlyNoModel] = useState(plateWantsMissing);
+  const [onlyNoModel, setMissing] = useState(plateWantsMissing);
+  const setOnlyNoModel = (on: boolean) => {
+    setQueryParams({ withoutModelOnly: on ? "true" : null, page: null });
+    setMissing(on);
+  };
   // opened from a plate on the dashboard: start filtered to that category
   const fromPlate = useRouterState({ select: (s) => (s.location.search as { menuCategoryId?: string }).menuCategoryId });
 
@@ -169,7 +174,7 @@ export default function ItemsPage() {
       }
       columns={[
         {
-          header: "item",
+          header: "item", sortKey: "name",
           access: "name",
           Cell: (_c, _v, i: IItem) => {
             const img = primaryImage(i);
@@ -190,7 +195,7 @@ export default function ItemsPage() {
             );
           },
         },
-        { header: "price", access: "price", Cell: (_c, _v, i: IItem) => <span dir="ltr" className="font-semibold tabular-nums">{formatPrice(i.price, curOf.get(i.currencyId), i18n.language)}</span> },
+        { header: "price", sortKey: "price", access: "price", Cell: (_c, _v, i: IItem) => <span dir="ltr" className="font-semibold tabular-nums">{formatPrice(i.price, curOf.get(i.currencyId), i18n.language)}</span> },
         {
           header: "model_3d",
           access: "id",
@@ -202,9 +207,23 @@ export default function ItemsPage() {
               <Badge variant="secondary" appearance="light" size="md">{t("no_model")}</Badge>
             ),
         },
-        { header: "status", access: "isActive", Cell: (_c, _v, i: IItem) => <Switch checked={i.isActive} disabled={!can("MenuItems.Edit")} aria-label={t("active")} onCheckedChange={(on) => toggle(i, on)} /> },
+        { header: "status", sortKey: "isActive", access: "isActive", Cell: (_c, _v, i: IItem) => <Switch checked={i.isActive} disabled={!can("MenuItems.Edit")} aria-label={t("active")} onCheckedChange={(on) => toggle(i, on)} /> },
       ]}
-      filters={[{ ...categoryPicker({ label: t("category") }) }, activeFilter(t)]}
+      filters={[
+        { ...categoryPicker({ label: t("category") }) },
+        activeFilter(t),
+        {
+          name: "hasPhoto",
+          control: FieldTypes.select,
+          label: t("photo_filter"),
+          options: [
+            { value: true, label: t("has_photo") },
+            { value: false, label: t("souk_no_photo") },
+          ],
+        },
+        { name: "minPrice", control: FieldTypes.number, label: t("min_price") },
+        { name: "maxPrice", control: FieldTypes.number, label: t("max_price") },
+      ]}
       schema={() =>
         z.object({
           menuCategoryId: z.string({ message: t("field_required") }).min(1, t("field_required")),

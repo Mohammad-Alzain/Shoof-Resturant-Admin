@@ -100,7 +100,7 @@ export function ResourcePage<T extends { id: string | number }>(props: ResourceP
           columns={props.columns}
           allowSearch
           filterSearchParamName="searchTerm"
-          allowSorts={false}
+          syncUrl
           allowCreate={() => props.canCreate !== false && can("Add")}
           tableMode={props.renderCard ? "cards" : undefined}
           renderCard={props.renderCard as never}

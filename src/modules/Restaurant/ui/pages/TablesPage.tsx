@@ -21,6 +21,8 @@ import { useCurrentRestaurant } from "@/modules/shared/core/restaurant";
 import { EmptyState } from "@/modules/shared/ui/parts";
 import { CardShell } from "@/components/common/ResourceCards";
 import { generateQr, tablesApi, type IQr, type ITable } from "../../core/api";
+import { ListSearch, useListSearch, useMatchingIds } from "@/modules/shared/ui/ListSearch";
+import { queryParam, setQueryParams } from "@/helpers/query";
 
 const download = async (url: string, name: string) => {
   try {
@@ -69,6 +71,8 @@ function MenuLink({ url, compact }: { url: string; compact?: boolean }) {
   );
 }
 
+const STATUSES = ["", "active", "inactive"] as const;
+
 /** Tables, each with its QR code; the general QR (no table) opens the whole menu. QR codes cannot be edited or deleted. */
 export default function TablesPage() {
   const { t } = useTranslation();
@@ -78,6 +82,13 @@ export default function TablesPage() {
   const tables = useQuery({ queryKey: ["tables", "all", rid], queryFn: () => fetchAll<ITable>("tables", rid ? { restaurantId: rid } : {}) });
   const qrs = useQuery({ queryKey: ["qr-codes", "all", rid], queryFn: () => fetchAll<IQr>("qr-codes", rid ? { restaurantId: rid } : {}) });
   const [busy, setBusy] = useState<string>("");
+  const search = useListSearch();
+  const matches = useMatchingIds("tables", search.term, rid ? { restaurantId: rid } : {});
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>(() => STATUSES.find((s) => s === queryParam("status")) ?? "");
+  const pickStatus = (next: (typeof STATUSES)[number]) => {
+    setQueryParams({ status: next });
+    setStatus(next);
+  };
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["tables"] });
     qc.invalidateQueries({ queryKey: ["qr-codes"] });
@@ -122,7 +133,16 @@ export default function TablesPage() {
     await tablesApi.remove(tb.id);
     refresh();
   };
-  const toggle = (tb: ITable, on: boolean) => tablesApi.update({ id: tb.id, body: { label: tb.label, isActive: on } }).then(refresh);
+  // The switch and its label answer at once, from the same value; a failed save puts both back.
+  const toggle = useMutation({
+    mutationFn: ({ tb, on }: { tb: ITable; on: boolean }) => tablesApi.update({ id: tb.id, body: { label: tb.label, isActive: on } }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["tables"] });
+      await qc.invalidateQueries({ queryKey: ["qr-codes"] });
+    },
+  });
+  const isOn = (tb: ITable) => (toggle.isPending && toggle.variables?.tb.id === tb.id ? toggle.variables.on : tb.isActive);
+  const shown = (tables.data ?? []).filter((tb) => (!matches || matches.has(tb.id)) && (!status || isOn(tb) === (status === "active")));
 
   const allQr = [...(general?.imageUrl ? [{ label: t("general_qr"), image: general.imageUrl }] : []), ...(tables.data ?? []).flatMap((tb) => (qrOf.get(tb.id)?.imageUrl ? [{ label: tb.label, image: qrOf.get(tb.id)!.imageUrl as string }] : []))];
 
@@ -169,16 +189,36 @@ export default function TablesPage() {
         )}
       </div>
 
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ListSearch value={search.text} onChange={search.setText} />
+        <div role="radiogroup" aria-label={t("status")} className="inline-flex rounded-full border border-border bg-muted/60 p-0.5">
+          {STATUSES.map((s) => (
+            <button
+              key={s || "all"}
+              type="button"
+              role="radio"
+              aria-checked={status === s}
+              onClick={() => pickStatus(s)}
+              className={cn("rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", status === s ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+            >
+              {t(s || "all")}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {tables.isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-60 rounded-2xl" />)}</div>
       ) : (tables.data ?? []).length === 0 ? (
         <EmptyState icon={Table2} title={t("no_tables")} hint={t("no_tables_hint")} />
+      ) : shown.length === 0 ? (
+        <EmptyState icon={Table2} title={t("no_search_results")} hint={t("no_search_results_hint")} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {(tables.data ?? []).map((tb, i) => {
+          {shown.map((tb, i) => {
             const qr = qrOf.get(tb.id);
             return (
-              <CardShell key={tb.id} index={i} active={tb.isActive}
+              <CardShell key={tb.id} index={i} active={isOn(tb)}
                 actions={<><Can permission="Tables.Edit"><Button type="button" variant="ghost" size="icon" aria-label={t("edit")} onClick={() => rename(tb)}><Pencil className="size-4" /></Button></Can><Can permission="Tables.Delete"><Button type="button" variant="ghost" size="icon" aria-label={t("delete")} onClick={() => remove(tb)} className="hover:text-destructive"><Trash2 className="size-4" /></Button></Can></>}>
                 <div className="flex flex-1 flex-col items-center gap-3 p-5">
                   {qr?.imageUrl && isSafeUrl(qr.imageUrl) ? <img src={qr.imageUrl} alt={tb.label} className="size-36 rounded-xl border border-border bg-white p-1.5" /> : <span className="grid size-36 place-items-center rounded-xl border border-dashed border-border text-muted-foreground"><QrCode className="size-9" /></span>}
@@ -187,7 +227,7 @@ export default function TablesPage() {
                   {qr?.targetUrl && <MenuLink url={qr.targetUrl} compact />}
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
-                  <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={tb.isActive} disabled={!can("Tables.Edit")} onCheckedChange={(on) => toggle(tb, on)} aria-label={t("active")} />{t("active")}</label>
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={isOn(tb)} disabled={!can("Tables.Edit") || toggle.isPending} onCheckedChange={(on) => toggle.mutate({ tb, on })} aria-label={t("active")} />{isOn(tb) ? t("active") : t("inactive")}</label>
                   {qr?.imageUrl ? (
                     <span className="flex gap-1">
                       <Button type="button" variant="ghost" size="icon" aria-label={t("download")} onClick={() => download(qr.imageUrl!, tb.label)}><Download className="size-4" /></Button>

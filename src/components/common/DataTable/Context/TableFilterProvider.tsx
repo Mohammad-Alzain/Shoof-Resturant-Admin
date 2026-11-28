@@ -9,6 +9,7 @@ import { INDEX_pageSize_DEFAULT } from "../Constant";
 import { useDataTableOfflineSetting } from "../Hooks/useDataTableOfflineSetting";
 import { BaseApiResponseEnumKeys } from "@/Api/types";
 import { getNestedValue } from "@/helpers/objects";
+import { readUrlState, writeUrlState } from "./urlState";
 
 type TableFilterContextType = {
   filters: any;
@@ -48,10 +49,22 @@ function TableFilterProvider<T extends object>({
   children: React.ReactNode;
   props: DataTableProps<T>;
 }) {
-  const [filters, setCheckedFilters] = useState({
-    [BaseApiResponseEnumKeys.page]: 1,
-    [BaseApiResponseEnumKeys.per_page]: INDEX_pageSize_DEFAULT,
-  });
+  // With `syncUrl` the view starts from the link, and every change is written back to it.
+  const [filters, setCheckedFilters] = useState<any>(() =>
+    props?.syncUrl
+      ? readUrlState(window.location.search, props.filters, props.filterSearchParamName)
+      : {
+          [BaseApiResponseEnumKeys.page]: 1,
+          [BaseApiResponseEnumKeys.per_page]: INDEX_pageSize_DEFAULT,
+        },
+  );
+  useEffect(() => {
+    if (!props?.syncUrl) return;
+    const { pathname, search, hash } = window.location;
+    const next = writeUrlState(search, filters, props.filters, props.filterSearchParamName);
+    if (next !== search) window.history.replaceState(window.history.state, "", `${pathname}${next}${hash}`);
+    // `props.filters` is rebuilt on every render of the page; the view changes only with `filters`.
+  }, [filters]);
   const [checkedRows, setCheckedRows] = useState<any[]>(
     props?.checkedRows ?? []
   );
@@ -74,6 +87,8 @@ function TableFilterProvider<T extends object>({
         isFetching: isFetching,
         data,
         columns: props?.columns,
+        page: Number(filters[BaseApiResponseEnumKeys.page]) || 1,
+        pageSize: Number(filters[BaseApiResponseEnumKeys.per_page]) || INDEX_pageSize_DEFAULT,
       })
     : useDataTableOfflineSetting({
         isLoading: false,

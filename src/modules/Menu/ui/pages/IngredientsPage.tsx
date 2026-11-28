@@ -50,10 +50,11 @@ export default function IngredientsPage() {
       title="ingredients"
       api={ingredientsApi}
       deleteLabel="name"
+      filters={[{ name: "unusedOnly", control: FieldTypes.select, label: t("usage_filter"), options: [{ value: true, label: t("unused_only") }] }]}
       canEdit={() => false}
       columns={[
-        { header: "name", access: "name", Cell: (_c, _v, i: IIngredient) => <span className="font-medium text-foreground">{i.name}</span> },
-        { header: "description", access: "description", Cell: (_c, _v, i: IIngredient) => <span className="block max-w-[28rem] truncate text-muted-foreground" title={i.description ?? ""}>{i.description || "—"}</span> },
+        { header: "name", sortKey: "name", access: "name", Cell: (_c, _v, i: IIngredient) => <span className="font-medium text-foreground">{i.name}</span> },
+        { header: "description", sortKey: "description", access: "description", Cell: (_c, _v, i: IIngredient) => <span className="block max-w-[28rem] truncate text-muted-foreground" title={i.description ?? ""}>{i.description || "—"}</span> },
       ]}
       schema={() => schema(t)}
       initialState={() => ({ nameEn: "", nameAr: "", descriptionEn: "", descriptionAr: "" })}

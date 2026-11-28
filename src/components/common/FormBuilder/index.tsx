@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import { useTranslation } from "react-i18next";
 import { FormErrorMessage } from "./FormErrorMsg";
+import { errorId, FieldA11yContext } from "@/components/ui/field-a11y";
 import clsx from "clsx";
 import { getDirection } from "@/Translation/i18n";
 import { toast } from "sonner";
@@ -179,31 +180,36 @@ function Form(props: IFormBuilder<any>) {
                 className={clsx(item?.className, "flex flex-col gap-0 mb-2")}
                 key={key}
               >
-                <Controller
-                  control={control}
-                  name={item?.name}
-                  render={({ field: { onChange, value } }) => {
-                    return (
-                      <FormField
-                        {...item}
-                        setSubmitDisabled={setIsDisabled}
-                        errors={errors}
-                        controlField={control}
-                        getFieldState={getFieldState}
-                        onChange={onChange}
-                        value={value}
-                        getValues={getValues}
-                        register={register}
-                        watch={watch}
-                        setValue={form.setValue}
-                      />
-                    );
-                  }}
-                />
+                <FieldA11yContext.Provider
+                  value={{ invalid: Boolean(errors[item?.name] || apiErrors[item?.name]), describedBy: errorId(item?.name) }}
+                >
+                  <Controller
+                    control={control}
+                    name={item?.name}
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <FormField
+                          {...item}
+                          setSubmitDisabled={setIsDisabled}
+                          errors={errors}
+                          controlField={control}
+                          getFieldState={getFieldState}
+                          onChange={onChange}
+                          value={value}
+                          getValues={getValues}
+                          register={register}
+                          watch={watch}
+                          setValue={form.setValue}
+                        />
+                      );
+                    }}
+                  />
+                </FieldA11yContext.Provider>
 
-                <FormErrorMessage error={errors[item?.name]} />
+                <FormErrorMessage id={errorId(item?.name)} error={errors[item?.name]} />
                 {item?.name && apiErrors[item?.name] && (
                   <FormErrorMessage
+                    id={errors[item?.name] ? undefined : errorId(item?.name)}
                     error={{ message: apiErrors[item?.name] }}
                   />
                 )}

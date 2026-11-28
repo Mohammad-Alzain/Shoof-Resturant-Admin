@@ -7,8 +7,10 @@ import "react-phone-input-2/lib/high-res.css";
 import { FieldProps } from "../interfaces/FieldProps";
 import "./styles/phoneNumberInput/index.css";
 import { getDirection } from "@/Translation/i18n";
+import { useFieldA11yProps } from "@/components/ui/field-a11y";
 function PhoneFieldInput(props: FieldProps) {
   const [value, setValue] = useState("");
+  const a11y = useFieldA11yProps();
 
   const handleChange = (event: any) => {
     const inputValue = event;
@@ -36,6 +38,7 @@ function PhoneFieldInput(props: FieldProps) {
       <PhoneInput
         disabled={props?.disabled}
         value={value}
+        inputProps={{ name: props?.name, ...a11y }}
         containerClass={`d`}
         onChange={handleChange}
         disableSearchIcon

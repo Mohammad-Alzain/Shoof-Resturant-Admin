@@ -54,7 +54,7 @@ export default function UsersPage() {
       deleteLabel="fullName"
       columns={[
         {
-          header: "name",
+          header: "name", sortKey: "fullName",
           access: "fullName",
           Cell: (_c, _v, u: IAdminUser) => (
             <span className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export default function UsersPage() {
             </span>
           ),
         },
-        { header: "phone", access: "phoneNumber", Cell: (_c, _v, u: IAdminUser) => <span dir="ltr" className="tabular-nums">{u.phoneNumber || "—"}</span> },
+        { header: "phone", sortKey: "phoneNumber", access: "phoneNumber", Cell: (_c, _v, u: IAdminUser) => <span dir="ltr" className="tabular-nums">{u.phoneNumber || "—"}</span> },
         {
           header: "roles",
           access: "roles",
@@ -79,9 +79,12 @@ export default function UsersPage() {
             </span>
           ),
         },
-        { header: "status", access: "isActive", Cell: (_c, _v, u: IAdminUser) => <Badge variant={u.isActive ? "success" : "secondary"} appearance="light" size="md">{u.isActive ? t("active") : t("inactive")}</Badge> },
+        { header: "status", sortKey: "isActive", access: "isActive", Cell: (_c, _v, u: IAdminUser) => <Badge variant={u.isActive ? "success" : "secondary"} appearance="light" size="md">{u.isActive ? t("active") : t("inactive")}</Badge> },
       ]}
-      filters={[activeFilter(t)]}
+      filters={[
+        activeFilter(t),
+        { name: "roleId", control: FieldTypes.select, label: t("role"), options: (roles.data ?? []).map((r) => ({ value: r.id, label: r.name })) },
+      ]}
       // The primary admin can't be deleted; only an Owner can delete, deactivate or demote an Owner (Release 2).
       canDelete={(u) => !u.isPrimary && (iAmOwner || !isOwnerUser(u))}
       canEdit={(u) => iAmOwner || !isOwnerUser(u)}

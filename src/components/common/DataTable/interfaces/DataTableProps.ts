@@ -39,6 +39,7 @@ export interface Columns {
   Cell?: (cell: any, item: any, row: any) => JSX.Element;
   enableSort?: boolean;
   show?: boolean;
+  /** The API's `sortBy` key: only columns that name one are sortable. */
   sortKey?: string;
 }
 
@@ -46,10 +47,6 @@ export interface StatusField extends FieldProps {
   valueAccessor?: string;
   rowAccessor?: string;
   show?: boolean;
-}
-export interface Sort {
-  value: string | number;
-  label: string;
 }
 export interface Filter extends FieldProps {
   // type: "Field" | "Sort" | "Select";
@@ -97,14 +94,13 @@ export interface DataTableProps<T extends object> {
   secondaryActions?: (row: any) => ReactNode;
   checkedRows?: any[];
   setCheckedRows?: any;
-  //sorts
-  allowSorts?: boolean;
-  sorts?: Sort[];
-
   //filters
   allowFilters?: boolean;
   filters?: Filter[];
   filterSearchParamName?: string;
+
+  /** Keep search, sort, page and filters in the query string (one such table per page). */
+  syncUrl?: boolean;
 
   columnsShowHideControl?: boolean;
   allowReorder?: boolean;

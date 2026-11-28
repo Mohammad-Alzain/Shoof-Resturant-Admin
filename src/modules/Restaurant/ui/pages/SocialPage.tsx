@@ -14,6 +14,7 @@ import { fetchAll } from "@/modules/shared/core/lookups";
 import { useRestaurantId } from "@/modules/shared/core/restaurant";
 import { EmptyState } from "@/modules/shared/ui/parts";
 import { PLATFORMS, socialApi, type ISocialLink } from "../../core/api";
+import { ListSearch, useListSearch, useMatchingIds } from "@/modules/shared/ui/ListSearch";
 
 const TONE: Record<string, string> = {
   Facebook: "#1877F2", Instagram: "#C13584", Twitter: "#111111", TikTok: "#111111", WhatsApp: "#25D366", YouTube: "#FF0000", Snapchat: "#E6B800",
@@ -26,6 +27,9 @@ export default function SocialPage() {
   const restaurantId = useRestaurantId();
   const q = useQuery({ queryKey: ["restaurant-social-links", restaurantId], queryFn: () => fetchAll<ISocialLink>("restaurant-social-links", restaurantId ? { restaurantId } : {}) });
   const refresh = () => qc.invalidateQueries({ queryKey: ["restaurant-social-links"] });
+  const search = useListSearch();
+  const matches = useMatchingIds("restaurant-social-links", search.term, restaurantId ? { restaurantId } : {});
+  const shown = (q.data ?? []).filter((l) => !matches || matches.has(l.id));
   const used = new Set((q.data ?? []).map((l) => l.platform));
   const free = PLATFORMS.map((p, i) => ({ value: i, label: p })).filter((o) => !used.has(o.value));
   const urlRule = z.string().trim().url(t("invalid_url")).max(500).refine((v) => /^https?:\/\//i.test(v), t("invalid_url"));
@@ -73,13 +77,16 @@ export default function SocialPage() {
           </Button>
         </Can>
       </header>
+      <ListSearch value={search.text} onChange={search.setText} />
       {q.isLoading ? (
         <Skeleton className="h-40 rounded-2xl" />
+      ) : (q.data ?? []).length > 0 && shown.length === 0 ? (
+        <EmptyState icon={Share2} title={t("no_search_results")} hint={t("no_search_results_hint")} />
       ) : (q.data ?? []).length === 0 ? (
         <EmptyState icon={Share2} title={t("no_social")} hint={t("no_social_hint")} />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {(q.data ?? []).map((l) => {
+          {shown.map((l) => {
             const name = PLATFORMS[l.platform] ?? "—";
             return (
               <li key={l.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">

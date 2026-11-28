@@ -1,10 +1,6 @@
-import {
-  INDEX_pageSize_DEFAULT,
-  INDEX_pageSize_OPTIONS,
-  PAGE_NUMBER,
-} from "../Constant/index";
+import { INDEX_pageSize_OPTIONS } from "../Constant/index";
 import { useEffect, useMemo, useState } from "react";
-import { Columns, DataParams, Pagination } from "../interfaces/DataTableProps";
+import { Columns, DataParams } from "../interfaces/DataTableProps";
 import { UseQueryResult } from "@tanstack/react-query";
 import {
   BaseApiResponseEnumKeys,
@@ -40,11 +36,10 @@ export function useDataTableSetting(props: {
   isFetching: any;
   data: any;
   columns: Columns[];
+  /** The page being shown and its size: the table's filters are the single source of both. */
+  page: number;
+  pageSize: number;
 }): TableSettingType {
-  const [pagination, setPagination] = useState<Pagination>({
-    [BaseApiResponseEnumKeys.page]: PAGE_NUMBER,
-    [BaseApiResponseEnumKeys.per_page]: INDEX_pageSize_DEFAULT,
-  });
   const [stickyData, setStickyData] = useState(props.data);
 
   const [showedColumns, setShowedColumns] = useState<any>(
@@ -61,7 +56,7 @@ export function useDataTableSetting(props: {
   };
   useEffect(() => {
     setStickyData(props.data);
-  }, [props.data, pagination]);
+  }, [props.data]);
 
   const paginationSettings = useMemo(() => {
     const rawData = props.data ?? stickyData;
@@ -84,10 +79,10 @@ export function useDataTableSetting(props: {
 
     return {
       total: resolvedTotal,
-      pageSize: pagination[BaseApiResponseEnumKeys.per_page],
+      pageSize: props.pageSize,
       showSizeChanger: "true",
       pageSizeOptions: INDEX_pageSize_OPTIONS,
-      current: pagination[BaseApiResponseEnumKeys.page],
+      current: props.page,
       lastPage: resolvedLastPage,
       pages: spliceArrayAroundItem(
         Array.from(
@@ -96,34 +91,14 @@ export function useDataTableSetting(props: {
           },
           (_, index) => index + 1
         ),
-        pagination[BaseApiResponseEnumKeys.page],
+        props.page,
         3
       ),
-      onShowSizeChange: async (pageSize: number) => {
-        const updatedParams: any = { ...pagination };
-        updatedParams[BaseApiResponseEnumKeys.per_page] = pageSize;
-        updatedParams[BaseApiResponseEnumKeys.page] = 1;
-        setPagination((prev) => ({
-          ...prev,
-          [BaseApiResponseEnumKeys.per_page]: pageSize,
-          [BaseApiResponseEnumKeys.page]: 1,
-        }));
-
-        return updatedParams;
-      },
-      onChange: async (page: number) => {
-        const updatedParams: any = { ...pagination };
-        updatedParams[BaseApiResponseEnumKeys.page] = page;
-
-        setPagination((prev) => ({
-          ...prev,
-          [BaseApiResponseEnumKeys.page]: page,
-        }));
-
-        return updatedParams;
-      },
+      // The pager writes the filters; nothing else to keep in step here.
+      onShowSizeChange: async () => undefined,
+      onChange: async () => undefined,
     };
-  }, [pagination, props.data, stickyData]);
+  }, [props.page, props.pageSize, props.data, stickyData]);
   return {
     paginationSettings,
     onShowHideChange,

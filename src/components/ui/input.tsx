@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useFieldA11yProps } from "./field-a11y";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -121,11 +122,13 @@ function Input({
   variant,
   ...props
 }: React.ComponentProps<"input"> & VariantProps<typeof inputVariants>) {
+  const field = useFieldA11yProps();
   return (
     <input
       data-slot="input"
       type={type}
       className={cn(inputVariants({ variant }), className)}
+      {...field}
       {...props}
     />
   );

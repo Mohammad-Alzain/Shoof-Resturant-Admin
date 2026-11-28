@@ -1,5 +1,6 @@
 "use client";
 
+import { useFieldA11yProps } from "@/components/ui/field-a11y";
 import InputLabel from "./Common/InputLabel";
 import InputContainer from "./Common/InputContainer";
 import "./styles/selectStyle/index.css";
@@ -42,6 +43,7 @@ const getOrCreateOption = (
 };
 
 function ASyncSelect(props: FieldPropsInterface) {
+  const a11y = useFieldA11yProps();
   const [options, setOptions] = useState<any[]>(props?.options || []);
   const [state, setState] = useState<any>(props.isMulti ? [] : null);
   const object: Record<string, string | number | any | null | undefined> = {};
@@ -253,6 +255,16 @@ function ASyncSelect(props: FieldPropsInterface) {
   // Selected options are hidden from the menu of a multi select, so it can
   // shrink until it no longer scrolls: keep fetching while few are visible.
   const MIN_VISIBLE_OPTIONS = 10;
+  // A value that arrived without its name (from a link) shows as its id until the page holding it is loaded.
+  const isUnnamed = (opt: any) => opt && String(opt.label) === String(opt.value);
+  const unnamed = (Array.isArray(state) ? state : state ? [state] : []).some(isUnnamed);
+  useEffect(() => {
+    if (!unnamed) return;
+    const named = (opt: any) => (isUnnamed(opt) ? (options.find((o) => o.value === opt.value && !isUnnamed(o)) ?? opt) : opt);
+    const next = Array.isArray(state) ? state.map(named) : named(state);
+    const changed = Array.isArray(state) ? next.some((o: any, i: number) => o !== state[i]) : next !== state;
+    if (changed) setState(next);
+  }, [options, unnamed]);
   const selectedValues = new Set(
     (Array.isArray(state) ? state : state ? [state] : []).map(
       (opt: any) => opt?.value,
@@ -267,11 +279,11 @@ function ASyncSelect(props: FieldPropsInterface) {
       hasMore &&
       !isFetching &&
       loadedPage === page &&
-      visibleCount < MIN_VISIBLE_OPTIONS
+      (visibleCount < MIN_VISIBLE_OPTIONS || (unnamed && page < 20))
     ) {
       setPage((current) => current + 1);
     }
-  }, [props?.query, hasMore, isFetching, loadedPage, page, visibleCount]);
+  }, [props?.query, hasMore, isFetching, loadedPage, page, visibleCount, unnamed]);
 
   // Effect to update options from query results or static props
   useEffect(() => {
@@ -388,6 +400,8 @@ function ASyncSelect(props: FieldPropsInterface) {
       />
       <div className="w-full overflow-visible px-1">
         <Select
+          aria-invalid={a11y["aria-invalid"]}
+          aria-errormessage={a11y["aria-describedby"]}
           inputId={props?.name}
           aria-label={props?.label ? undefined : (props?.placeholder ?? props?.name)}
           menuPortalTarget={typeof document !== "undefined" ? document.body : null}

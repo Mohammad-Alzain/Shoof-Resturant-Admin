@@ -1,3 +1,4 @@
+import { useFieldA11yProps } from "@/components/ui/field-a11y";
 import { FieldProps } from "../interfaces/FieldProps";
 import InputLabel from "./Common/InputLabel";
 import InputContainer from "./Common/InputContainer";
@@ -9,6 +10,7 @@ import i18next from "@/Translation/i18n";
 import { ConvertArrayToOptions } from "@/helpers/arrays";
 
 function SelectInput(props: FieldProps) {
+  const a11y = useFieldA11yProps();
   const selectLabelAttributeName = props?.selectLabelAttributeName ?? "label";
   const selectValueAttributeName = props?.selectValueAttributeName ?? "value";
   const setValue = props?.setValue;
@@ -155,6 +157,8 @@ function SelectInput(props: FieldProps) {
 
       <div className=" overflow-visible px-1">
         <Select
+          aria-invalid={a11y["aria-invalid"]}
+          aria-errormessage={a11y["aria-describedby"]}
           inputId={props?.name}
           aria-label={props?.label ? undefined : (props?.placeholder ?? props?.name)}
           menuShouldBlockScroll={false}
